@@ -112,10 +112,10 @@ theorem delivery_voteForward_released_of (hv : rho.ExecutionValid) {v : V}
     · push Not at hh
       obtain ⟨q, hq, hnot⟩ := hh
       have hhead := (hav q hq).resolve_left hnot
-      have hsign := delivery_outbox_vote_signer S rho hn hv hv' i o q.2
+      obtain ⟨hsign, hk⟩ := delivery_outbox_vote_member S rho hn hv hv' i o q.2
         (List.mem_of_mem_head? (Option.mem_def.mpr (hshape ▸ hhead)))
       apply dutyStep_poll_voteForward_of_own_vote S rho hn v nd t.toNat
-        (poll_selected S rho hv v) hself q.2 hsign (by rw [hpre]; exact hhead)
+        (poll_selected S rho hv v) hself q.2 hsign hk (by rw [hpre]; exact hhead)
       intro r hr
       rcases hav r hr with h | h
       · exact Or.inr h

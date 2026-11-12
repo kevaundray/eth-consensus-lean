@@ -226,15 +226,21 @@ private theorem duty_vote_stamp (v : V)
   | poll n =>
     obtain ⟨q, hq, ht, -⟩ := poll_candidate_vote_stamp S rho hn v nd n ho
     exact ht.symm.trans (hs.2 q hq)
-  | act s k => exact k.elim
+  | act s k =>
+    obtain ⟨_, _, hm, _⟩ := rho.mem_signedCandidate.mp ho
+    exact absurd hm List.not_mem_nil
   | propose s hpos =>
     obtain ⟨body, cs, _, _, _, he⟩ := rho.mem_signedCandidate.mp ho
-    have ha := congrArg Model.Obj.auth he
-    cases ha
+    injection he with hauth hmsg _
+    subst hmsg
+    have hh : (ShapeRole.poll : ShapeRole S.vote.Kind) = .proposer s := by
+      injection hauth with _ h
+      exact h.trans (propose_candidateRole_of_not_vote S s hpos fun _ h => by cases h)
+    cases hh
   | pollPropose n =>
     have hempty : ((Model.protoOf (compiled (goldilocksWith S)) E).act nd.st (.pollPropose n)).2 =
         [] := by
-      simp only [Model.protoOf, compiled, compile, goldilocks, goldilocksWith,
+      simp only [Model.protoOf, compiled, compile, goldilocksWith,
         dite_eq_left hn, goldilocksShape]
       rfl
     obtain ⟨body, cs, hm, _, _⟩ := rho.mem_signedCandidate.mp ho
@@ -256,15 +262,21 @@ private theorem duty_vote_pool (v : V)
   | poll n =>
     obtain ⟨q, hq, -, hqm⟩ := poll_candidate_vote_stamp S rho hn v nd n ho
     exact hqm ▸ hp q hq
-  | act s k => exact k.elim
+  | act s k =>
+    obtain ⟨_, _, hm, _⟩ := rho.mem_signedCandidate.mp ho
+    exact absurd hm List.not_mem_nil
   | propose s hpos =>
     obtain ⟨body, cs, _, _, _, he⟩ := rho.mem_signedCandidate.mp ho
-    have ha := congrArg Model.Obj.auth he
-    cases ha
+    injection he with hauth hmsg _
+    subst hmsg
+    have hh : (ShapeRole.poll : ShapeRole S.vote.Kind) = .proposer s := by
+      injection hauth with _ h
+      exact h.trans (propose_candidateRole_of_not_vote S s hpos fun _ h => by cases h)
+    cases hh
   | pollPropose n =>
     have hempty : ((Model.protoOf (compiled (goldilocksWith S)) E).act nd.st (.pollPropose n)).2 =
         [] := by
-      simp only [Model.protoOf, compiled, compile, goldilocks, goldilocksWith,
+      simp only [Model.protoOf, compiled, compile, goldilocksWith,
         dite_eq_left hn, goldilocksShape]
       rfl
     obtain ⟨body, cs, hm, _, _⟩ := rho.mem_signedCandidate.mp ho
@@ -443,11 +455,11 @@ theorem dutyStep_poll_voteForward_of_prefix (v : V)
     (hself : (shapeOf S hn nd).self = rho.ownKey v)
     (hheld : ∀ tv ∈ (shapeOf S hn nd).voteForwards,
       voteObj tv.2 ∈ Model.closure
-        (Model.releaseAll (Model.protoOf (compiled (goldilocks S)) E) rho.hash (rho.ownKey v)
-          ⟨((Model.protoOf (compiled (goldilocks S)) E).act nd.st (.poll t)).1, nd.seen⟩
-          (((poll (shapeOf S hn nd) t).2.toList.map fun q =>
-            Model.Obj.mk (.signed (rho.ownKey v) .poll) (.data q.1) q.2) ++
-            pendingWrappers (shapeOf S hn nd))).1.seen) :
+        (Model.releaseAll (Model.protoOf (compiled (goldilocksWith S)) E) rho.hash (rho.ownKey v)
+          ⟨((Model.protoOf (compiled (goldilocksWith S)) E).act nd.st (.poll t)).1, nd.seen⟩
+          (@HAppend.hAppend _ (List (Model.protoOf (compiled (goldilocksWith S)) E).Object) _ _
+            (pollOrdinary S rho v (poll (shapeOf S hn nd) t).2)
+            (pendingWrappers (shapeOf S hn nd)))).1.seen) :
     ∀ tv ∈ (shapeOf S hn nd).voteForwards,
       Model.Obj.mk (.signed (rho.ownKey v) .poll)
         (.data (.voteForward tv.1 (encodeVote tv.2))) [voteObj tv.2] ∈
@@ -487,6 +499,7 @@ theorem dutyStep_poll_voteForward_of_own_vote (v : V)
     (hsel : rho.ownKey v ∈ rho.sel .poll)
     (hself : (shapeOf S hn nd).self = rho.ownKey v)
     (m : SA.Vote (Fintype.card V)) (hm : m.val = rho.ownKey v)
+    (hmem : rho.ownKey v ∈ rho.sel (S.vote.voteRole m.slot))
     (hout : (pollPre (shapeOf S hn nd)).outbox.head? = some (.vote (encodeVote m)))
     (hheld : ∀ tv ∈ (shapeOf S hn nd).voteForwards,
       tv.2 = m ∨ voteObj tv.2 ∈ Model.closure nd.seen) :
@@ -497,18 +510,14 @@ theorem dutyStep_poll_voteForward_of_own_vote (v : V)
   apply dutyStep_poll_voteForward_of_prefix S rho hn v nd t hsel hself
   intro tv htv
   rcases hheld tv htv with he | he
-  · rw [he]
+  · rw [he, voteObj_eq_pollObj S rho hm]
     erw [Model.releaseAll_seen]
     apply Model.mem_closure_of_mem
     apply List.mem_append_right
-    rw [(poll_outbox _ _).2, hout]
-    simp only [Option.map_some, Option.toList_some, List.map_singleton, List.singleton_append]
-    have heq : Model.Obj.mk (.signed (rho.ownKey v) .poll)
-        (.data (.vote (encodeVote m))) [] = voteObj (binding := stock) m := by
-      simp only [voteObj, hm]
-      rfl
-    rw [heq]
-    erw [Model.releaseAll.eq_def]
+    rw [(poll_outbox _ _).2, hout, Option.map_some]
+    erw [pollOrdinary_some_pos S rho (v := v) (b := .vote (encodeVote m))
+      (by rw [pollRole_vote]; exact hmem)]
+    erw [List.singleton_append, Model.releaseAll.eq_def]
     dsimp only
     split
     · exact List.mem_cons_self
@@ -518,8 +527,8 @@ theorem dutyStep_poll_voteForward_of_own_vote (v : V)
       apply Bool.and_eq_true_iff.mpr
       refine ⟨Bool.and_eq_true_iff.mpr ⟨?_, ?_⟩, ?_⟩
       · rfl
-      · exact protects_of_not_att S _ _ _ (fun k w h => by cases h)
-      · rfl
+      · exact protects_pollObj_vote S rho v _ _ _
+      · exact pollObj_ready S rho v _ _
   · erw [Model.releaseAll_seen]
     exact Model.closure_mono (fun _ h => List.mem_append_left _ h) he
 
@@ -560,9 +569,9 @@ theorem dutyStep_poll_voteForward_of_available (hv : rho.ExecutionValid) {v : V}
       split
       · rcases fgUpdate_outbox (shapeOf S hn nd) with h | ⟨a, h⟩ <;> rw [h, hlist] <;> rfl
       · rw [hlist]; rfl
+    obtain ⟨hval, hk⟩ := duty_cut_vote_member S rho hn hv hv' hc q.2 hmem
     apply dutyStep_poll_voteForward_of_own_vote S rho hn v nd t
-      (poll_selected S rho hv v) hself q.2
-      (duty_cut_vote_signer S rho hn hv hv' hc q.2 hmem) hhead
+      (poll_selected S rho hv v) hself q.2 hval hk hhead
     intro r hr
     rcases hav r hr with h | h
     · exact Or.inr h

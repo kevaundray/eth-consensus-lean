@@ -23,7 +23,9 @@ The bookkeeping of the bodies (votes and attestations) an honest node queues for
   `t_s`), so the two trailing polls leave the outbox empty.
 * **At most one vote queued at every cut** (`outbox_inv`), and the queued bodies go out at the
   next tick (`pending_released`). Delivery polls also drain votes; the outbox is empty between
-  engine events (`outbox_empty`), discharging `releasedFrom_of_pending`. -/
+  engine events (`outbox_empty`), discharging `releasedFrom_of_pending`.
+* **Poll roles** (`pollObj`, `pollOrdinary`, `signedCandidate_poll`): a poll signs each body in
+  its effective role (`pollRole`), keeping it only when that role selects the node. -/
 
 namespace Consensus.Goldilocks.Simulation
 open AsChainShape
@@ -32,9 +34,9 @@ open Blocks Shape Node
 open Consensus.Model (pubOf)
 open SA (SAParams ReplayOrder Vote Payload SAState)
 
-/-! ## One vote per slot -/
-
 variable {binding : VoteBinding}
+
+/-! ## One vote per slot -/
 
 section OneVote
 
@@ -76,9 +78,7 @@ private theorem tryVote_voteStep (self : Fin sp.n) (A : SAState sp.n) (Φ : SA.F
   · exact VoteStep.refl A t
   · exact VoteStep.refl A t
   all_goals
-    first
-    | exact ⟨rfl, Or.inr rfl, by simp, fun _ h => absurd h List.not_mem_nil⟩
-    | skip
+    try exact ⟨rfl, Or.inr rfl, by simp, fun _ h => absurd h List.not_mem_nil⟩
   all_goals
     simp only [not_or, not_not, not_lt] at h₁
     obtain ⟨hj, hv, -⟩ := h₁
@@ -389,10 +389,91 @@ theorem poll_voteForwards (st : State sp ro binding) (t : Time) : (poll st t).1.
   dsimp only
   split <;> rfl
 
-/-- The object a poll step of `v` releases for the body `b`. -/
+/-- The object a poll step of `v` releases for the body `b`: signed in the body's poll role. -/
 noncomputable abbrev pollObj (v : V) (b : Body) :
-    (Model.protoOf (compiled (goldilocks S)) E).Object :=
-  .mk (.signed (rho.ownKey v) .poll) (.data b) []
+    (Model.protoOf (compiled (goldilocksWith S)) E).Object :=
+  .mk (.signed (rho.ownKey v) (pollRole S.vote (pubOf E).n b)) (.data b) []
+
+omit [DecidableEq V] in
+/-- A poll candidate's effective role is its body's poll role. -/
+theorem effRole_poll (t : Nat) (b : Body) :
+    (Model.protoOf (compiled (goldilocksWith S)) E).candidateRole (.poll t) (.data b)
+        = pollRole S.vote (pubOf E).n b := rfl
+
+omit [DecidableEq V] in
+/-- A poll signs every non-vote body in the poll role. -/
+theorem poll_candidateRole_of_not_vote (t : Nat) {b : Body} (hb : ∀ w, b ≠ .vote w) :
+    (Model.protoOf (compiled (goldilocksWith S)) E).candidateRole (.poll t) (.data b) = .poll :=
+  (effRole_poll S t b).trans (pollRole_of_not_vote _ _ hb)
+
+/-- The ordinary candidate a poll releases from popping `q`: kept when its poll role selects the
+node, and signed in that role. -/
+@[expose] noncomputable def pollOrdinary (v : V) (q : Option (Body × List (Model.protoOf (compiled
+    (goldilocksWith S)) E).Object)) :
+    List (Model.protoOf (compiled (goldilocksWith S)) E).Object :=
+  q.toList.filterMap fun bc =>
+    if rho.ownKey v ∈ rho.sel (pollRole S.vote (pubOf E).n bc.1) then
+      some (.mk (.signed (rho.ownKey v) (pollRole S.vote (pubOf E).n bc.1)) (.data bc.1) bc.2)
+    else none
+
+omit [DecidableEq V] in
+theorem pollOrdinary_some_pos {v : V} {b : Body}
+    (hk : rho.ownKey v ∈ rho.sel (pollRole S.vote (pubOf E).n b)) :
+    pollOrdinary S rho v (some (b, [])) = [pollObj S rho v b] := by
+  simp [pollOrdinary, hk]
+
+omit [DecidableEq V] in
+theorem pollOrdinary_some_neg {v : V} {b : Body}
+    (hk : rho.ownKey v ∉ rho.sel (pollRole S.vote (pubOf E).n b)) :
+    pollOrdinary S rho v (some (b, [])) = [] := by
+  simp [pollOrdinary, hk]
+
+omit [DecidableEq V] in
+/-- An own canonical vote is the poll object of its body. -/
+theorem voteObj_eq_pollObj {v : V} {m : Vote (Fintype.card V)} (hm : m.val = rho.ownKey v) :
+    (voteObj m : (Model.protoOf (compiled (goldilocksWith S)) E).Object) = pollObj S rho v (.vote
+        (encodeVote m)) := by
+  unfold voteObj pollObj
+  rw [hm, pollRole_vote]
+  rfl
+
+omit [DecidableEq V] in
+/-- An own canonical attestation is the poll object of its body. -/
+theorem attObj_eq_pollObj_of_val {v : V} {a : FG.Att (Fintype.card V)}
+    (ha : a.val = rho.ownKey v) :
+    (attObj a : (Model.protoOf (compiled (goldilocksWith S)) E).Object) = pollObj S rho v (.att
+        (encodeAtt a)) := by
+  unfold attObj pollObj
+  rw [ha, pollRole_of_not_vote _ _ (fun w h => by cases h)]
+  rfl
+
+omit [DecidableEq V] in
+/-- A node selected in the poll role is selected in the poll role of every non-vote body. -/
+theorem pollRole_selected_of_not_vote {v : V} {b : Body} (hsel : rho.ownKey v ∈ rho.sel .poll)
+    (hb : ∀ w, b ≠ .vote w) : rho.ownKey v ∈ rho.sel (pollRole S.vote (pubOf E).n b) := by
+  rw [pollRole_of_not_vote _ _ hb]
+  exact hsel
+
+omit [DecidableEq V] in
+/-- A poll object has no release dependency. -/
+theorem pollObj_ready (v : V) (held : List (Model.protoOf (compiled (goldilocksWith S)) E).Object)
+    (b : Body) :
+    (Model.protoOf (compiled (goldilocksWith S)) E).dependencies.ready held (pollObj S rho v b)
+        = true := by
+  change (dependencies _).ready _ (.mk (.signed _ (pollRole S.vote (pubOf E).n b)) (.data b) []) =
+    true
+  generalize pollRole S.vote (pubOf E).n b = r
+  cases r <;> cases b <;> rfl
+
+omit [DecidableEq V] in
+/-- A vote poll object passes the own-object guard. -/
+theorem protects_pollObj_vote (v : V) (k : Fin (Fintype.card V)) (seen : List (Model.protoOf
+    (compiled (goldilocksWith S)) E).Object)
+    (w : WireVote) : Model.protects (Model.protoOf (compiled (goldilocksWith S)) E) k seen
+        (pollObj S rho v (.vote w)) = true :=
+  protects_of_not_att S k seen _ fun _ _ h => by
+    have h' := congrArg Model.Obj.msg h
+    cases h'
 
 omit [DecidableEq V] in
 /-- The poll candidates are its ordinary body followed by fresh wrappers in queue order. -/
@@ -402,12 +483,108 @@ theorem act_poll_snd (nd : Model.Node (Model.protoOf (compiled (goldilocksWith S
         (shapeOf S hn nd).forwards.map (fun p => (.data (.forward p.1), p.2)) ++
         (shapeOf S hn nd).voteForwards.map
           (fun p => (.data (.voteForward p.1 (encodeVote p.2)), [voteObj p.2])) := by
-  change (((goldilocks S (pubOf E)).pollBatch nd.st.1 t).2.map _) = _
-  simp only [goldilocks, goldilocksWith, dite_eq_left hn]
+  change (((goldilocksWith S (pubOf E)).pollBatch nd.st.1 t).2.map _) = _
+  simp only [goldilocksWith, dite_eq_left hn]
   change List.map _ ((poll (nd.st.1 hn) t).2.toList ++
     (nd.st.1 hn).forwards.map _ ++ (nd.st.1 hn).voteForwards.map _) = _
   erw [List.map_append, List.map_append, List.map_map, List.map_map, Option.toList_map]
   rfl
+
+omit [DecidableEq V] in
+/-- A kind step of the vote binding is a no-op: it changes nothing and releases nothing. -/
+theorem dutyStep_act (v : V) (nd : Model.Node (Model.protoOf (compiled (goldilocksWith S)) E))
+    (s : Nat) (k : S.vote.Kind) :
+    rho.dutyStep v nd (.act s k) = (nd, []) := by
+  unfold Model.Run.dutyStep
+  split
+  · have h0 : rho.signedCandidate v (.act s k) ((Model.protoOf (compiled
+      (goldilocksWith S)) E).act nd.st (.act s k)).2 = [] := by
+      unfold Model.Run.signedCandidate
+      split <;> rfl
+    dsimp only
+    rw [h0]
+    rfl
+  · rfl
+
+omit [DecidableEq V] in
+/-- A proposal signs its block item in the slot's proposer role. -/
+theorem propose_candidateRole_item (s : Nat) (hs : 0 < s) (h : Header Info) :
+    (Model.protoOf (compiled (goldilocksWith S)) E).candidateRole (.propose s hs) (.item h)
+        = .proposer s :=
+  congrArg (Option.getD · _) (candidateRole_item _ _ (.propose s hs) h)
+
+omit [DecidableEq V] in
+/-- A proposal signs every non-vote body in the slot's proposer role. -/
+theorem propose_candidateRole_of_not_vote (s : Nat) (hs : 0 < s) {b : Body}
+    (hb : ∀ w, b ≠ .vote w) :
+    (Model.protoOf (compiled (goldilocksWith S)) E).candidateRole (.propose s hs) (.data b)
+        = .proposer s :=
+  congrArg (Option.getD · _) (candidateRole_of_not_vote _ _ (.propose s hs) b hb)
+
+private theorem filterMap_eq_map_of {α β : Type} (l : List α) (f : α → Option β) (g : α → β)
+    (h : ∀ a ∈ l, f a = some (g a)) : l.filterMap f = l.map g := by
+  induction l with
+  | nil => rfl
+  | cons a l ih =>
+    rw [List.filterMap_cons, h a List.mem_cons_self,
+      ih fun a ha => h a (List.mem_cons_of_mem _ ha), List.map_cons]
+
+omit [DecidableEq V] in
+/-- Candidates whose effective role is the duty's own role are signed in that role. -/
+theorem signedCandidate_of_default_mem (v : V) (d : (Model.protoOf (compiled
+    (goldilocksWith S)) E).Duty)
+    (a : List (Model.Msg (Model.protoOf (compiled (goldilocksWith S)) E).Item (Model.protoOf
+        (compiled (goldilocksWith S)) E).Body × List (Model.protoOf (compiled
+            (goldilocksWith S)) E).Object))
+    (h : ∀ mc ∈ a, (Model.protoOf (compiled (goldilocksWith S)) E).candidateRole d mc.1 =
+        (Model.protoOf (compiled (goldilocksWith S)) E).role d) :
+    rho.signedCandidate v d a =
+      if rho.ownKey v ∈ rho.sel ((Model.protoOf (compiled (goldilocksWith S)) E).role d) then
+        a.map (fun (m, cs) => .mk (.signed (rho.ownKey v) ((Model.protoOf (compiled
+            (goldilocksWith S)) E).role d)) m cs)
+      else [] := by
+  unfold Model.Run.signedCandidate
+  by_cases hk : rho.ownKey v ∈ rho.sel ((Model.protoOf (compiled (goldilocksWith S)) E).role d)
+  · rw [ite_eq_left hk, ite_eq_left hk]
+    apply filterMap_eq_map_of
+    rintro ⟨m, cs⟩ hm
+    dsimp only
+    erw [h _ hm, ite_eq_left hk]
+  · rw [ite_eq_right hk, ite_eq_right hk]
+
+omit [DecidableEq V] in
+/-- The signed poll candidates: the filtered ordinary head, then the `.poll` wrappers and vote
+envelopes in queue order. -/
+theorem signedCandidate_poll (v : V) (nd : Model.Node (Model.protoOf (compiled
+    (goldilocksWith S)) E)) (t : Nat)
+    (hsel : rho.ownKey v ∈ rho.sel .poll) :
+    rho.signedCandidate v (.poll t) ((Model.protoOf (compiled (goldilocksWith S)) E).act nd.st
+        (.poll t)).2 =
+      pollOrdinary S rho v (poll (shapeOf S hn nd) t).2 ++
+        (shapeOf S hn nd).forwards.map
+          (fun p => .mk (.signed (rho.ownKey v) .poll) (.data (.forward p.1)) p.2) ++
+        (shapeOf S hn nd).voteForwards.map (fun p => .mk (.signed (rho.ownKey v) .poll)
+          (.data (.voteForward p.1 (encodeVote p.2))) [voteObj p.2]) := by
+  rw [act_poll_snd S hn]
+  unfold Model.Run.signedCandidate
+  rw [ite_eq_left (show rho.ownKey v ∈ rho.sel
+    ((Model.protoOf (compiled (goldilocksWith S)) E).role (.poll t)) from hsel)]
+  erw [List.filterMap_append, List.filterMap_append, Option.toList_map, List.filterMap_map,
+    List.filterMap_map, List.filterMap_map]
+  congr 2
+  · apply filterMap_eq_map_of
+    rintro ⟨τ, cs⟩ -
+    have hf := poll_candidateRole_of_not_vote S (E := E) t (b := .forward τ) fun _ h => by cases h
+    dsimp only [Function.comp]
+    erw [hf, ite_eq_left hsel]
+  · apply filterMap_eq_map_of
+    rintro ⟨τ, m⟩ -
+    have hf := poll_candidateRole_of_not_vote S (E := E) t
+      (b := .voteForward τ (encodeVote m))
+      fun _ h => by cases h
+    dsimp only [Function.comp]
+    erw [hf, ite_eq_left hsel]
+    rfl
 
 omit [DecidableEq V] in
 /-- Non-poll duties still emit at most one candidate. -/
@@ -416,7 +593,9 @@ theorem act_candidates_length (st : (Model.protoOf (compiled (goldilocksWith S))
     (((Model.protoOf (compiled (goldilocksWith S)) E).act st d).2).length ≤ 1 := by
   cases d with
   | propose s hs => exact Option.length_toList_le
-  | act s k => cases k
+  | act s k =>
+    change List.length [] ≤ 1
+    exact Nat.zero_le _
   | pollPropose t => exact Option.length_toList_le
   | poll t => exact False.elim (hd t rfl)
 
@@ -471,30 +650,29 @@ theorem dutyStep_poll_sub (v : V) (nd : Model.Node (Model.protoOf (compiled (gol
         (.data (.voteForward τ (encodeVote m))) [voteObj m] := by
   intro o ho
   unfold Model.Run.dutyStep at ho
-  split at ho <;> (try simp at ho)
-  obtain ⟨m, cs, hact, -, -, rfl⟩ :=
-    (rho.mem_signedCandidate).mp (Model.releaseAll_subset _ _ _ _ o ho)
-  rw [act_poll_snd S hn, (poll_outbox _ _).2] at hact
-  erw [List.append_assoc] at hact
-  rcases List.mem_append.mp hact with hact | hact
-  swap
-  · rcases List.mem_append.mp hact with hact | hact
-    · obtain ⟨⟨τ, cs'⟩, _, he⟩ := List.mem_map.mp hact
-      cases he
-      exact Or.inr (Or.inl ⟨τ, cs', rfl⟩)
-    · obtain ⟨⟨τ, m⟩, _, he⟩ := List.mem_map.mp hact
-      cases he
+  split at ho
+  · rename_i hsel
+    have ho := Model.releaseAll_subset _ _ _ _ o ho
+    rw [signedCandidate_poll S rho hn v nd t hsel, (poll_outbox _ _).2] at ho
+    rcases List.mem_append.mp ho with ho | ho
+    · rcases List.mem_append.mp ho with ho | ho
+      · apply Or.inl
+        cases hh : (pollPre (shapeOf S hn nd)).outbox.head? with
+        | none =>
+          rw [hh] at ho
+          exact absurd ho List.not_mem_nil
+        | some b =>
+          rw [hh, Option.map_some] at ho
+          by_cases hk : rho.ownKey v ∈ rho.sel (pollRole S.vote (pubOf E).n b)
+          · erw [pollOrdinary_some_pos S rho hk, List.mem_singleton] at ho
+            exact ⟨b, rfl, ho⟩
+          · erw [pollOrdinary_some_neg S rho hk] at ho
+            exact absurd ho List.not_mem_nil
+      · obtain ⟨⟨τ, cs'⟩, _, rfl⟩ := List.mem_map.mp ho
+        exact Or.inr (Or.inl ⟨τ, cs', rfl⟩)
+    · obtain ⟨⟨τ, m⟩, _, rfl⟩ := List.mem_map.mp ho
       exact Or.inr (Or.inr ⟨τ, m, rfl⟩)
-  apply Or.inl
-  cases hh : (pollPre (shapeOf S hn nd)).outbox.head? with
-  | none =>
-    simp only [hh, Option.map_none, Option.toList_none] at hact
-    exact False.elim (List.not_mem_nil hact)
-  | some b =>
-    simp only [hh, Option.map_some, Option.toList_some] at hact
-    have hact := List.mem_singleton.mp hact
-    cases hact
-    exact ⟨b, rfl, rfl⟩
+  · simp at ho
 
 omit [DecidableEq V] in
 /-- A poll step of a node selected in the poll role releases the head of `pollPre`'s outbox
@@ -502,21 +680,16 @@ when the own-object guard passes. -/
 theorem dutyStep_poll_rel (v : V) (nd : Model.Node (Model.protoOf (compiled (goldilocksWith S)) E))
     (t : Nat) (hsel : rho.ownKey v ∈ rho.sel .poll) {b : Body}
     (hb : (pollPre (shapeOf S hn nd)).outbox.head? = some b)
-    (hp : Model.protects (Model.protoOf (compiled (goldilocks S)) E) (rho.ownKey v) nd.seen
+    (hrole : rho.ownKey v ∈ rho.sel (pollRole S.vote (pubOf E).n b))
+    (hp : Model.protects (Model.protoOf (compiled (goldilocksWith S)) E) (rho.ownKey v) nd.seen
       (pollObj S rho v b) = true) :
     pollObj S rho v b ∈ (rho.dutyStep v nd (.poll t)).2 := by
   unfold Model.Run.dutyStep
   simp only [show (Model.protoOf (compiled (goldilocksWith S)) E).role (.poll t) = .poll from rfl,
     hsel, ↓reduceIte]
-  rw [act_poll_snd S hn, (poll_outbox _ _).2, hb]
-  erw [List.append_assoc]
-  have hrole : (Model.protoOf (compiled (goldilocks S)) E).role (.poll t) = .poll := rfl
-  have hcrole : ∀ m, (Model.protoOf (compiled (goldilocks S)) E).candidateRole
-      (.poll t) m = .poll := fun _ => rfl
-  simp only [Option.map_some, Option.toList_some, Model.Run.signedCandidate, hrole, hcrole]
-  rw [ite_eq_left hsel]
-  erw [List.singleton_append, List.filterMap_cons]
-  simp only [hsel, ↓reduceIte]
+  rw [signedCandidate_poll S rho hn v nd t hsel, (poll_outbox _ _).2, hb, Option.map_some]
+  erw [pollOrdinary_some_pos S rho hrole]
+  erw [List.append_assoc, List.singleton_append]
   have hc : (Model.releasable nd.seen (pollObj S rho v b) &&
       Model.protects (Model.protoOf (compiled (goldilocksWith S)) E) (rho.ownKey v) nd.seen
         (pollObj S rho v b)) = true :=
@@ -525,12 +698,7 @@ theorem dutyStep_poll_rel (v : V) (nd : Model.Node (Model.protoOf (compiled (gol
   split
   · exact List.mem_cons_self
   · rename_i h
-    apply False.elim
-    apply h
-    apply Bool.and_eq_true_iff.2
-    refine ⟨hc, ?_⟩
-    change (dependencies _).ready _ (.mk (.signed _ .poll) (.data b) []) = true
-    cases b <;> rfl
+    exact absurd (Bool.and_eq_true_iff.2 ⟨hc, pollObj_ready S rho v _ b⟩) h
 
 omit [DecidableEq V] in
 include hn in
@@ -539,9 +707,10 @@ theorem dutyStep_pollPropose_snd (v : V)
     (nd : Model.Node (Model.protoOf (compiled (goldilocksWith S)) E)) (t : Nat) :
     (rho.dutyStep v nd (.pollPropose t)).2 = [] := by
   unfold Model.Run.dutyStep
-  have h2 : ((Model.protoOf (compiled (goldilocks S)) E).act nd.st (.pollPropose t)).2 = [] := by
-    change (Option.map _ ((goldilocks S (pubOf E)).pollPropose nd.st.1 t).2).toList = []
-    simp only [goldilocks, goldilocksWith, dite_eq_left hn]; rfl
+  have h2 : ((Model.protoOf (compiled (goldilocksWith S)) E).act nd.st (.pollPropose t)).2 = []
+      := by
+    change (Option.map _ ((goldilocksWith S (pubOf E)).pollPropose nd.st.1 t).2).toList = []
+    simp only [goldilocksWith, dite_eq_left hn]; rfl
   dsimp only
   rw [h2]
   simp [Model.Run.signedCandidate, Model.releaseAll]
@@ -751,9 +920,9 @@ theorem outbox_after_pre (v : V) (σ : State (S.params (pubOf E) hn) (S.ro _) S.
       by_contra hne
       exact slotStart_ne_tickVote S hn t s hts (h3.2 hne)
     rcases dutyStep_propose_shape S rho hn v N3 s hs hsel with h | ⟨c, hs', h⟩
-    · refine (congrArg (fun st : State _ _ => st.outbox.length) h).trans_le ?_
+    · refine (congrArg (fun st : State _ _ _ => st.outbox.length) h).trans_le ?_
       rw [(propose_keeps' _ _).1, h30]; simp
-    · refine (congrArg (fun st : State _ _ => st.outbox.length) h).trans_le ?_
+    · refine (congrArg (fun st : State _ _ _ => st.outbox.length) h).trans_le ?_
       rcases recordOwn_outbox (propose (shapeOf S hn N3) s).1 c hs' with h' | ⟨B, h'⟩
       · rw [h', (propose_keeps' _ _).1, h30]; simp
       · rw [h', (propose_keeps' _ _).1, h30, List.nil_append, (propose_keeps' _ _).2.2, hnow]
@@ -1095,9 +1264,9 @@ there is no pending body after an honest event. -/
 theorem releasedFrom_of_pending (hv : rho.ExecutionValid) {i : Nat}
     {ev : Model.Event V (Model.protoOf (compiled (goldilocksWith S)) E).Object}
     (_he : rho.events[i]? = some ev) {b : Body}
-    (hb : b ∈ (stateAt S rho hn ev.node (i + 1)).outbox) :
-    ReleasedFrom S rho ev.node
-      (Model.Obj.mk (.signed (rho.ownKey ev.node) .poll) (.data b) []) ev.time := by
+    (hb : b ∈ (stateAt S rho hn ev.node (i + 1)).outbox)
+    {o : (Model.protoOf (compiled (goldilocksWith S)) E).Object} :
+    ReleasedFrom S rho ev.node o ev.time := by
   rw [outbox_empty S rho hn hv ev.node] at hb
   exact absurd hb List.not_mem_nil
 
