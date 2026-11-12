@@ -40,10 +40,11 @@ private theorem tryVote_pool {wm : WriteMode} {L : Set Lock} (x : Fin sp.n) (A :
   split_ifs
   · exact List.Subset.refl _
   · exact List.Subset.refl _
+  all_goals first | exact List.Subset.refl _ | skip
   all_goals
     intro w hw
     rw [optimisticConfirmationM_keep _ optimistic_pool_eq]
-    exact mem_admitVote_pool hw
+    first | exact mem_admitVote_pool hw | exact hw
 
 private theorem foldl_admit_pool {t : Time} {σ : Nat} :
     ∀ (l : List (Vote sp.n)) (A : SAState sp.n),
