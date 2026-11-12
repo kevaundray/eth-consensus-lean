@@ -11,15 +11,15 @@ namespace Consensus.Goldilocks.Simulation
 open AsChainShape Blocks Shape Node
 open Consensus.Model (pubOf)
 
-variable {V : Type} [Fintype V] [DecidableEq V] {E : Env V} (S : Setup)
-  (rho : Model.Run (compiled (goldilocks S)) E) (hn : 1 ≤ Fintype.card V)
+variable {V : Type} [Fintype V] [DecidableEq V] {E : Env V} (S : BoundSetup)
+  (rho : Model.Run (compiled (goldilocksWith S)) E) (hn : 1 ≤ Fintype.card V)
 
 omit [DecidableEq V] in
 private theorem release_closure_source (v : V)
-    (nd : Model.Node (Model.protoOf (compiled (goldilocks S)) E)) (cs) :
-    ∀ o ∈ Model.closure (Model.releaseAll (Model.protoOf (compiled (goldilocks S)) E)
+    (nd : Model.Node (Model.protoOf (compiled (goldilocksWith S)) E)) (cs) :
+    ∀ o ∈ Model.closure (Model.releaseAll (Model.protoOf (compiled (goldilocksWith S)) E)
       rho.hash (rho.ownKey v) nd cs).1.seen, o ∈ Model.closure nd.seen ∨
-        o ∈ (Model.releaseAll (Model.protoOf (compiled (goldilocks S)) E)
+        o ∈ (Model.releaseAll (Model.protoOf (compiled (goldilocksWith S)) E)
           rho.hash (rho.ownKey v) nd cs).2 := by
   induction cs generalizing nd with
   | nil => intro o ho; exact Or.inl ho
@@ -84,7 +84,7 @@ theorem tick_att_releases_at (hv : rho.ExecutionValid) {i : Nat} {v : V} {t : Ti
     rw [Model.closure_append] at ho
     rcases List.mem_append.mp ho with ho | ho
     · have hi := (List.getElem?_eq_some_iff.mp he).1
-      have hlaws := (Model.sysOf_laws schema (compiled (goldilocks S)) V).trace ⟨E, rho⟩ hv
+      have hlaws := (Model.sysOf_laws schema (compiled (goldilocksWith S)) V).trace ⟨E, rho⟩ hv
       have ht := hlaws.cutTime_mono i (i + 1) (by omega)
         (show i + 1 ≤ rho.events.length by omega)
       change rho.cutTime i ≤ rho.cutTime (i + 1) at ht
@@ -145,10 +145,10 @@ theorem tick_att_releases_at (hv : rho.ExecutionValid) {i : Nat} {v : V} {t : Ti
       obtain ⟨C', b', hc, hw⟩ := att_mem_bodies S hn hqQ
       obtain rfl := encodeAtt_inj hw
       exact hsign C' b hc
-  have hprot (seen : List (Model.protoOf (compiled (goldilocks S)) E).Object)
+  have hprot (seen : List (Model.protoOf (compiled (goldilocksWith S)) E).Object)
       (hs : ∀ b : FG.Att (Fintype.card V), b.val = rho.ownKey v →
       attObj b ∈ Model.closure seen → Signed b) :
-      Model.protects (Model.protoOf (compiled (goldilocks S)) E) (rho.ownKey v) seen
+      Model.protects (Model.protoOf (compiled (goldilocksWith S)) E) (rho.ownKey v) seen
         (attObj a) = true := by
     obtain ⟨ka, hka, hsa⟩ := hsign C a (ha ▸ hlab)
     refine Model.protects_iff.mpr ?_
@@ -156,18 +156,18 @@ theorem tick_att_releases_at (hv : rho.ExecutionValid) {i : Nat} {v : V} {t : Ti
     refine ⟨Bool.eq_false_iff.mpr fun h => ?_, fun o ho hos =>
       ⟨Bool.eq_false_iff.mpr fun h => ?_, Bool.eq_false_iff.mpr fun h => ?_⟩⟩
     · obtain ⟨a1, b1, h1, h2, hsl⟩ :=
-        (conflictsIff_iff.mp conflicts_iff (Fintype.card V) (attObj a) (attObj a)).mp h
+        (conflictsIff_iff.mp conflicts_iff S.vote (Fintype.card V) (attObj a) (attObj a)).mp h
       rw [← attObj_inj h1, ← attObj_inj h2] at hsl
       exact simTraceAt_signings_nonFraming_before S rho hn hv he hka hka hsa hsa hsl
     · obtain ⟨a1, b1, h1, rfl, hsl⟩ :=
-        (conflictsIff_iff.mp conflicts_iff (Fintype.card V) (attObj a) o).mp h
+        (conflictsIff_iff.mp conflicts_iff S.vote (Fintype.card V) (attObj a) o).mp h
       rw [← attObj_inj h1] at hsl
       have hb : b1.val = rho.ownKey v := by
         simpa [Model.Obj.signer?, attObj, Model.Obj.auth] using hos
       obtain ⟨kb, hkb, hsb⟩ := hs b1 hb ho
       exact simTraceAt_signings_nonFraming_before S rho hn hv he hka hkb hsa hsb hsl
     · obtain ⟨a1, b1, rfl, h2, hsl⟩ :=
-        (conflictsIff_iff.mp conflicts_iff (Fintype.card V) o (attObj a)).mp h
+        (conflictsIff_iff.mp conflicts_iff S.vote (Fintype.card V) o (attObj a)).mp h
       rw [← attObj_inj h2] at hsl
       have hb : a1.val = rho.ownKey v := by
         simpa [Model.Obj.signer?, attObj, Model.Obj.auth] using hos
