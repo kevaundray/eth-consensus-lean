@@ -79,10 +79,9 @@ theorem admits_tryVote (self : Fin sp.n) (A : SAState sp.n) (Φ : Frm sp.n FGP) 
   split_ifs
   · exact Admits.refl _ _
   · exact Admits.refl _ _
-  all_goals first | exact Admits.of_pool_eq rfl | skip
+  all_goals try exact Admits.of_pool_eq rfl
   all_goals
     refine Admits.trans ?_ (Admits.of_pool_eq (optimistic_pool_eq _ _ _))
-    first | exact Admits.of_pool_eq rfl | skip
   all_goals
     refine Admits.trans (Admits.of_pool_eq ?_) (admits_admitVote _ _ _)
     rfl
@@ -192,10 +191,9 @@ theorem grows_tryVote (self : Fin sp.n) (A : SAState sp.n) (Φ : Frm sp.n FGP) (
   split_ifs
   · exact fun _ _ h => h
   · exact fun _ _ h => h
-  all_goals first | exact Grows.of_pool_eq rfl | skip
+  all_goals try exact Grows.of_pool_eq rfl
   all_goals
     refine Grows.trans ?_ (Grows.of_pool_eq (optimistic_pool_eq _ _ _))
-    first | exact Grows.of_pool_eq rfl | skip
   all_goals
     refine Grows.trans (Grows.of_pool_eq ?_) (grows_admitVote _ _ _)
     rfl

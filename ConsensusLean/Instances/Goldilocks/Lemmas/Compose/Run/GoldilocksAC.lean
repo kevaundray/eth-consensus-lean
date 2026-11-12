@@ -85,15 +85,13 @@ private theorem adds_tryVote (x : Fin sp.n) (A : SAState sp.n) (Φ : Frm sp.n FG
   split_ifs
   · exact Adds.of_eq rfl
   · exact Adds.of_eq rfl
-  all_goals first | exact Adds.of_eq rfl | skip
+  all_goals try exact Adds.of_eq rfl
   all_goals
     intro σ v hv
     rw [SA.optimistic_pool_eq] at hv
-    first
-    | exact Or.inl hv
-    | rcases adds_admitVote _ _ _ σ v hv with h | h
-      · exact Or.inl h
-      · exact Or.inr ⟨_, List.mem_singleton_self _, h.symm⟩
+    rcases adds_admitVote _ _ _ σ v hv with h | h
+    · exact Or.inl h
+    · exact Or.inr ⟨_, List.mem_singleton_self _, h.symm⟩
 
 /-- An emitted own vote enters its pool when no vote of its signer was present
 at the `tryVote` input. In particular, the two-vote cap cannot reject it. -/

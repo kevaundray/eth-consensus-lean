@@ -108,10 +108,8 @@ private theorem tryVote_fields (self : Fin sp.n) (L : Set Lock) (A : SAState sp.
   all_goals try exact ⟨id, rfl⟩
   all_goals
     rw [(optimistic_fields _ _ _).1, (optimistic_fields _ _ _).2]
-    first
-    | exact ⟨id, rfl⟩
-    | rw [admitVote_blockStamp]
-      exact ⟨fun h => admitVote_poolOK (by exact h) _ _, rfl⟩
+    rw [admitVote_blockStamp]
+    exact ⟨fun h => admitVote_poolOK (by exact h) _ _, rfl⟩
 
 private theorem blockReceipt_fields (A : SAState sp.n) (t : Time) (B : Blk sp.n FGP) :
     (PoolOK A.pool → PoolOK (blockReceipt sp A t B).pool) ∧

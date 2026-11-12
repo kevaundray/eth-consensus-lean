@@ -822,9 +822,7 @@ private theorem tryVote_voteStep {L : Set Lock} (self : Fin sp.n) (A : SAState s
   · exact VoteStep.refl A t
   · exact VoteStep.refl A t
   all_goals
-    first
-    | exact ⟨rfl, Or.inr rfl, by simp, fun _ h => absurd h List.not_mem_nil⟩
-    | skip
+    try exact ⟨rfl, Or.inr rfl, by simp, fun _ h => absurd h List.not_mem_nil⟩
   all_goals
     simp only [not_or, not_not, not_lt] at h₁
     obtain ⟨hj, hv, -⟩ := h₁

@@ -91,7 +91,7 @@ private theorem pool_sub_tryVote
   split_ifs
   · exact hv
   · exact hv
-  all_goals first | exact hv | skip
+  all_goals try exact hv
   all_goals
     rw [optimisticConfirmationM_keep _ SA.optimistic_pool]
     unfold admitVote
@@ -130,7 +130,7 @@ private theorem RecP.ofTryVote
   split_ifs at hsel ⊢
   · exact hR
   · exact hR
-  all_goals first | exact RecP.of_eq rfl hR | skip
+  all_goals try exact RecP.of_eq rfl hR
   all_goals
     exact RecP.ofOptimistic (RecP.of_eq (lc_admitVote _ _ _) hR) fun B hB =>
       hsel _ B (optimisticConfirmationM_keep _ SA.optimistic_pool _ _ _ _).symm hB

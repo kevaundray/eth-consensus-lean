@@ -37,7 +37,7 @@ theorem tryVoteWithM_mayVote (m : WriteMode) (self : Fin sp.n) (L : Set Lock)
     (tryVoteWithM sp m self L A Φ t).1.mayVote = A.mayVote := by
   unfold tryVoteWithM
   dsimp only
-  split_ifs <;> simp only [optimisticM_mayVote, admitVote_mayVote] <;> rfl
+  split_ifs <;> simp only [optimisticM_mayVote, admitVote_mayVote]
 
 theorem stepWithM_mayVote (ro : ReplayOrder sp FGP) (m : WriteMode) (self : Fin sp.n)
     (L : Set Lock) (A : SAState sp.n) (Φ : Frm sp.n FGP) (t : Time)

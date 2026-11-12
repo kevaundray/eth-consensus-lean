@@ -523,10 +523,9 @@ theorem tryVote_pool (self : Fin sp.n) (A : SAState sp.n) (Φ : Frm sp.n FGP) (t
   split_ifs at h ⊢ with h₁ h₂
   · exact Or.inl h
   · exact Or.inl h
-  all_goals first | exact Or.inl h | skip
+  all_goals try exact Or.inl h
   all_goals
     rw [optimisticConfirmation_pool] at h
-    first | exact Or.inl h | skip
   all_goals
     rcases admitVote_pool sp _ t _ σ w h with h | rfl
     · exact Or.inl h
@@ -660,12 +659,10 @@ theorem tryVote_slot (self : Fin sp.n) (A : SAState sp.n) (Φ : Frm sp.n FGP) (t
   split_ifs
   · exact h
   · exact h
-  all_goals first | exact fun σ w hw => h σ w hw | skip
+  all_goals try exact fun σ w hw => h σ w hw
   all_goals
     refine slot_of_pool_eq sp (optimisticConfirmation_pool sp _ Φ t) ?_
-    first
-    | exact fun σ w hw => h σ w hw
-    | exact admitVote_slot sp _ t _ (fun σ w hw => h σ w hw)
+    exact admitVote_slot sp _ t _ (fun σ w hw => h σ w hw)
 
 theorem acOnTick_slot (self : Fin sp.n) (A : SAState sp.n) (Φ : Frm sp.n FGP) (t : Time)
     (h : SlotOK sp A) : SlotOK sp (acOnTick sp self A Φ t).1 := by
