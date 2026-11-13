@@ -363,7 +363,9 @@ theorem honest_prefix_of_finality_before (hrun : GoldilocksRun proposer dg H tr)
     have hn : 0 < sp.n := sp.toParams.hn
     clear * - hf hn; omega
   rw [← SA.viableTree_voteDomain_eq_of_viable ⟨B, hB⟩]
-  exact SA.honest_prefix_of_carry sp hS.run hf' hy hc hes hheads hex hcarry
+  exact SA.honest_prefix_of_carry sp hS.run (SA.CommitteeDict.full sp.n) SA.CommitteeT.full
+    (SA.size_binding_full hS.stock) (SA.third_full hS.stock hf') hy hc hes hheads
+    (fun x hx _ => hex x hx) hcarry
     (SA.viableTree_voterBlockTree_subset_voteDomain hB) haB
 
 /-- Any point between the actual voter anchor and a frozen viable block is

@@ -173,7 +173,9 @@ theorem goldilocksSourceEvidenceCompatibility :
   intro s m w x i₀ i P C CV ℓ hw he hs hc hf hx ho hd
   exact False.elim hd
 
-theorem goldilocksLockWrites (hr : ACRun proposer o H U) :
+/-- The family's lock threshold counts the population, so this reads the stock committee
+(`hstock`, §S.2 scope-(ii) item). -/
+theorem goldilocksLockWrites (hr : ACRun proposer o H U) (hstock : sp.committeeSize = sp.n) :
     FamilyFacts.LockWrites (goldilocksFamily sp FGP ro) o H U := by
   constructor
   · simp only [proj_goldilocks]
@@ -182,7 +184,10 @@ theorem goldilocksLockWrites (hr : ACRun proposer o H U) :
     exact ⟨j, hj, B, CV, he.elim (fun h => Or.inl ⟨rfl, h⟩) (fun h => Or.inr ⟨rfl, h⟩), hL⟩
   · simp only [proj_goldilocks]
     intro y hy i s B CV he
-    exact fastLock_counted hr hy (he.elim (fun h => Or.inl h.2) (fun h => Or.inr h.2))
+    obtain ⟨hn, hcv⟩ :=
+      fastLock_counted hr hy (he.elim (fun h => Or.inl h.2) (fun h => Or.inr h.2))
+    rw [hstock] at hn
+    exact ⟨hn, hcv⟩
   · simp only [proj_goldilocks]
     intro y hy i s B CV he v hv hh
     rcases he with ⟨_, ℓ, C, hu, hC, hd, rfl⟩ | ⟨_, he⟩

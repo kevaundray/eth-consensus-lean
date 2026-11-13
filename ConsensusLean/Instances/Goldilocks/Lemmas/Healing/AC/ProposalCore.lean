@@ -378,8 +378,9 @@ theorem optimisticLock_compatibleU
   split_ifs at hsel
   have h34 := (deepest_mem hsel).1.2.1
   rw [hsl] at h34
-  refine origin_compatible hr.coherent hΦU h34
-    (by simpa only [hrun.stock] using hf) fun v hv hvH => ?_
+  refine origin_compatible hr.coherent hΦU (CommitteeDict.full sp.n) h34
+    (fun _ _ => mem_full _ _) (by simpa only [ncard_inter_full, hrun.stock] using hf)
+    fun v hv hvH => ?_
   obtain ⟨hvs, j, -, e, hve, rfl⟩ := optimisticPoint_pool_voteU hrun hz hpt hv hvH
   exact hB _ hvH j e hve hvs
 

@@ -219,6 +219,7 @@ public import ConsensusLean.Instances.Goldilocks.Lemmas.Generic.HealingEdges
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Generic.ProgressBudgetEdges
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.AC.Agree
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.AC.Base
+public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.AC.Committee
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.AC.Compatible
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.AC.CountedSupporters
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.AC.FutureVotes

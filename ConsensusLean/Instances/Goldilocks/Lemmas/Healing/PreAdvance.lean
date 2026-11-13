@@ -715,13 +715,16 @@ private theorem unanimous_next_votes_of_geometry (hrun : GoldilocksRun proposer 
         change sp.ts m + 2 * sp.Δ ≤ tr.time i
         exact (add_le_add le_rfl (mul_le_mul_of_nonneg_right (by norm_num) hDelta.le)).trans
           (hts.symm.trans_le hlo)) (hhi.trans hmb) hdl hrs hrelay
-    exact SA.next_transfer_of_carry sp hS.run hy hcast hs hG hhalf hcarry
-      (faultBound_of_service hawake hf hnr (hr.time_nonneg i)
-        (by
-          change gbar g ≤ sp.ts ((sp.slot (tr.time i) : Int) - 1)
-          rw [hslot]
-          have heq : ((m + 1 : Nat) : Int) - 1 = m := by omega
-          rw [heq]; exact hgm) (hhi.trans hmb)) hviab
+    have hfb := faultBound_of_service hawake hf hnr (hr.time_nonneg i)
+      (by
+        change gbar g ≤ sp.ts ((sp.slot (tr.time i) : Int) - 1)
+        rw [hslot]
+        have heq : ((m + 1 : Nat) : Int) - 1 = m := by omega
+        rw [heq]; exact hgm) (hhi.trans hmb)
+    exact SA.next_transfer_of_carry sp hS.run (SA.CommitteeDict.full sp.n) SA.CommitteeP.full
+      SA.CommitteeT.full (SA.size_binding_full hS.stock) hy hcast hs hG
+      (by rw [hS.stock]; exact hhalf) hcarry ((SA.faultBoundK_full_iff _ _).2 hfb)
+      (SA.cs2_full_of_faultBound sp hS.stock hfb) hviab
       (fun x hx k hki ev hv hsx => ih k hki x hx ev hv hsx)
 
 /-- Local V for a witness also places every ancestor above F and the common J in the frame. -/
