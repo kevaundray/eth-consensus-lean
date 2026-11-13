@@ -22,7 +22,7 @@ theorem standard_admissible {catchUp lag budget : Nat} {heal latency : Capabilit
     (h : 1 ≤ catchUp) (hb : 1 ≤ budget) :
     (standard catchUp lag budget heal latency).Admissible :=
   ⟨h, by norm_num [standard], by norm_num [standard], by norm_num [standard],
-    by norm_num [standard], hb⟩
+    by norm_num [standard], by norm_num [standard], hb⟩
 
 end Params
 
@@ -212,6 +212,28 @@ theorem committeeSleepy (h : S.Outage X K T b₀ b₁ r) :
       0 (S.pt r).horizon := h.2.2.2.2.2.2
 
 end System.Outage
+
+namespace System
+
+/-- At full selection the population bound implies the post-GST committee bound. -/
+theorem healthy_iff_of_full_selection {V : Type} [Fintype V] [DecidableEq V]
+    {S : System V} {Prog : Type} (X : External S) (K : Contract Prog) (r : S.Run)
+    (hfull : ∀ t, X.selected (S.pt r).env (X.ext r) t = Finset.univ)
+    (hβ : K.params.β ≤ K.params.βK) (g : Time) :
+    S.Healthy X K g r ↔ (S.log r).PSync (S.pt r) g ∧
+      (S.pt r).HealthyOn K.params.β g (S.pt r).horizon ∧
+      (S.pt r).env.ΔFG ≤ K.params.fgDelay.val * (S.pt r).env.ΔAC := by
+  constructor
+  · intro h
+    exact ⟨h.1, h.2.1, h.2.2.1⟩
+  · rintro ⟨hn, hp, hd⟩
+    refine ⟨hn, hp, hd, ?_⟩
+    intro t _ _ _
+    have h := hp.1.trans_le (mul_le_mul_of_nonneg_right hβ
+      (by positivity : (0 : ℚ) ≤ Fintype.card V))
+    simpa [hfull, EnvPoint.faultCount] using h
+
+end System
 
 end Consensus
 

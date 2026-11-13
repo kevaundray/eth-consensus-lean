@@ -145,7 +145,7 @@ abbrev ctrlK : Contract ProgressReq where
 theorem ctrlK_admissible : ctrlK.params.Admissible := by
   have h := Params.standard_admissible (Idx := ℕ+) (catchUp := 1) (lag := 1) (budget := 1)
     (heal := fun _ _ => 1) (latency := fun _ _ => 1) le_rfl le_rfl
-  exact ⟨h.1, h.2, h.3, h.4, h.5, h.6⟩
+  exact ⟨h.1, h.2, h.3, h.4, h.5, h.6, h.7⟩
 
 theorem ctrlK_progressFits : ProgressFits ctrlK ctrlFamily := by
   intro cap k pub
