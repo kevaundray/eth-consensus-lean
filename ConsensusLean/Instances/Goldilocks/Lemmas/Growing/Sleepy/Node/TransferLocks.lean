@@ -9,6 +9,7 @@ import ConsensusLean.Instances.Goldilocks.Lemmas.AC.Schedule
 import ConsensusLean.Instances.Goldilocks.Lemmas.AC.Basic
 import ConsensusLean.Instances.Goldilocks.Lemmas.AC.Steps.Committee
 import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.AC.Committee
+import ConsensusLean.Lemmas.Tactic.Linarith
 
 public section
 

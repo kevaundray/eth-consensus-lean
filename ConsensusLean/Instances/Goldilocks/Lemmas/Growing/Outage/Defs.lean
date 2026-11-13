@@ -4,6 +4,7 @@ public import ConsensusLean.Instances.Goldilocks.Lemmas.Compose.LockFloorGlobal
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Compose.LockKeepGlobal
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Obligations.OutageLockSafety.Defs
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Outage.Service
+import ConsensusLean.Lemmas.Tactic.Linarith
 
 public section
 
