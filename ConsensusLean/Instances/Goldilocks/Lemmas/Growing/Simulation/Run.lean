@@ -45,14 +45,6 @@ theorem simIni_voteStart (y : Fin (Fintype.card V)) :
   · exact SA.voteStart_initial _
   · exact SA.voteStart_iff.2 ⟨_, rfl⟩
 
-omit [DecidableEq V] in
-/-- TEMP(C2): without a participation kind the engine's starts are the default start. Only the
-consumers that are not yet start-generic (C2 step 2 remaining list) use it; removed with the Fact
-binders at C2 records phase 2 (G9). -/
-theorem simIni_eq_initial [hstock : Fact (S.vote.participationKind = none)] : -- TEMP(C2)
-    simIni S rho hn = fun _ => (goldilocksNode (S.params (pubOf E) hn) (S.ro _)).initial :=
-  funext fun _ => installVote_of_participationKind_none hstock.out _ _
-
 /-- The canonical event expansion obeys all Goldilocks run laws under growing compromise, from
 the engine's own starts `simIni`. The instance premise `hstock` is interim, `TEMP(C2)`: it feeds
 only the record's interim `stock` field; stock callers get it from
@@ -123,13 +115,5 @@ theorem simTraceAt_goldilocksRun (hv : rho.ExecutionValid)
   msg_unforgeable := simTraceAt_msg_unforgeable S rho hn hv
   genesis_root_ok := simTrace_genesis_root_ok S rho hn
   carried_vote_unforgeable := simTraceAt_carried_vote_unforgeable S rho hn hv
-
-/-- TEMP(C2): `simTraceAt_goldilocksRun` at the default start, for the consumers that are not
-yet start-generic (C2 step 2 remaining list). Removed at C2 records phase 2 (G9). -/
-theorem simTraceAt_goldilocksRun_initial (hv : rho.ExecutionValid)
-    [Fact (S.vote.participationKind = none)] : -- TEMP(C2)
-    Growing.GoldilocksRun (runProposer S rho hn) (digestOf S rho)
-      (honestKeysAt S rho) (simTraceAt S rho hn) :=
-  simIni_eq_initial S rho hn ▸ simTraceAt_goldilocksRun S rho hn hv
 
 end Consensus.Goldilocks.Simulation
