@@ -828,13 +828,7 @@ public import ConsensusLean.Instances.Goldilocks.Lemmas.Healing.Service
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Healing.Settle
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Healing.Source
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Healing.WeakBase
-public import ConsensusLean.Instances.Goldilocks.Lemmas.NodeEngine.Clock
-public import ConsensusLean.Instances.Goldilocks.Lemmas.NodeEngine.Coverage
 public import ConsensusLean.Instances.Goldilocks.Lemmas.NodeEngine.Goldilocks
-public import ConsensusLean.Instances.Goldilocks.Lemmas.NodeEngine.Handlers
-public import ConsensusLean.Instances.Goldilocks.Lemmas.NodeEngine.HandlersKeep
-public import ConsensusLean.Instances.Goldilocks.Lemmas.NodeEngine.ReadReach
-public import ConsensusLean.Instances.Goldilocks.Lemmas.NodeEngine.Schedule
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Obligations.AnchorStepsGap
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Obligations.CarrierProcessed
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Obligations.CoefficientAdapters
