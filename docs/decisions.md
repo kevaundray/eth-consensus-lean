@@ -534,6 +534,15 @@ detail in `TRUST.md`.
   since `Lemmas/Blocks/Facts` and the tests use them too.
 - **As much as possible stays off the trusted surface**: a definition that no Challenge statement needs moves to an
   untrusted layer, keeping its name and body. `cF` (the ratio gap) is an example: it lives in a test.
+- **The run records carry no committee size.** `GoldilocksRun`, `Growing.GoldilocksRun`, `SA.ACRun`,
+  `SA.ACRunU`, `SA.ACRunUS` and `SA.Growing.ACRun` state the run and trace laws only, for every vote binding. A
+  milestone statement whose proof needs population-sized committees takes `sp.committeeSize = sp.n` as a premise
+  (`Compose.HeadExtendsRecord`, `Compose.Inclusion`, `Regimes.SleepySafe`, `Regimes.IncludeSleepy`,
+  `Regimes.GrowSleepy`, `Healing.HeightScopedRetention`, `Healing.RunInclusion`, their growing-fault forms
+  `Healing.Growing.HeightScopedRetention` and `Healing.Growing.RunInclusion`, and the five `SA.*All` healing
+  statements), and `GoldilocksHealingData` takes it as a conjunct of `O.Run`. Each is equivalent at every `sp` to
+  the form with the size equation as a field of the record. The lemmas on those chains take it as an explicit
+  argument `hstock`; at the population binding it holds by `rfl`.
 
 ## Repository, toolchain and trust checks
 
