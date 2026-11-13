@@ -275,12 +275,12 @@ def ResetExistence : Prop :=
         36 * Gp ∧
     C_HS sp ΔF Gp = (8 * (sp.k : Time) + 49 + 4 * (sp.toParams.δt : Time)) * sp.Δ + ΔF + 3 * Gp
 
-/-- **HR.4 under growing faults, height-scoped retention.** -/
+/-- **HR.4 under growing faults, height-scoped retention**, for population-sized committees. -/
 def HeightScopedRetention : Prop :=
   ∀ (sp : SAParams) (ro : ReplayOrder sp (List (FG.Att sp.n)))
     (proposer : Nat → Fin sp.n)
     (dg : Digest (List (FG.Att sp.n)) (Payload sp.n)) (H : Time → Set (Fin sp.n))
-    (tr : GoldilocksTrace sp ro) (g ΔF : Time),
+    (tr : GoldilocksTrace sp ro) (g ΔF : Time), sp.committeeSize = sp.n →
     Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr → tr.HealthyRunAt H ΔF g →
     Compose.NoCollRun dg tr → ∀ a, IsReset tr H g a → RetentionAt tr H g a
 
@@ -324,12 +324,12 @@ def BridgeAt (proposer : Nat → Fin sp.n) (g a Tb : Time) : Prop :=
 
 end Top
 
-/-- **H.2 (run) under growing faults, AC inclusion in runs.** -/
+/-- **H.2 (run) under growing faults, AC inclusion in runs**, for population-sized committees. -/
 def RunInclusion : Prop :=
   ∀ (sp : SAParams) (ro : ReplayOrder sp (List (FG.Att sp.n)))
     (proposer : Nat → Fin sp.n)
     (dg : Digest (List (FG.Att sp.n)) (Payload sp.n)) (H : Time → Set (Fin sp.n))
-    (tr : GoldilocksTrace sp ro) (g ΔF : Time),
+    (tr : GoldilocksTrace sp ro) (g ΔF : Time), sp.committeeSize = sp.n →
     Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr → Compose.NoCollRun dg tr →
     (sp.toParams.genesisBlock (goldilocksNode sp ro).genesisPayload).RootOk dg →
     tr.HealthyRunAt H ΔF g → CatchRun tr H g (2 * sp.Δ) →

@@ -188,14 +188,14 @@ theorem resetExistence_of_growing (h : Growing.ResetExistence) : ResetExistence 
 
 theorem heightScopedRetention_of_growing (h : Growing.HeightScopedRetention) :
     HeightScopedRetention := by
-  intro sp ro proposer dg H tr g ΔF hrun hh hnc a ha
-  exact retentionAt_to_static (h sp ro proposer dg (fun _ => H) tr g ΔF
+  intro sp ro proposer dg H tr g ΔF hstock hrun hh hnc a ha
+  exact retentionAt_to_static (h sp ro proposer dg (fun _ => H) tr g ΔF hstock
     (Consensus.Goldilocks.Growing.GoldilocksRun.const_iff.mpr hrun)
     ((RunTrace.healthyRunAt_const tr).mpr hh) hnc a (isReset_const.mpr ha))
 
 theorem runInclusion_of_growing (h : Growing.RunInclusion) : RunInclusion := by
-  intro sp ro proposer dg H tr g ΔF hrun hnc hroot hh hc
-  obtain ⟨⟨hd, hha, hca⟩, hrest⟩ := h sp ro proposer dg (fun _ => H) tr g ΔF
+  intro sp ro proposer dg H tr g ΔF hstock hrun hnc hroot hh hc
+  obtain ⟨⟨hd, hha, hca⟩, hrest⟩ := h sp ro proposer dg (fun _ => H) tr g ΔF hstock
     (Consensus.Goldilocks.Growing.GoldilocksRun.const_iff.mpr hrun) hnc hroot
     ((RunTrace.healthyRunAt_const tr).mpr hh) (catchRun_const.mpr hc)
   simp only [RunTrace.honestBlocksAt_const] at hha hca hrest
