@@ -70,7 +70,8 @@ theorem vote_locks_compatibleAC
       readPoint_locks_below_storedU hr hy hc (show 0 < sp.slot (tr.time i) by omega) l₀ hl₀
         (show l₀.slot ≠ sp.slot (tr.time i) by omega)
     obtain rfl : B₀' = B₀ := hΦ.coherent.1 hB₀' hB₀ (hB₀'r.trans hB₀r.symm)
-    obtain ⟨L₁, hL₁, hL₁r, O, hL₁O, k, hk, CV, hO⟩ := lock_below_originU hr hy i l₁ hl₁
+    obtain ⟨L₁, hL₁, hL₁r, O, hL₁O, k, hk, CV, hO⟩ := lock_below_originU hr
+      (fun _ => SA.voteStart_initial _) hy i l₁ hl₁
     obtain rfl : L₁ = B₁ := hU.1 hL₁ (hΦU hB₁) (hL₁r.trans hB₁r.symm)
     have hOw : OriginWithinAC tr H O l₁.slot b :=
       originWithinAC_iff.2 ⟨y, hy, k, CV, (hr.time_mono hk.le).trans hib, hO⟩

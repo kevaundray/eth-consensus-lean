@@ -578,7 +578,7 @@ theorem optimistic_writer_votes_at (hrun : Growing.GoldilocksRun proposer dg H t
   have hsub := upTo_subset hrun hd
   intro v hv
   obtain ⟨hvs, ⟨k, hk, hk1, hk2⟩, Hv, hHv, hHvr, hCHv, hacc⟩ :=
-    optimistic_writer_votes (acRun_upTo hrun hnc hd).localRun hx
+    optimistic_writer_votes (acRun_upTo hrun hnc hd).localRun (fun _ => SA.voteStart_initial _) hx
       ((sa_optimisticLockAt_upTo hrun.time_mono).mpr ⟨le_rfl, hO⟩) v hv
   obtain ⟨hkd, hk⟩ := (ac_sendOrAdmit_upTo hrun.time_mono).mp hk
   refine ⟨hvs, ⟨k, hrun.antitone hkd hx, hk, hk1, hk2⟩, Hv, hsub hHv, hHvr, hCHv.mono hsub,

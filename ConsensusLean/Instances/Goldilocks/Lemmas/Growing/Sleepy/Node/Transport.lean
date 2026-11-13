@@ -66,7 +66,7 @@ theorem carryAt_of_delivered (hr : ACLocalRun (SA.goldilocksSA sp FGP ro) H U T)
             ∃ k ≤ i, T.AcceptAt y k Hv ∧ T.time k < T.deadline y k τ)) ∨
           SA.AcceptedBefore T y Hv (sp.ts s + 3 * sp.Δ))) :
     SA.CarryAt T U y i e s CV :=
-  carryAt_of_served hr (frame_anc_accepted hr hy) hy hc hs hW
+  carryAt_of_served hr (fun _ => SA.voteStart_initial _) (frame_anc_accepted hr hy) hy hc hs hW
 
 private theorem tryVote_pool (x : Fin sp.n) (A : SA.SAState sp.n) (Φ : SA.Frm sp.n FGP)
     (t : Time) (σ : Nat) : A.pool σ ⊆ (SA.tryVote sp x A Φ t).1.pool σ := by
@@ -235,7 +235,7 @@ theorem result_writer_at (hrun : Growing.GoldilocksRun proposer dg H tr)
   have hsub := upTo_subset hrun hd
   intro v hv
   obtain ⟨hvs, ⟨k, hk, hk1, hk2⟩, Hv, hHv, hHvr, hCHv, hacc⟩ :=
-    result_writer (acRun_upTo hrun hnc hd).localRun hX
+    result_writer (acRun_upTo hrun hnc hd).localRun (fun _ => SA.voteStart_initial _) hX
       ((sa_resultAt_upTo hrun.time_mono).mpr ⟨le_rfl, hR⟩) v hv
   obtain ⟨hkd, hk⟩ := (ac_sendOrAdmit_upTo hrun.time_mono).mp hk
   refine ⟨hvs, ⟨k, hrun.antitone hkd hX, hk, hk1, hk2⟩, Hv, hsub hHv, hHvr, hCHv.mono hsub,

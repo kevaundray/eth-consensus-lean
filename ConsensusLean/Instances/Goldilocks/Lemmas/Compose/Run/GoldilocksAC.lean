@@ -173,11 +173,20 @@ end Adds
 
 /-! ### In the run -/
 
-/-- The Goldilocks node's AC meets the interface requirements 1–5 (A0.6, A0.9). -/
+/-- The Goldilocks node's AC started at a start up to the vote permission meets the interface
+requirements 1–5 (A0.6, A0.9), at the states reachable from that start. -/
+theorem requirements_from (sp : SAParams) (ro : ReplayOrder sp (List (FG.Att sp.n)))
+    {s₀ : SA.SAState sp.n} (h₀ : SA.VoteStart sp.genesisRoot s₀) :
+    ({ goldilocksNode sp ro with initial := s₀ } : NodeAC sp.toParams).Requirements :=
+  have h := SA.interface_requirements_from sp (List (FG.Att sp.n)) ro h₀
+  ⟨h.1, h.2.1, h.2.2.1, h.2.2.2, fun self U _ s Φ t₀ hr =>
+    SA.proposal_payload_validFrom sp h₀.pool self U s Φ t₀ (ACInterface.reachableAtFrom_iff.2 hr)⟩
+
+/-- The Goldilocks node's AC meets the interface requirements 1–5 (A0.6, A0.9):
+`requirements_from` at the initial state. -/
 theorem requirements (sp : SAParams) (ro : ReplayOrder sp (List (FG.Att sp.n))) :
     (goldilocksNode sp ro).Requirements :=
-  have h := SA.interface_requirements sp (List (FG.Att sp.n)) ro
-  ⟨h.1, h.2.1, h.2.2.1, h.2.2.2, SA.proposal_payload_valid sp _ ro⟩
+  requirements_from sp ro (s₀ := SA.SAState.initial sp.genesisRoot) (SA.voteStart_initial _)
 
 variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
   {dg : Digest (List (FG.Att sp.n)) (Payload sp.n)} {H : Set (Fin sp.n)}

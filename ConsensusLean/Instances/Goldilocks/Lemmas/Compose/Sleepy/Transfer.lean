@@ -47,7 +47,7 @@ variable {FGP : Type} {sp : SAParams} {ro : ReplayOrder sp FGP} {H : Set (Fin sp
 /-- The later-batch walk for a selected honest slot-`s` batch: its votes extend `B`, are
 carried at the read point, and outnumber half of a set covering all merged voters.
 Viability and compatibility of all live locks then make the successor vote extend `B`. -/
-theorem vote_extends_of_counted_batch (hrun : SA.ACRun proposer tr H U)
+theorem vote_extends_of_counted_batch {ini} (hrun : SA.ACRun proposer tr H U ini)
     {s : Nat} {y : Fin sp.n} (hy : y ∈ H)
     {i : Nat} {ℓ : ACLabel (SA.goldilocksSA sp FGP ro)} {e : SA.Em sp FGP}
     (hc : SA.CastAt tr y i ℓ e) (hs : e.msg.slot = s + 1) {B : SA.Blk sp.n FGP}
@@ -67,7 +67,7 @@ theorem vote_extends_of_counted_batch (hrun : SA.ACRun proposer tr H U)
   obtain ⟨hΦ, hΦU⟩ := SA.frameIn_of_callAt hr hy hc.1
   have hσ : ((s + 1 : Nat) : Int) - 1 = (s : Int) := by push_cast; ring
   rw [hs, hσ] at hhead
-  have hdomA := SA.voteDomain_anc hr hy hc
+  have hdomA := SA.voteDomain_anc_from hr hrun.vstart hy hc
   rw [hs] at hdomA
   have hBt : B ∈ ℓ.frame.tree := by
     rcases hviab with h | h
@@ -98,7 +98,7 @@ theorem vote_extends_of_counted_batch (hrun : SA.ACRun proposer tr H U)
           · simpa [SA.freeze] using hu.2
         obtain ⟨j₁, -, e₁, hv₁', he₁⟩ :=
           SA.honest_merged_vote hrun hy hc (hm v₁ hs₁ hh₁) (hv₁.trans hvw ▸ hw)
-        have := (SA.one_vote_per_slot sp) FGP ro H U tr hr w hw j₁ j e₁ e'
+        have := (SA.one_vote_per_slotU sp) FGP ro H U tr hr.toU w hw j₁ j e₁ e'
           (hv₁.trans hvw ▸ hv₁') hv (by rw [he₁, hs₁, hvs])
         exact h1 (he₁ ▸ this.2 ▸ rfl)
     obtain ⟨Hv, hHv, hHvr, hacc⟩ := hcarry.heads _ hmem

@@ -35,7 +35,8 @@ theorem drain_provenanceM
   simp only [SAParams.ts] at hT
   have hlk := mul_nonneg hΔ.le (show (0 : Int) ≤ l.slot + sp.k - σ by omega)
   cases hf : l.fast
-  · obtain ⟨j, -, B, hsl, hLB⟩ := slow_lock_provenanceM hr hy i l hl hf
+  · obtain ⟨j, -, B, hsl, hLB⟩ := slow_lock_provenanceM hr
+      (fun _ => SA.voteStart_initial _) hy i l hl hf
     refine ⟨B, hLB, goodOriginW_iff.2 (Or.inr ⟨y, hy, j, hsl, ?_⟩)⟩
     simp only [SAParams.ts]
     linarith
