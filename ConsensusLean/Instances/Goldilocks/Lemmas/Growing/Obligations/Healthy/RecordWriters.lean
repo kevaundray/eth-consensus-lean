@@ -328,7 +328,7 @@ private theorem optimistic_unlock_keeps_at
     fun B hB => RunTrace.honestBlocks_upTo_subset hm ht0 ⟨y, hy, j, hB.1⟩
   apply SA.unlockTarget_unlockView_held_of_honest_slot y ell.call hA' hΦ _ hR (hpool j)
     (hpool (j + 1)) hpay
-    (fun v hv w hw hvH hval hsl =>
+    (fun v hv w hw hvH hval hsl _ =>
       Compose.heldVotes_honest_unique hrT hncT hy hcall hv hw hvH hval hsl) ?_
     (by simpa only [hp.stock] using hf)
   intro v hv hvH hvs Hd hHd hHdr

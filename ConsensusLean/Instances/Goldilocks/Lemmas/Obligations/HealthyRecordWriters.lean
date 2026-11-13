@@ -253,7 +253,7 @@ private theorem optimistic_unlock_keeps
     omega
   apply SA.unlockTarget_unlockView_held_of_honest_slot y ell.call hA'
     (Compose.frameOK_state hp.run.toLocalRun hy j) _ hR (hpool j) (hpool (j + 1)) hpay
-    (fun v hv w hw hvH hval hsl =>
+    (fun v hv w hw hvH hval hsl _ =>
       Compose.heldVotes_honest_unique hp.run hp.noColl hy hcall hv hw hvH hval hsl) ?_
     (by simpa only [hp.stock] using hf)
   intro v hv hvH hvs Hd hHd hHdr
