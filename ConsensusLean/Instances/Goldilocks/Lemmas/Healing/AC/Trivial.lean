@@ -984,9 +984,12 @@ theorem votes_continueU
         rw [← hsl, hes, show ((m + (d + 1) : Nat) : Int) - 1 = ((m + d : Nat) : Int) by
           push_cast; ring]
         linarith only [hΔ, hmd]
-      exact next_transferU sp FGP ro H U tr proposer hrun (m + d) x j B ℓ e hx hca (by omega)
-        ih hhalf
-        (hcarry x hx j e ⟨ℓ, hc, he⟩ (by omega)) (hS.faultBound (hr.time_nonneg j) hT)
+      have hfb := hS.faultBound (hr.time_nonneg j) hT
+      exact next_transferU sp FGP ro H U tr proposer hrun (CommitteeDict.full sp.n)
+        CommitteeP.full CommitteeT.full (size_binding_full hS.stock) (m + d) x j B ℓ e hx hca
+        (by omega) ih (by rw [hS.stock]; exact hhalf)
+        (hcarry x hx j e ⟨ℓ, hc, he⟩ (by omega)) ((faultBoundK_full_iff _ _).2 hfb)
+        (cs2_full_of_faultBound sp hS.stock hfb)
         (trivial_viableU hS hx hca (by omega) hmd ⟨z, hz, jz, ez, hvz, hsz, ih z hz jz ez hvz hsz⟩)
         (fun z' hz' j' hj' e' hv' hs' => ihj j' hj' z' hz' e' hv' (by omega))
 
@@ -1021,9 +1024,12 @@ theorem fast_origin_transfer_votesU
       have hT : gbar g ≤ sp.ts ((sp.slot (tr.time i) : Int) - 1) := by
         rw [← hsl, hes, show ((s + 1 : Nat) : Int) - 1 = (s : Int) by push_cast; ring]
         linarith only [hs, hΔ]
-      exact first_transferU sp FGP ro H U tr proposer hrun s x y i₀ i B CV ℓ e hx hfl hy hca hes
-        (hS.syncAC (by linarith only [hs, hΔ]) _) (hcarry y hy i e ⟨ℓ, hc, he⟩ hes)
-        (hS.faultBound (hr.time_nonneg i) hT) (trivial_viableU hS hy hca hes hs hvB)
+      have hfb := hS.faultBound (hr.time_nonneg i) hT
+      exact first_transferU sp FGP ro H U tr proposer hrun (CommitteeDict.full sp.n)
+        CommitteeP.full CommitteeT.full (size_binding_full hS.stock) s x y i₀ i B CV ℓ e hx hfl
+        hy hca hes (hS.syncAC (by linarith only [hs, hΔ]) _) (hcarry y hy i e ⟨ℓ, hc, he⟩ hes)
+        ((faultBoundK_full_iff _ _).2 hfb) (cs2_full_of_faultBound sp hS.stock hfb)
+        (trivial_viableU hS hy hca hes hs hvB)
         (fun z hz j hj e' hv' hs' => ih j hj z hz e' hv' hs')
   have hs1 : gbar g + 4 * sp.Δ ≤ sp.ts (s + 1 : Nat) :=
     hs.trans ((ts_le_iff sp).2 (by push_cast; omega))
