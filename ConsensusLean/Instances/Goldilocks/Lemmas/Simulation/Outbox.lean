@@ -398,7 +398,9 @@ omit [DecidableEq V] in
 /-- A poll candidate's effective role is its body's poll role. -/
 theorem effRole_poll (t : Nat) (b : Body) :
     (Model.protoOf (compiled (goldilocksWith S)) E).candidateRole (.poll t) (.data b)
-        = pollRole S.vote (pubOf E).n b := rfl
+        = pollRole S.vote (pubOf E).n b := by
+  rw [pollRole_eq]
+  rfl
 
 omit [DecidableEq V] in
 /-- A poll signs every non-vote body in the poll role. -/
@@ -408,13 +410,24 @@ theorem poll_candidateRole_of_not_vote (t : Nat) {b : Body} (hb : ∀ w, b ≠ .
 
 /-- The ordinary candidate a poll releases from popping `q`: kept when its poll role selects the
 node, and signed in that role. -/
-@[expose] noncomputable def pollOrdinary (v : V) (q : Option (Body × List (Model.protoOf (compiled
+noncomputable def pollOrdinary (v : V) (q : Option (Body × List (Model.protoOf (compiled
     (goldilocksWith S)) E).Object)) :
     List (Model.protoOf (compiled (goldilocksWith S)) E).Object :=
   q.toList.filterMap fun bc =>
     if rho.ownKey v ∈ rho.sel (pollRole S.vote (pubOf E).n bc.1) then
       some (.mk (.signed (rho.ownKey v) (pollRole S.vote (pubOf E).n bc.1)) (.data bc.1) bc.2)
     else none
+
+omit [DecidableEq V] in
+/-- The ordinary candidates of popping `q`: each popped candidate whose poll role selects the
+node, signed in that role. -/
+theorem pollOrdinary_eq (v : V) (q : Option (Body × List (Model.protoOf (compiled
+    (goldilocksWith S)) E).Object)) :
+    pollOrdinary S rho v q = q.toList.filterMap fun bc =>
+      if rho.ownKey v ∈ rho.sel (pollRole S.vote (pubOf E).n bc.1) then
+        some (.mk (.signed (rho.ownKey v) (pollRole S.vote (pubOf E).n bc.1)) (.data bc.1) bc.2)
+      else none := by
+  rfl
 
 omit [DecidableEq V] in
 theorem pollOrdinary_some_pos {v : V} {b : Body}
@@ -572,6 +585,11 @@ theorem signedCandidate_poll (v : V) (nd : Model.Node (Model.protoOf (compiled
   erw [List.filterMap_append, List.filterMap_append, Option.toList_map, List.filterMap_map,
     List.filterMap_map, List.filterMap_map]
   congr 2
+  · erw [pollOrdinary_eq]
+    apply List.filterMap_congr
+    rintro ⟨b, cs⟩ -
+    dsimp only [Function.comp]
+    erw [effRole_poll S (E := E) t b]
   · apply filterMap_eq_map_of
     rintro ⟨τ, cs⟩ -
     have hf := poll_candidateRole_of_not_vote S (E := E) t (b := .forward τ) fun _ h => by cases h

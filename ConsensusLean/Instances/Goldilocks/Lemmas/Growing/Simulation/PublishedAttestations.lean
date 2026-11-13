@@ -201,11 +201,11 @@ theorem tick_att_releases_at (hv : rho.ExecutionValid) {i : Nat} {v : V} {t : Ti
   · refine List.mem_append_left _ (List.mem_append_left _ (List.mem_append_right _ ?_))
     apply List.mem_append_left
     rw [h]
-    simp [relHead, hk, h4]
+    simp only [relHead_eq, Option.elim_some, hk, h4, and_self, ↓reduceIte]
     exact List.mem_singleton_self _
   · refine List.mem_append_left _ (List.mem_append_right _ ?_)
     rw [h]
-    simp [relHead, hk, h5]
+    simp only [relHead_eq, Option.elim_some, hk, h5, and_self, ↓reduceIte]
     exact List.mem_singleton_self _
 
 /-- A trace signing is released at its actual engine tick, under growing faults. -/

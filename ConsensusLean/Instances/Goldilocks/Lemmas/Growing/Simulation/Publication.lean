@@ -57,9 +57,9 @@ theorem tick_block_vote_releases_at (hv : rho.ExecutionValid)
     rcases hpos q hq with h | h
     · refine List.mem_append_left _ (List.mem_append_left _ (List.mem_append_right _ ?_))
       apply List.mem_append_left
-      rw [h]; simp [relHead, hk, h4]
+      rw [h]; simp [relHead_eq, hk, h4]
     · refine List.mem_append_left _ (List.mem_append_right _ ?_)
-      rw [h]; simp [relHead, hk, h5]
+      rw [h]; simp [relHead_eq, hk, h5]
   refine ⟨fun B acc hB _ => ?_, fun ℓ hℓ m hm => ?_⟩
   · rw [heq]
     refine List.mem_append_left _ (List.mem_append_left _ (List.mem_append_left _

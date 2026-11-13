@@ -26,9 +26,16 @@ section MemberVotes
 variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))} {p : Nat → Bool}
 
 /-- The node's permission is `p`, and every queued vote is an own vote of a slot `p` admits. -/
-@[expose] def VoteMember (p : Nat → Bool) (st : State sp ro binding) : Prop :=
+def VoteMember (p : Nat → Bool) (st : State sp ro binding) : Prop :=
   st.node.ac.mayVote = p ∧
     ∀ m, .vote (encodeVote m) ∈ st.outbox → m.val = st.self ∧ p m.slot = true
+
+/-- `VoteMember p st`: the node's permission is `p`, and every queued vote is an own vote of a
+slot `p` admits. -/
+theorem VoteMember_iff (st : State sp ro binding) :
+    VoteMember p st ↔ st.node.ac.mayVote = p ∧
+      ∀ m, .vote (encodeVote m) ∈ st.outbox → m.val = st.self ∧ p m.slot = true := by
+  rfl
 
 private theorem emitted_voteMember (self : Fin sp.n) (cs : List (Cut (goldilocksNode sp ro)))
     (h : ∀ ℓ, Cut.ac ℓ ∈ cs → ∀ e ∈ ℓ.emits, e.msg.val = self ∧ p e.msg.slot = true) :

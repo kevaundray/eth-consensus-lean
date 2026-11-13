@@ -45,8 +45,14 @@ theorem candidateRole_item (B : VoteBinding) (n : Nat) (d : ShapeDuty B.Kind) (h
 
 /-- The role in which a poll duty signs the body `b`: its effective candidate role (the
 binding's override, else the poll role). -/
-@[expose] def pollRole (B : VoteBinding) (n : Nat) (b : Body) : ShapeRole B.Kind :=
+def pollRole (B : VoteBinding) (n : Nat) (b : Body) : ShapeRole B.Kind :=
   (B.candidateRole n (.poll 0) (.data b)).getD .poll
+
+/-- The poll role is the effective candidate role of a poll duty: the binding's override, else
+the poll role. -/
+theorem pollRole_eq (B : VoteBinding) (n : Nat) (b : Body) :
+    pollRole B n b = (B.candidateRole n (.poll 0) (.data b)).getD .poll := by
+  rfl
 
 /-- A poll signs a canonical vote body in the vote's role (F3). -/
 theorem pollRole_vote (B : VoteBinding) {n : Nat} (m : Vote n) :

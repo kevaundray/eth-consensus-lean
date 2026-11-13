@@ -615,7 +615,9 @@ private theorem cut_member (hv : rho.ExecutionValid) {v : V} {i p : Nat} {nd}
   have hbase := stateAt_voteMember S rho hn hv v i
   rw [stateAt_eq] at hbase
   cases hc with
-  | tick he hw hp => exact runDuties_voteMember S rho hn v _ _ hbase
+  | tick he hw hp =>
+    have hb := (VoteMember_iff _).1 hbase
+    exact runDuties_voteMember S rho hn v _ _ ((VoteMember_iff _).2 hb)
   | deliver he hp => exact runDuties_voteMember S rho hn v _ _ (process_voteMember _ _ _ hbase)
 
 /-- Pending canonical votes at actual duty boundaries are own votes of a slot whose vote role
@@ -624,7 +626,7 @@ theorem duty_cut_vote_member (hv : rho.ExecutionValid) {v : V} (_hv' : v ∉ rho
     {i p : Nat} {nd} (hc : EngineDutyCut S rho v i p nd) (m : Vote (Fintype.card V))
     (hm : Body.vote (encodeVote m) ∈ (shapeOf S hn nd).outbox) :
     m.val = rho.ownKey v ∧ rho.ownKey v ∈ rho.sel (S.vote.voteRole m.slot) :=
-  have h := (cut_member S rho hn hv hc).2 m hm
+  have h := ((VoteMember_iff _).1 (cut_member S rho hn hv hc)).2 m hm
   ⟨h.1.trans (cut_self S rho hn hc), of_decide_eq_true h.2⟩
 
 private theorem poll_duty_inventory (hprot : PollAttProtected S rho hn) (hv : rho.ExecutionValid)
@@ -660,7 +662,7 @@ private theorem poll_duty_inventory (hprot : PollAttProtected S rho hn) (hv : rh
       split
       · exact fgUpdate_voteMember _ (cut_member S rho hn hv hc)
       · exact cut_member S rho hn hv hc
-    have hw' := hown.2 w (List.mem_of_mem_head? (Option.mem_def.mpr hw))
+    have hw' := ((VoteMember_iff _).1 hown).2 w (List.mem_of_mem_head? (Option.mem_def.mpr hw))
     have hval := hw'.1.trans
       ((by rw [pollPre_eq]; split <;> simp [fgUpdate_self] :
         (pollPre (shapeOf S hn nd)).self = (shapeOf S hn nd).self).trans

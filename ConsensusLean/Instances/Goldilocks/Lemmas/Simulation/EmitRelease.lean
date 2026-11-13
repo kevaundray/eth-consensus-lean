@@ -99,7 +99,8 @@ theorem emit_released_of (hv : rho.ExecutionValid)
         rw [hone]
         exact List.mem_singleton_self _
       exact of_decide_eq_true
-        ((process_voteMember _ o _ (stateAt_voteMember S rho hn hv v i)).2 em.msg hbody).2
+        (((VoteMember_iff _).1 (process_voteMember _ o _ (stateAt_voteMember S rho hn hv v i))).2
+          em.msg hbody).2
     · exact protects_pollObj_vote S rho v _ _ _
   | restart v t =>
     rw [eventCuts_restart S rho hn i v t he] at hmem

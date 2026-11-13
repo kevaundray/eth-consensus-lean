@@ -40,7 +40,7 @@ variable {V : Type} [Fintype V] [DecidableEq V] {E : Env V} (S : BoundSetup)
 
 /-- What a poll step releases for the head `ob` of the outbox it pops from, against `seen`: the
 poll object of the head, when its poll role selects the node and the own-object guard passes. -/
-@[expose] noncomputable def relHead (v : V) (seen : List (Model.protoOf (compiled
+noncomputable def relHead (v : V) (seen : List (Model.protoOf (compiled
     (goldilocksWith S)) E).Object)
     (ob : Option Body) : List (Model.protoOf (compiled (goldilocksWith S)) E).Object :=
   ob.elim [] fun b =>
@@ -50,13 +50,27 @@ poll object of the head, when its poll role selects the node and the own-object 
       [pollObj S rho v b] else []
 
 omit [DecidableEq V] in
+/-- `relHead` releases nothing for an empty outbox, and for a head `b` its poll object exactly
+when its poll role selects the node and the own-object guard passes. -/
+theorem relHead_eq (v : V) (seen : List (Model.protoOf (compiled (goldilocksWith S)) E).Object)
+    (ob : Option Body) :
+    relHead S rho v seen ob = ob.elim [] fun b =>
+      if rho.ownKey v ∈ rho.sel (pollRole S.vote (pubOf E).n b) ∧
+        Model.protects (Model.protoOf (compiled (goldilocksWith S)) E) (rho.ownKey v) seen
+            (pollObj S rho v b) = true then
+        [pollObj S rho v b] else [] := by
+  rfl
+
+omit [DecidableEq V] in
 /-- Releasing the ordinary head alone gives `relHead`, from any runtime state. -/
 theorem release_head (v : V) (nd : Model.Node (Model.protoOf (compiled (goldilocksWith S)) E))
     (ob : Option Body) :
     (Model.releaseAll (Model.protoOf (compiled (goldilocksWith S)) E) rho.hash (rho.ownKey v) nd
       (pollOrdinary S rho v (ob.map fun b => (b, [])))).2 = relHead S rho v nd.seen ob := by
   cases ob with
-  | none => rfl
+  | none =>
+    erw [pollOrdinary_eq]
+    rfl
   | some b =>
     rw [Option.map_some]
     by_cases hk : rho.ownKey v ∈ rho.sel (pollRole S.vote (pubOf E).n b)
