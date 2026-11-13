@@ -338,14 +338,15 @@ private theorem fastLock_extending_vote_at {c s : Nat} {y : Fin sp.n} (hy : y �
     (hfl : SA.FastLockAt tr.projAC y c s B CV) :
     ∃ x j e, HVoteAt tr H x j e ∧ e.msg.slot = s ∧
       SA.VoteExtends (tr.HonestBlocksAt H) e.msg B := by
-  obtain ⟨hcount, hCV⟩ := fastLock_counted_at D.hrun D.hnc hy hfl
-  have hf := D.two_faults_lt_at hy (fastLockAt_isCall hfl)
+  obtain ⟨hcount, hCVK, hCV⟩ := fastLock_counted_at D.hrun D.hnc D.facts.hP hy hfl
+  have hf := D.two_faults_lt_K (fastLockAt_ts_le D.hrun hfl) (fastLockAt_time_le D.hrun hfl)
+    ⟨y, c, hy, fastLockAt_isCall hfl, le_rfl⟩
   obtain ⟨v, hv, hvH⟩ : ∃ v ∈ CV, v.val ∈ H (tr.time c) := by
     by_contra hno
     push Not at hno
-    have hsub : {u | ∃ v ∈ CV, v.val = u} ⊆ (H (tr.time c))ᶜ := by
+    have hsub : {u | ∃ v ∈ CV, v.val = u} ⊆ D.K.committee s ∩ (H (tr.time c))ᶜ := by
       rintro u ⟨v, hv, rfl⟩
-      exact hno v hv
+      exact ⟨hCVK ⟨v, hv, rfl⟩, hno v hv⟩
     have := Set.ncard_le_ncard hsub
     omega
   obtain ⟨j, -, e, hve, rfl⟩ := fastLock_honest_vote_at D.hrun D.hnc hy hfl hv hvH
