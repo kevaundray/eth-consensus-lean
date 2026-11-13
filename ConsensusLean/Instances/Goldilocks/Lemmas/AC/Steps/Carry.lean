@@ -265,7 +265,7 @@ theorem voterBlockTree_of_acceptedBefore (hr : ACLocalRun (goldilocksSA sp FGP r
 /-- `carried_supporter` with the unlock given, from starts up to the vote permission. -/
 theorem carried_supporterU
     {u : Nat → Set Lock} (hrun : ACRunU wm u proposer tr H U ini)
-    (hini : ∀ y, VoteStart sp.genesisRoot (ini y)) {y : Fin sp.n} (hy : y ∈ H) {i : Nat}
+    {y : Fin sp.n} (hy : y ∈ H) {i : Nat}
     {ℓ : ACLabel (goldilocksSA sp FGP ro)} {e : Em sp FGP} (hc : CastAt tr y i ℓ e) {s : Nat}
     (hs : e.msg.slot = s + 1) {C : Blk sp.n FGP} (hC : C ∈ ℓ.frame.tree) {v : Vote sp.n}
     (hvs : v.slot = s) (hheld : HeldBefore e.readPoint v (sp.ts s + 3 * sp.Δ))
@@ -349,7 +349,7 @@ theorem carried_supporterU
         Anc.mono (Set.insert_subset_iff.2 ⟨hHvU, hΦ'U⟩) (hst.F_anc_F'.trans hst.F'_anc_B)
       exact hst.new (mem_tree_of_acceptAtU sp hr hy ⟨ℓk, hck, hkB⟩ hkj hc' hanc)
   -- the vote is resolved before the freeze
-  have hbs := blockStamp_lt_of_acceptedBeforeU_from sp hr hini hy hc.1 hHvt hacc hrs
+  have hbs := blockStamp_lt_of_acceptedBeforeU_from sp hr hrun.vstart hy hc.1 hHvt hacc hrs
     (Or.inl hT.le)
   rw [hHvr, ← readPoint_blockStampU hr hy hc hne] at hbs
   have hfz : freeze sp (s + 1) = sp.ts s + 3 * sp.Δ := by simp [freeze]
@@ -374,7 +374,7 @@ validator does not equivocate in the voter's merged view, makes that validator a
 the voter is joined, so its restarts were before `t_s`). From starts up to the vote
 permission. -/
 theorem carried_supporter (hrun : ACRun proposer tr H U ini)
-    (hini : ∀ y, VoteStart sp.genesisRoot (ini y)) {y : Fin sp.n} (hy : y ∈ H) {i : Nat}
+    {y : Fin sp.n} (hy : y ∈ H) {i : Nat}
     {ℓ : ACLabel (goldilocksSA sp FGP ro)} {e : Em sp FGP} (hc : CastAt tr y i ℓ e) {s : Nat}
     (hs : e.msg.slot = s + 1) {C : Blk sp.n FGP} (hC : C ∈ ℓ.frame.tree) {v : Vote sp.n}
     (hvs : v.slot = s) (hheld : HeldBefore e.readPoint v (sp.ts s + 3 * sp.Δ))
@@ -382,12 +382,12 @@ theorem carried_supporter (hrun : ACRun proposer tr H U ini)
       AcceptedBefore tr y Hv (sp.ts s + 3 * sp.Δ))
     (hneq : v.val ∉ equivocators (mergedVoteView sp e.readPoint ℓ.frame (s + 1)).votes) :
     v.val ∈ supporters ℓ.frame (mergedVoteView sp e.readPoint ℓ.frame (s + 1)) s C :=
-  carried_supporterU hrun.toU hini hy hc hs hC hvs hheld hhead hneq
+  carried_supporterU hrun.toU hy hc hs hC hvs hheld hhead hneq
 
 /-- `carried_cover` with the unlock given, from starts up to the vote permission. -/
 theorem carried_coverU
     {u : Nat → Set Lock} (hrun : ACRunU wm u proposer tr H U ini)
-    (hini : ∀ y, VoteStart sp.genesisRoot (ini y)) {y : Fin sp.n} (hy : y ∈ H) {i : Nat}
+    {y : Fin sp.n} (hy : y ∈ H) {i : Nat}
     {ℓ : ACLabel (goldilocksSA sp FGP ro)} {e : Em sp FGP} (hc : CastAt tr y i ℓ e) {s : Nat}
     (hs : e.msg.slot = s + 1) {C : Blk sp.n FGP} (hC : C ∈ ℓ.frame.tree) {CV : Set (Vote sp.n)}
     (hcarry : CarryAt tr U y i e s CV) {v : Vote sp.n} (hv : v ∈ CV) (hvs : v.slot = s)
@@ -409,7 +409,7 @@ theorem carried_coverU
     obtain ⟨Hv, hHv, hHvr, hHvs, hCHv⟩ := hhead
     obtain ⟨Hv', hHv', hHv'r, hacc⟩ := hcarry.heads v hv
     obtain rfl : Hv' = Hv := hU.1 hHv' hHv (hHv'r.trans hHvr.symm)
-    exact Or.inl (carried_supporterU hrun hini hy hc hs hC hvs hheld
+    exact Or.inl (carried_supporterU hrun hy hc hs hC hvs hheld
       ⟨Hv', hHv', hHv'r, hHvs, hCHv, hacc Hv' Relation.ReflTransGen.refl⟩ heq)
   · exact Or.inr ⟨v₁, hm v₁ hs₁ hh₁, v₂, hm v₂ hs₂ hh₂, h12, hv₁, hv₂⟩
 
@@ -418,14 +418,14 @@ covers, whose head (of slot at most `s`) extends a block `C` of the voter's tree
 `C` in the voter's merged view or an equivocator there (two other held votes of it, or a second
 vote beside the held one). From starts up to the vote permission. -/
 theorem carried_cover (hrun : ACRun proposer tr H U ini)
-    (hini : ∀ y, VoteStart sp.genesisRoot (ini y)) {y : Fin sp.n} (hy : y ∈ H) {i : Nat}
+    {y : Fin sp.n} (hy : y ∈ H) {i : Nat}
     {ℓ : ACLabel (goldilocksSA sp FGP ro)} {e : Em sp FGP} (hc : CastAt tr y i ℓ e) {s : Nat}
     (hs : e.msg.slot = s + 1) {C : Blk sp.n FGP} (hC : C ∈ ℓ.frame.tree) {CV : Set (Vote sp.n)}
     (hcarry : CarryAt tr U y i e s CV) {v : Vote sp.n} (hv : v ∈ CV) (hvs : v.slot = s)
     (hhead : ∃ Hv ∈ U, Hv.root = v.head ∧ Hv.slot ≤ s ∧ Anc U C Hv) :
     v.val ∈ supporters ℓ.frame (mergedVoteView sp e.readPoint ℓ.frame (s + 1)) s C ∪
       equivocators (mergedVoteView sp e.readPoint ℓ.frame (s + 1)).votes :=
-  carried_coverU hrun.toU hini hy hc hs hC hcarry hv hvs hhead
+  carried_coverU hrun.toU hy hc hs hC hcarry hv hvs hhead
 
 /-- `counted_supporters` with the unlock given. -/
 theorem counted_supportersU
@@ -500,7 +500,7 @@ theorem counted_supportersU
   obtain ⟨Hv, hHv, hHvr, hacc⟩ := hcarry.heads v ⟨hvp, hvw, hvres, hvanc⟩
   have hHvd : Hv = Hd := hU.1 hHv (hΦXU hHd) (hHvr.trans hHdr.symm)
   subst hHvd
-  refine carried_supporterU hrun (fun _ => voteStart_initial _) hy hc hs hCt hvs hheld
+  refine carried_supporterU hrun hy hc hs hCt hvs hheld
     ⟨Hv, hHv, hHvr, hvs ▸ hHds, hCHd, hacc Hv Relation.ReflTransGen.refl⟩ fun hq => ?_
   obtain ⟨x, hx, x', hx', hne, hxv, hx'v⟩ := hq
   exact hne (hone _ hvw x x' hx hx' hxv hx'v)

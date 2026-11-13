@@ -112,8 +112,7 @@ theorem locks_after_unlock (hrun : ACRun proposer tr H U) (hpos : 0 < sp.committ
       · exact Or.inl heq
       · obtain ⟨Hv, hHv, hHvr, hacc⟩ := hcar.heads v hv
         obtain rfl : R = Hv := hU.1 hR hHv (hRr.trans hHvr.symm)
-        obtain ⟨_, x', hx', hx'v, hx's, hanc⟩ := carried_supporter hrun'
-          (fun _ => voteStart_initial _) hx hc' hs hBt hvs hheld
+        obtain ⟨_, x', hx', hx'v, hx's, hanc⟩ := carried_supporter hrun' hx hc' hs hBt hvs hheld
           ⟨R, hR, hRr, hRs, hBR, hacc R Relation.ReflTransGen.refl⟩ heq
         exact Or.inr ⟨x', hx', hx'v, hx's, hanc⟩
     · exact Or.inl ⟨v₁, hm' v₁ hs₁ hh₁, v₂, hm' v₂ hs₂ hh₂, h12, hv₁, hv₂⟩

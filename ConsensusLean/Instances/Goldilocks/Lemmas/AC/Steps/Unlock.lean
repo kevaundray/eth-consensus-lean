@@ -113,7 +113,7 @@ theorem origin_compatible (hU : Coherent U) {Φ : Frm sp.n FGP} (hΦU : Φ.tree 
 /-- `locks_compatible` with the unlock given. -/
 theorem locks_compatibleU
     {u : Nat → Set Lock} (hrun : ACRunU wm u proposer tr H U ini)
-    (hini : ∀ y, VoteStart sp.genesisRoot (ini y)) (K : CommitteeDict sp.n)
+    (K : CommitteeDict sp.n)
     (hP : CommitteeP K tr H) {y : Fin sp.n} (hy : y ∈ H)
     {i m : Nat}
     {ℓ : ACLabel (goldilocksSA sp FGP ro)} {e : Em sp FGP} (hc : CastAt tr y i ℓ e)
@@ -160,14 +160,14 @@ theorem locks_compatibleU
     · exact Or.inr (Anc.mono hΦU h)
   -- a lock of slot `m` or later comes from an optimistic confirmation
   obtain ⟨Φ', A, D, hΦ', hΦ'U, hD, h34, hpool, hsub, L₀, hL₀, hL₀r, hL₀D⟩ :=
-    lock_origin_readPointU hrun hini hy hc l₀ hl₀ (by rw [hs]; push_cast; omega)
+    lock_origin_readPointU hrun hy hc l₀ hl₀ (by rw [hs]; push_cast; omega)
   obtain rfl : L₀ = B₀ := hU.1 hL₀ (hΦU hB₀) (hL₀r.trans hB₀r.symm)
   refine down hL₀D ?_
   rcases (show l₀.slot = m ∨ m < l₀.slot by omega) with h | h
   · exact hm Φ' A D hΦ' hΦ'U hD (h ▸ h34) (h ▸ hpool) (h ▸ hsub)
   -- of slot `m + 1`: the honest voters' votes are earlier slot-`(m+1)` votes
   have hl₀s : l₀.slot = m + 1 := by
-    have := readPoint_lock_slot_leU hr hini hy hc l₀ hl₀
+    have := readPoint_lock_slot_leU hr hrun.vstart hy hc l₀ hl₀
     have := (castAt_specU hr hy hc).2.1
     omega
   obtain ⟨k₀, -, hk₀⟩ := hsub
@@ -190,7 +190,7 @@ committee size in optimistic voters whose honest
 votes were cast before the vote) is compatible with `B`, then every live lock block at the vote's
 read point is compatible with `B`. From starts up to the vote permission. -/
 theorem locks_compatible (hrun : ACRun proposer tr H U ini)
-    (hini : ∀ y, VoteStart sp.genesisRoot (ini y)) (K : CommitteeDict sp.n)
+    (K : CommitteeDict sp.n)
     (hP : CommitteeP K tr H) {y : Fin sp.n} (hy : y ∈ H) {i m : Nat}
     {ℓ : ACLabel (goldilocksSA sp FGP ro)} {e : Em sp FGP} (hc : CastAt tr y i ℓ e)
     (hs : e.msg.slot = m + 1) {B : Blk sp.n FGP} (hB : B ∈ ℓ.frame.tree) {S : Set (Fin sp.n)}
@@ -207,7 +207,7 @@ theorem locks_compatible (hrun : ACRun proposer tr H U ini)
       (∃ k ≤ i, A.pool m ⊆ (tr.state y (k + 1)).pool m) →
       Compatible U D B) :
     ∀ L ∈ liveLockBlocks sp e.readPoint.locks ℓ.frame (tr.time i), Compatible U L B :=
-  locks_compatibleU hrun.toU hini K hP hy hc hs hB hS hn hf hearlier hm
+  locks_compatibleU hrun.toU K hP hy hc hs hB hS hn hf hearlier hm
 
 end Consensus.Goldilocks.SA
 

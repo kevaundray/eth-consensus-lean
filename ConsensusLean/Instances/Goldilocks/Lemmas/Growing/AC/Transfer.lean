@@ -213,7 +213,7 @@ theorem first_transfer_stored
   have hcore := anc_getHead hU hΦ hΦU e.readPoint (tr.time i)
     (mergedVoteView sp e.readPoint ℓ.frame (s + 1)) (s : Int)
     (fun B hB => voteDomain_subset_tree hB) hdomA hviab.voteDomain
-    (locks_compatible hry (fun _ => voteStart_initial _) K (hP (tr.time i)) hy hc' hs hBt
+    (locks_compatible hry K (hP (tr.time i)) hy hc' hs hBt
       (S := SX) (fun w hw => by
         obtain ⟨_, x, hx, hxv, hxs, hxa⟩ := hsupp hw
         exact Or.inr ⟨x, hx, hxv, by exact_mod_cast hxs, hxa⟩)

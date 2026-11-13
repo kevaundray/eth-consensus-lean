@@ -106,7 +106,7 @@ theorem vote_extends_of_counted_batch (hrun : SA.ACRun proposer tr H U)
     obtain ⟨Hd', hHd', hHd'r, hBHd'⟩ := hall w hwSX j e' hv hvs
     have h1 : Hd = Hv := hU.1 hHd hHv (hHdr.trans hHvr.symm)
     have h2 : Hd' = Hv := hU.1 hHd' hHv (hHd'r.trans hHvr.symm)
-    have := SA.carried_supporter hrun (fun _ => SA.voteStart_initial _) hy hc hs hBt hvs hheld
+    have := SA.carried_supporter hrun hy hc hs hBt hvs hheld
       ⟨Hv, hHv, hHvr, h1 ▸ hvs ▸ hHds, h2 ▸ hBHd', hacc Hv Relation.ReflTransGen.refl⟩
       (SA.honest_not_equivocator hrun hy hc (hvw ▸ hw))
     exact hvw ▸ this

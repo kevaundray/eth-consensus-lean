@@ -87,9 +87,8 @@ theorem admitted_of_held (hr : ACLocalRun (goldilocksSA sp FGP ro) H U tr) {X : 
   admitted_of_held_from hr (fun _ => voteStart_initial _) hX hvs hv hT hlt
 
 /-- `optimistic_side` with the unlock given. From starts up to the vote permission. -/
-theorem optimistic_sideU_from
+theorem optimistic_sideU
     {uL : Nat → Set Lock} (hrun : ACRunU wm uL proposer tr H U ini)
-    (hini : ∀ y, VoteStart sp.genesisRoot (ini y))
     {X : Fin sp.n} (hX : X ∈ H) {k s : Nat}
     {D : Blk sp.n FGP} {CV : Set (Vote sp.n)} (hfl : OptimisticLockAt tr X k s D CV) :
     ∃ ℓ A, OptimisticPoint tr X k ℓ A ∧ ℓ.frame.tree ⊆ U ∧
@@ -105,35 +104,24 @@ theorem optimistic_sideU_from
   rw [hsl] at h34 hcond
   refine ⟨ℓ, A, hpt, hΦU, h34, ?_⟩
   rintro u ⟨v, hv, rfl, R, hR, hRr, hDR⟩
-  have hvs := optimisticPoint_pool_slotU hr hini hX hpt hv
+  have hvs := optimisticPoint_pool_slotU hr hrun.vstart hX hpt hv
   have htk : tr.time k < sp.ts s + 2 * sp.Δ := by
     exact not_le.1 (not_or.1 (not_or.1 hcond).2).2
   rw [fwd_iff]
   refine ⟨v, rfl, hvs, ⟨R, hΦU hR, hRr, Anc.mono hΦU hDR⟩, ?_⟩
-  exact admitted_of_heldU hr hini hX hvs (optimisticPoint_pool_postU hr hX hpt s hv) le_rfl
+  exact admitted_of_heldU hr hrun.vstart hX hvs (optimisticPoint_pool_postU hr hX hpt s hv) le_rfl
     fun k' hk' _ => lt_of_le_of_lt (hr.time_mono (Nat.lt_succ_iff.1 hk')) htk
-
-/-- `optimistic_sideU_from` at the initial starts. -/
-theorem optimistic_sideU
-    {uL : Nat → Set Lock} (hrun : ACRunU wm uL proposer tr H U)
-    {X : Fin sp.n} (hX : X ∈ H) {k s : Nat}
-    {D : Blk sp.n FGP} {CV : Set (Vote sp.n)} (hfl : OptimisticLockAt tr X k s D CV) :
-    ∃ ℓ A, OptimisticPoint tr X k ℓ A ∧ ℓ.frame.tree ⊆ U ∧
-      3 * sp.committeeSize ≤ 4 * (optimisticVoters sp A ℓ.frame s D).ncard ∧
-      optimisticVoters sp A ℓ.frame s D ⊆ Fwd tr U X s D :=
-  optimistic_sideU_from hrun (fun _ => voteStart_initial _) hX hfl
 
 /-- **The optimistic side.** At an honest optimistic confirmation of slot `s` on `D`, three
 quarters of the committee are optimistic voters of `D`, each with a vote extending `D` that the
 node admitted (or cast) in `[t_s, t_s + 2Δ)`. From starts up to the vote permission. -/
 theorem optimistic_side (hrun : ACRun proposer tr H U ini)
-    (hini : ∀ y, VoteStart sp.genesisRoot (ini y))
     {X : Fin sp.n} (hX : X ∈ H) {k s : Nat}
     {D : Blk sp.n FGP} {CV : Set (Vote sp.n)} (hfl : OptimisticLockAt tr X k s D CV) :
     ∃ ℓ A, OptimisticPoint tr X k ℓ A ∧ ℓ.frame.tree ⊆ U ∧
       3 * sp.committeeSize ≤ 4 * (optimisticVoters sp A ℓ.frame s D).ncard ∧
       optimisticVoters sp A ℓ.frame s D ⊆ Fwd tr U X s D :=
-  optimistic_sideU_from hrun.toU hini hX hfl
+  optimistic_sideU hrun.toU hX hfl
 
 /-- `fwd_held` with the unlock given. -/
 theorem fwd_heldU

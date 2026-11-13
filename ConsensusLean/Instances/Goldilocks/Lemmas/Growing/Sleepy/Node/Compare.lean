@@ -114,7 +114,7 @@ private theorem optimistic_side_at
         v.slot = s ∧ ∃ j ≤ k, ∃ e, HVoteAt tr H v.val j e ∧ e.msg = v := by
   have hd := hrun.time_nonneg k
   have hr := acRun_upTo hrun hnc hd
-  obtain ⟨ℓ, A, hpt, hU, h34, hfwd⟩ := SA.optimistic_side hr (fun _ => SA.voteStart_initial _) hX
+  obtain ⟨ℓ, A, hpt, hU, h34, hfwd⟩ := SA.optimistic_side hr hX
     ((sa_optimisticLockAt_upTo hrun.time_mono).2 ⟨le_rfl, hfl⟩)
   rw [hrun.stock] at h34
   refine ⟨ℓ, A, fun B hB => upTo_subset hrun hd (hU hB), h34,

@@ -284,7 +284,7 @@ the call), so its counted honest votes were cast at cuts before `i`.
 From starts up to the vote permission. -/
 theorem readPoint_locks_provenance_strict {proposer : Nat → Fin sp.n}
     (hrun : ACRun proposer tr H U ini)
-    (hini : ∀ y, VoteStart sp.genesisRoot (ini y)) {y : Fin sp.n} (hy : y ∈ H) {i : Nat}
+    {y : Fin sp.n} (hy : y ∈ H) {i : Nat}
     {ℓ : ACLabel (goldilocksSA sp FGP ro)} {e : Em sp FGP} (hc : CastAt tr y i ℓ e)
     (hpos : 0 < sp.slot (tr.time i)) :
     ∀ l' ∈ e.readPoint.locks, ∃ B' ∈ ℓ.frame.tree, B'.root = l'.block ∧
@@ -323,7 +323,7 @@ theorem readPoint_locks_provenance_strict {proposer : Nat → Fin sp.n}
       exact (deepest_mem h).1.1
     obtain rfl : B₂ = B := hΦ.coherent.1 hB₂ hBt hB₂r
     exact Or.inr ⟨B₂, _, ⟨ℓ, A, hpt, rfl, hsel, rfl⟩,
-      fun v hv hvH => receipt_pool_vote hrun hini hy hc.1 hrcpt hv.1 hvH, hA.trans hA'⟩
+      fun v hv hvH => receipt_pool_vote hrun hy hc.1 hrcpt hv.1 hvH, hA.trans hA'⟩
 
 end Consensus.Goldilocks.SA
 

@@ -73,7 +73,7 @@ theorem goldilocksReadPointOrigin (hr : ACRun proposer o H U) :
   simp only [FamilyFacts.ReadPointOrigin, proj_goldilocks]
   intro y hy i ℓ e hc hp l hl
   obtain ⟨B', hB', hr', h | ⟨B, CV, he, hv, hanc⟩⟩ :=
-    readPoint_locks_provenance_strict hr (fun _ => voteStart_initial _) hy hc hp l hl
+    readPoint_locks_provenance_strict hr hy hc hp l hl
   · exact ⟨B', hB', hr', Or.inl h⟩
   · exact ⟨B', hB', hr', Or.inr ⟨B, CV, ⟨rfl, he⟩, hv, hanc⟩⟩
 

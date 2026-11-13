@@ -59,7 +59,7 @@ theorem honest_isBest_of_carry {FGP : Type} {ro : ReplayOrder sp FGP}
     obtain ⟨R', hR', hR'r, hBR⟩ := hall x hx j e' ⟨ℓx, hcx⟩ hvs
     have heq : R' = R := hr.coherent.1 hR' hR (hR'r.trans hRr.symm)
     have hBR' : Anc U B R := heq ▸ hBR
-    have h := carried_cover hrun (fun _ => voteStart_initial _) hy hc hs hBt hcarry
+    have h := carried_cover hrun hy hc hs hBt hcarry
       ⟨x, hx, j, e', ⟨ℓx, hcx⟩, rfl, hvs⟩ hvs
       ⟨R, hR, hRr, hvs ▸ hRs, hBR'⟩
     exact hvx ▸ h
@@ -155,7 +155,7 @@ theorem optimistic_isBest_of_carry
   let V := mergedVoteView sp e.readPoint ℓ.frame (s + 1)
   have hcover : SX ⊆ supporters ℓ.frame V s B ∪ equivocators V.votes := by
     rintro w ⟨v, hv, rfl, R, hR, hRr, hDR⟩
-    exact carried_cover hrun (fun _ => voteStart_initial _) hy hc hs hBt hcarry
+    exact carried_cover hrun hy hc hs hBt hcarry
       ⟨hv, R, hR, hRr, hDR⟩
       (optimisticPoint_pool_slot hr hx hpt hv) ⟨R, hΦxU hR, hRr,
         (frame_slot_le sp hr hx hpt.1 R hR).trans hslx.le, hBD.trans (Anc.mono hΦxU hDR)⟩

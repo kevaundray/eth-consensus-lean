@@ -42,7 +42,7 @@ theorem optimistic_seats (hrun : ACRun proposer tr H U)
       optimisticVoters sp A ℓ.frame s D ⊆ Relayed tr H U X s D := by
   have hm := hrun.localRun.time_mono
   obtain ⟨ℓ, A, hp, hU, hn, hf⟩ := SA.optimistic_side
-    (hrun.upTo (hrun.localRun.time_nonneg k)) (fun _ => SA.voteStart_initial _) hX
+    (hrun.upTo (hrun.localRun.time_nonneg k)) hX
     ((upTo_optimisticLockAt hm).mpr ⟨le_rfl, hfl⟩)
   refine ⟨ℓ, A, (upTo_optimisticPoint hm).mp hp |>.2, hU, hn, ?_⟩
   intro u hu

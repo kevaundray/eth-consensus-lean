@@ -152,6 +152,8 @@ structure ACRun (selectedProposer : Nat → Fin sp.n)
   localRun : ACLocalRun (goldilocksSA sp FGP ro) H U tr ini
   /-- The honest-object facts. -/
   honest : HonestObjects selectedProposer tr H
+  /-- The AC starts are starts up to the vote permission. -/
+  vstart : ∀ y, VoteStart sp.genesisRoot (ini y)
 
 end Consensus.Goldilocks.SA
 

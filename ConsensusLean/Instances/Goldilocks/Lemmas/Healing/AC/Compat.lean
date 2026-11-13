@@ -265,7 +265,7 @@ theorem result_optimistic_compatible_window_before
     (hreset : ∀ q ≤ i, tr.RestartAt x q → tr.time q ≤ sp.ts s) : Compatible U C O := by
   by_contra hnc
   obtain ⟨ℓ, S, hc, ht, hmaj, -, hSs⟩ := result_side hrun hx hR
-  obtain ⟨ℓo, Ao, -, -, h34, hT⟩ := optimistic_side hrun (fun _ => voteStart_initial _) hx' hO
+  obtain ⟨ℓo, Ao, -, -, h34, hT⟩ := optimistic_side hrun hx' hO
   rw [hrun.stock] at h34
   have h1 := against_update_window_before hrun.localRun hsync ha hx' hx hc ht hi hreset
     hSs hT fun h => hnc (Or.symm h)

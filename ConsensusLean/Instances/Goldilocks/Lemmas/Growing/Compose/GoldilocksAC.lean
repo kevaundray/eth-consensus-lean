@@ -31,7 +31,8 @@ theorem goldilocks_ac_projection : GoldilocksACProjection := by
       carried_vote := fun y i ℓ hy hc B hB v hv hval =>
         emission ((retained i).honest.carried_vote y hy i ℓ (call hc) B hB v hv hval)
       proposer := fun B hB hng => ?_
-      one_block := fun y i ℓ B y' i' ℓ' B' hy hc hB hy' hc' hB' hp hprop hslot => ?_ }⟩
+      one_block := fun y i ℓ B y' i' ℓ' B' hy hc hB hy' hc' hB' hp hprop hslot => ?_ },
+    h.vstart⟩
   · apply emission
     apply (retained i).honest.pool_vote y hy i σ v
     · simpa only [RunTrace.upTo_projAC,

@@ -198,7 +198,7 @@ theorem slow_live_locksU
       (by omega) (by omega) B₁ (hΦU hB₁) hB₁r)
   · -- a lock of slot `s + 1` or later is optimistic, over earlier honest slot-`(s+1)` votes
     obtain ⟨Φ', A, D', -, hΦ'U, -, h34, hpool, -, L₀, hL₀, hL₀r, hL₀D⟩ :=
-      lock_origin_readPointU hrun (fun _ => voteStart_initial _) hy hc l₀ hl₀
+      lock_origin_readPointU hrun hy hc l₀ hl₀
         (by rw [hes]; push_cast; omega)
     obtain rfl : L₀ = B₀ := hU.1 hL₀ (hΦU hB₀) (hL₀r.trans hB₀r.symm)
     refine down hL₀D (origin_compatible hU hΦ'U (CommitteeDict.full sp.n) h34

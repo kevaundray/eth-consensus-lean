@@ -36,8 +36,7 @@ private theorem genesis_mem_U (hr : ACLocalRun (goldilocksSA sp FGP ro) H U tr) 
 /-- The counted votes of an honest fast lock of slot `s` on `B`: their validators are at least
 half of the committee, and each is a slot-`s` vote whose head, of slot at most `s`, extends `B`
 inside `U`. From starts up to the vote permission. -/
-theorem fastLock_counted_from (hrun : ACRun proposer tr H U ini)
-    (hini : ∀ y, VoteStart sp.genesisRoot (ini y))
+theorem fastLock_counted (hrun : ACRun proposer tr H U ini)
     {w : Fin sp.n} (hw : w ∈ H) {i₀ s : Nat}
     {B : Blk sp.n FGP} {CV : Set (Vote sp.n)} (hfl : FastLockAt tr w i₀ s B CV) :
     sp.committeeSize ≤ 2 * {u | ∃ v ∈ CV, v.val = u}.ncard ∧
@@ -52,9 +51,9 @@ theorem fastLock_counted_from (hrun : ACRun proposer tr H U ini)
       rintro u ⟨hu, x, ⟨hx, hres⟩, hval, -, hanc⟩
       exact ⟨x, ⟨hx, hval ▸ hu, hres, hanc⟩, hval⟩
     · rintro v ⟨hvp, -, hres, R, hR, hRr, hBR⟩
-      refine ⟨state_pool_slot_from sp hr hini hw i₀ s v hvp, R, hΦU hR, hRr, ?_,
+      refine ⟨state_pool_slot_from sp hr hrun.vstart hw i₀ s v hvp, R, hΦU hR, hRr, ?_,
         Anc.mono hΦU hBR⟩
-      have hvs := state_pool_slot_from sp hr hini hw i₀ s v hvp
+      have hvs := state_pool_slot_from sp hr hrun.vstart hw i₀ s v hvp
       unfold resolutionTime at hres
       split at hres
       · exact absurd hres (by simp [ETime.of])
@@ -77,18 +76,10 @@ theorem fastLock_counted_from (hrun : ACRun proposer tr H U ini)
       have := Set.ncard_le_ncard hsub
       omega
     · rintro v ⟨hv, R, hR, hRr, hBR⟩
-      refine ⟨optimisticPoint_pool_slot_from hr hini hw hpt hv, R, hΦU hR, hRr, ?_,
+      refine ⟨optimisticPoint_pool_slot_from hr hrun.vstart hw hpt hv, R, hΦU hR, hRr, ?_,
         Anc.mono hΦU hBR⟩
       have := frame_slot_le sp hr hw hpt.1 R hR
       omega
-
-/-- `fastLock_counted_from` at the initial starts. -/
-theorem fastLock_counted (hrun : ACRun proposer tr H U)
-    {w : Fin sp.n} (hw : w ∈ H) {i₀ s : Nat}
-    {B : Blk sp.n FGP} {CV : Set (Vote sp.n)} (hfl : FastLockAt tr w i₀ s B CV) :
-    sp.committeeSize ≤ 2 * {u | ∃ v ∈ CV, v.val = u}.ncard ∧
-      ∀ v ∈ CV, v.slot = s ∧ ∃ R ∈ U, R.root = v.head ∧ R.slot ≤ s ∧ Anc U B R :=
-  fastLock_counted_from hrun (fun _ => voteStart_initial _) hw hfl
 
 /-- **The locks after the unlocking of slot `s + 1`**, for a fast lock on `D` and any `B ⪯ D`
 (the block the lock stores). The committee is nonempty (`hpos`). -/
@@ -163,8 +154,7 @@ theorem locks_after_unlock
       · exact Or.inl heq
       · obtain ⟨Hv, hHv, hHvr, hacc⟩ := hcar.heads v hv
         obtain rfl : R = Hv := hU.1 hR hHv (hRr.trans hHvr.symm)
-        obtain ⟨-, x', hx', hx'v, hx's, hanc⟩ := carried_supporter hrun
-          (fun _ => voteStart_initial _) hx hc hs hBt hvs hheld
+        obtain ⟨-, x', hx', hx'v, hx's, hanc⟩ := carried_supporter hrun hx hc hs hBt hvs hheld
           ⟨R, hR, hRr, hRs, hBR, hacc R Relation.ReflTransGen.refl⟩ heq
         exact Or.inr ⟨x', hx', hx'v, hx's, hanc⟩
     · exact Or.inl ⟨v₁, hm v₁ hs₁ hh₁, v₂, hm v₂ hs₂ hh₂, h12, hv₁, hv₂⟩

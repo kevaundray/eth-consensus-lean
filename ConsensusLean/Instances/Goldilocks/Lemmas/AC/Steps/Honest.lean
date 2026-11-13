@@ -69,7 +69,6 @@ theorem honest_merged_vote (hrun : ACRun proposer tr H U ini) {y : Fin sp.n} (hy
 /-- `honest_not_equivocator` with the unlock given. -/
 theorem honest_not_equivocatorU
     {u : Nat → Set Lock} (hrun : ACRunU wm u proposer tr H U ini)
-    (hini : ∀ y, VoteStart sp.genesisRoot (ini y))
     {y : Fin sp.n} (hy : y ∈ H) {i : Nat}
     {ℓ : ACLabel (goldilocksSA sp FGP ro)} {e : Em sp FGP} (hc : CastAt tr y i ℓ e) {σ : Nat}
     {w : Fin sp.n} (hw : w ∈ H) :
@@ -85,26 +84,17 @@ theorem honest_not_equivocatorU
   obtain ⟨j', -, e₂, hv₂, rfl⟩ := honest_merged_voteU hrun hy hc hx' (hxx ▸ hw)
   rw [hxx] at hv₂
   exact hne (congrArg Emission.msg (one_vote_per_slotU sp _ _ _ _ _ hr _ (hxx ▸ hw) _ _ _ _ hv₁
-    hv₂ ((merged_vote_slotU hr hini hy hc _ hx).trans
-      (merged_vote_slotU hr hini hy hc _ hx').symm)).2)
+    hv₂ ((merged_vote_slotU hr hrun.vstart hy hc _ hx).trans
+      (merged_vote_slotU hr hrun.vstart hy hc _ hx').symm)).2)
 
 /-- An honest validator is not an equivocator in an honest voter's merged view.
 From starts up to the vote permission. -/
-theorem honest_not_equivocator_from (hrun : ACRun proposer tr H U ini)
-    (hini : ∀ y, VoteStart sp.genesisRoot (ini y))
+theorem honest_not_equivocator (hrun : ACRun proposer tr H U ini)
     {y : Fin sp.n} (hy : y ∈ H) {i : Nat}
     {ℓ : ACLabel (goldilocksSA sp FGP ro)} {e : Em sp FGP} (hc : CastAt tr y i ℓ e) {σ : Nat}
     {w : Fin sp.n} (hw : w ∈ H) :
     w ∉ equivocators (mergedVoteView sp e.readPoint ℓ.frame σ).votes :=
-  honest_not_equivocatorU hrun.toU hini hy hc hw
-
-/-- `honest_not_equivocator_from` at the initial starts. -/
-theorem honest_not_equivocator (hrun : ACRun proposer tr H U)
-    {y : Fin sp.n} (hy : y ∈ H) {i : Nat}
-    {ℓ : ACLabel (goldilocksSA sp FGP ro)} {e : Em sp FGP} (hc : CastAt tr y i ℓ e) {σ : Nat}
-    {w : Fin sp.n} (hw : w ∈ H) :
-    w ∉ equivocators (mergedVoteView sp e.readPoint ℓ.frame σ).votes :=
-  honest_not_equivocator_from hrun (fun _ => voteStart_initial _) hy hc hw
+  honest_not_equivocatorU hrun.toU hy hc hw
 
 /-- `honest_head_frame` with the unlock given. -/
 theorem honest_head_frameU

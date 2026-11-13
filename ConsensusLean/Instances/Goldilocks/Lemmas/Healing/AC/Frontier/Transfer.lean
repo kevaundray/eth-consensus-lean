@@ -76,7 +76,7 @@ theorem vote_locks_compatibleAC
       originWithinAC_iff.2 ⟨y, hy, k, CV, (hr.time_mono hk.le).trans hib, hO⟩
     exact down ((Anc.mono hΦU hA).trans hL₁O) (hBc O l₁.slot hOw (by omega)).symm
   · obtain ⟨Φ', A, D, -, hΦ'U, -, h34, hpool, -, L₀, hL₀, hL₀r, hL₀D⟩ :=
-      lock_origin_readPointU hrun (fun _ => voteStart_initial _) hy hc l₀ hl₀
+      lock_origin_readPointU hrun hy hc l₀ hl₀
         (by rw [hs]; push_cast; omega)
     obtain rfl : L₀ = B₀ := hU.1 hL₀ (hΦU hB₀) (hL₀r.trans hB₀r.symm)
     refine down hL₀D (origin_compatible hU hΦ'U (CommitteeDict.full sp.n) h34
@@ -151,9 +151,9 @@ theorem vote_extends_of_counted_batchAC (hrun : ACRunU wm u proposer tr H U)
     obtain ⟨Hd', hHd', hHd'r, hBHd'⟩ := hall w hwSX j e' hv hvs
     have h1 : Hd = Hv := hU.1 hHd hHv (hHdr.trans hHvr.symm)
     have h2 : Hd' = Hv := hU.1 hHd' hHv (hHd'r.trans hHvr.symm)
-    have := carried_supporterU hrun (fun _ => voteStart_initial _) hy hc hs hBt hvs hheld
+    have := carried_supporterU hrun hy hc hs hBt hvs hheld
       ⟨Hv, hHv, hHvr, h1 ▸ hvs ▸ hHds, h2 ▸ hBHd', hacc Hv Relation.ReflTransGen.refl⟩
-      (honest_not_equivocatorU hrun (fun _ => voteStart_initial _) hy hc (hvw ▸ hw))
+      (honest_not_equivocatorU hrun hy hc (hvw ▸ hw))
     exact hvw ▸ this
   have hcore := anc_getHead hU hΦ hΦU e.readPoint (tr.time i)
     (mergedVoteView sp e.readPoint ℓ.frame (s + 1)) (s : Int) (fun B hB =>

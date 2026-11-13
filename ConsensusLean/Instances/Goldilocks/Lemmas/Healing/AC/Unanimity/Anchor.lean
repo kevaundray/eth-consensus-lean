@@ -150,7 +150,7 @@ theorem vote_anchor_cases_coreU
   · -- a lock of slot `p`: three quarters of the committee voted for a block above it
     right
     obtain ⟨Φ, A, D, -, hΦ'U, -, h34, hpool, -, L, hL, hLr, hLD⟩ :=
-      lock_origin_readPointU hrun (fun _ => voteStart_initial _) hx hc l hl
+      lock_origin_readPointU hrun hx hc l hl
         (by rw [hes, hlp]; omega)
     rw [hS.stock] at h34
     obtain rfl : L = a := hU.1 hL (hΦU haT) (hLr.trans hlr.symm)

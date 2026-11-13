@@ -744,7 +744,7 @@ theorem FrameWindow.older_locks_compatible_at_update
   obtain ⟨B, hB, hBr, haccB⟩ := hcarry.heads ev.msg ⟨x, hx, q, ev, hv, rfl, hes⟩
   have hBP : B = P := hr.coherent.1 hB (hPhi.2 hvi.1) (hBr.trans (hun x hx q ev hv hes))
   rw [hBP] at haccB
-  have hsupp := SA.carried_supporter hS.run (fun _ => SA.voteStart_initial _) hy hc hs hvi.1 hes
+  have hsupp := SA.carried_supporter hS.run hy hc hs hvi.1 hes
     ⟨hheld.1, lt_trans hheld.2
       (WithBot.coe_lt_coe.mpr (WithTop.coe_lt_coe.mpr (by linarith only [hDelta])))⟩
     ⟨P, hPhi.2 hvi.1, (hun x hx q ev hv hes).symm, hPs.le, .refl, haccB P .refl⟩

@@ -103,7 +103,7 @@ theorem carried_counted_supporters (hrun : ACRun proposer tr H U)
     · exact Or.inl hg
     · exact Or.inr ⟨k, (ACTrace.upTo_acceptAt (A := goldilocksSA sp FGP ro)).mpr
         ⟨ht.le.trans hT.le, hk⟩, ht⟩
-  refine carried_supporter hry (fun _ => voteStart_initial _) hy hc' hs hCt hvs hheld
+  refine carried_supporter hry hy hc' hs hCt hvs hheld
     ⟨Hv, hHv, hHvr, hvs ▸ hHds, hBC.trans hCHd, hacc'⟩ fun hq => ?_
   obtain ⟨x, hx, x', hx', hne, hxv, hx'v⟩ := hq
   exact hne (hone _ hvw x x' hx hx' hxv hx'v)

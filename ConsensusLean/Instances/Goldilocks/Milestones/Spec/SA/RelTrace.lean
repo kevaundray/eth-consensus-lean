@@ -416,6 +416,8 @@ structure ACRunU (m : WriteMode) (u : Nat → Set Lock) {ro : ReplayOrder sp FGP
   localRun : ACLocalRunU m u H U tr ini
   /-- The honest-object facts. -/
   honest : HonestObjects selectedProposer tr H
+  /-- The AC starts are starts up to the vote permission. -/
+  vstart : ∀ y, VoteStart sp.genesisRoot (ini y)
 
 /-- `ACRunU` from the starts `st`: an AC trace with the contract `ACLocalRunUS` and the
 honest-object facts. -/

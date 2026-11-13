@@ -78,7 +78,7 @@ theorem unanimous_next_cast_supporters_at
       (fun k hkj t _ => Compose.ac_deadline_le_of_restarts
         (fun r hr hrs => (hrst r (hr.trans hkj) hrs).le) t)
       hrst hx hv' hs (j + 1) (Or.inr rfl)
-  have hsupp := SA.carried_supporter hS.run (fun _ => SA.voteStart_initial _) hy hc' hes hPt hs
+  have hsupp := SA.carried_supporter hS.run hy hc' hes hPt hs
     ⟨hheld.1, lt_trans hheld.2
       (WithBot.coe_lt_coe.mpr (WithTop.coe_lt_coe.mpr (by linarith)))⟩
     ⟨P, hPhi.2 hPt, heP.symm, hPs.le, .refl,

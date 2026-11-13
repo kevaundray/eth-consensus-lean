@@ -62,6 +62,7 @@ theorem simTraceAt_goldilocksRun (hv : rho.ExecutionValid)
     Growing.GoldilocksRun (runProposer S rho hn) (digestOf S rho)
       (honestKeysAt S rho) (simTraceAt S rho hn) (simIni S rho hn) where
   stock := committeeSize_of_participationKind_none hstock.out _
+  vstart := simIni_voteStart S rho hn
   antitone := honestKeysAt_antitone S rho
   init := by
     intro y hy
