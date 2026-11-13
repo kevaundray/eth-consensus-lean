@@ -253,7 +253,7 @@ private theorem optimistic_unlock_keeps
     (Compose.frameOK_state hp.run.toLocalRun hy j) _ hR (hpool j) (hpool (j + 1)) hpay
     (fun v hv w hw hvH hval hsl =>
       Compose.heldVotes_honest_unique hp.run hp.noColl hy hcall hv hw hvH hval hsl) ?_
-    (by simpa only [hp.run.stock] using hf)
+    (by simpa only [hp.stock] using hf)
   intro v hv hvH hvs Hd hHd hHdr
   obtain ⟨k, e, ⟨ell', hcast⟩, hm⟩ :
       ∃ k e, SA.VoteAt tr.projAC v.val k e ∧ e.msg = v := by

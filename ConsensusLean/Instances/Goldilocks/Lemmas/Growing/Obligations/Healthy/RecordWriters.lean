@@ -328,7 +328,7 @@ private theorem optimistic_unlock_keeps_at
     (hpool (j + 1)) hpay
     (fun v hv w hw hvH hval hsl =>
       Compose.heldVotes_honest_unique hrT hncT hy hcall hv hw hvH hval hsl) ?_
-    (by simpa only [hrT.stock] using hf)
+    (by simpa only [hp.stock] using hf)
   intro v hv hvH hvs Hd hHd hHdr
   obtain ⟨k, e, ⟨ell', hcast⟩, hmsg⟩ :
       ∃ k e, SA.VoteAt (tr.upTo t).projAC v.val k e ∧ e.msg = v := by
