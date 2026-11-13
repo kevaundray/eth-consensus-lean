@@ -5,6 +5,7 @@ public import ConsensusLean.Instances.Goldilocks.Lemmas.Healing.NextVotesCore
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Healing.Outcome.SupplierFrames
 import ConsensusLean.Lemmas.Tactic.Linarith
 import ConsensusLean.Instances.Goldilocks.Lemmas.FGChain.QuorumMargin
+import ConsensusLean.Instances.Goldilocks.Lemmas.AC.Steps.Committee
 
 public section
 
@@ -258,7 +259,8 @@ theorem optimistic_later_heads_of_witness (hrun : GoldilocksRun proposer dg H tr
           some (d, pay) → Anc (tr.HonestBlocks H) X d.head) := by
   have hS := healthy_base_of_service_catch_before hrun hnc hsvc hawake hf hcatch
   exact optimistic_later_heads_of_early_witness hrun hnc hsvc hawake hf hcatch hnr hm hmb
-    hframe hx hopt hXD hx (SA.optimisticLockAt_spec hS.run hx hopt).1 hcw hQw hh hJ hXQ
+    hframe hx hopt hXD hx (SA.optimisticLockAt_spec hS.run hx hopt (SA.CommitteeDict.full sp.n)
+      (fun _ _ _ => SA.mem_full _ _)).1 hcw hQw hh hJ hXQ
 
 /- The full proposal domain needs no frozen stamp. In kind J use J itself;
 otherwise the cache's hmax block supplies the root's viable descendant. -/

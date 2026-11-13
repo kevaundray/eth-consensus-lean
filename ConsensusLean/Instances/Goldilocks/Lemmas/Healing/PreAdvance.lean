@@ -14,6 +14,7 @@ public import ConsensusLean.Instances.Goldilocks.Lemmas.AC.Steps.HeadLock
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Compose.Service.Pivot
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Healing.AC.ProposalCore
 import ConsensusLean.Instances.Goldilocks.Lemmas.AC.Steps.ExpiryFloor
+import ConsensusLean.Instances.Goldilocks.Lemmas.AC.Steps.Committee
 import ConsensusLean.Lemmas.Tactic.Linarith
 
 public section
@@ -553,7 +554,8 @@ theorem FrameWindow.vote_head_classification_of_service {s₀ floor : Nat} {hi :
   · exact ⟨Hd, hHd, hHDr, Or.inl hv⟩
   · exact ⟨Hd, hHd, hHDr, Or.inr (Or.inl hj)⟩
   have hAC := Compose.goldilocks_ac_projection sp ro dg H tr proposer hrun hnc
-  obtain ⟨htop, hcount, -⟩ := SA.optimisticLockAt_spec hAC hy ho
+  obtain ⟨htop, hcount, -⟩ := SA.optimisticLockAt_spec hAC hy ho (SA.CommitteeDict.full sp.n)
+    (fun _ _ _ => SA.mem_full _ _)
   rw [hS.stock] at hcount
   have hD : D ∈ ell.frame.tree := by
     obtain ⟨ellw, Aw, hp, hslot, hsel, -⟩ := ho

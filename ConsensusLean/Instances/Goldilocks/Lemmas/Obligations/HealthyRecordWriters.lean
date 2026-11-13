@@ -8,6 +8,7 @@ import ConsensusLean.Instances.Goldilocks.Lemmas.Simulation.Outputs
 import ConsensusLean.Instances.Goldilocks.Lemmas.Simulation.Core
 import ConsensusLean.Instances.Goldilocks.Lemmas.Simulation.RunSimulates
 import ConsensusLean.Lemmas.Tactic.Linarith
+import ConsensusLean.Instances.Goldilocks.Lemmas.AC.Steps.Committee
 
 public section
 
@@ -129,6 +130,7 @@ theorem clean_optimistic_writer_candidate_interval
   have hqb := hprefix q hqn
   have hr := Compose.goldilocks_ac_projection sp ro dg H tr proposer hp.run hp.noColl
   obtain ⟨_, _, ell, _, hpoint, hRq, _, _⟩ := SA.optimisticLockAt_spec hr hy hop
+    (SA.CommitteeDict.full sp.n) (fun _ _ _ => SA.mem_full _ _)
   have hframe := Compose.frame_of_projAC hp.run hy hpoint.1
   have hRq' : R ∈ (tr.state y q).fg.tree := (hframe ▸ hRq).1
   obtain ⟨v, r, l, S, hseed, hra, hrb, hdeliver⟩ := hp.reset_seed_held_at_call hc

@@ -14,6 +14,7 @@ import ConsensusLean.Instances.Goldilocks.Lemmas.AC.ReadPointLocks
 import ConsensusLean.Instances.Goldilocks.Lemmas.AC.LockFloorStep
 import ConsensusLean.Instances.Goldilocks.Lemmas.AC.LockStore.Requirements
 import ConsensusLean.Instances.Goldilocks.Lemmas.AC.Steps.Origin
+import ConsensusLean.Instances.Goldilocks.Lemmas.AC.Steps.Committee
 
 /-! # Independent Goldilocks component fact suppliers -/
 
@@ -187,7 +188,8 @@ theorem goldilocksLockWrites (hr : ACRun proposer o H U) :
     rcases he with ⟨_, ℓ, C, hu, hC, hd, rfl⟩ | ⟨_, he⟩
     · obtain ⟨j, hj, e, hem⟩ := hr.honest.pool_vote y hy i s v hv.1 hh
       exact ⟨j, hj.le, e, hem⟩
-    · obtain ⟨_, _, ℓ, A, _, _, _, ha⟩ := optimisticLockAt_spec hr hy he
+    · obtain ⟨_, _, ℓ, A, _, _, _, ha, -⟩ :=
+        optimisticLockAt_spec hr hy he (CommitteeDict.full sp.n) (fun _ _ _ => mem_full _ _)
       exact ha v hv hh
 
 theorem goldilocksSourceCandidates (hr : ACLocalRun (goldilocksSA sp FGP ro) H U o) :

@@ -3,6 +3,7 @@ public import ConsensusLean.Instances.Goldilocks.Lemmas.Healing.AC.SlowLocks
 public import ConsensusLean.Instances.Goldilocks.Lemmas.AC.Steps.ExpiryFloor
 import ConsensusLean.Instances.Goldilocks.Lemmas.AC.PoolFacts
 import ConsensusLean.Instances.Goldilocks.Lemmas.AC.Steps.Agree.Opponents
+import ConsensusLean.Instances.Goldilocks.Lemmas.AC.Steps.Committee
 import ConsensusLean.Lemmas.Tactic.Linarith
 
 public section
@@ -997,8 +998,10 @@ theorem optimisticLock_pair_compatible (hrun : ACRun proposer tr H U)
     (hd : OptimisticLockAt tr x i s D CV) (he : OptimisticLockAt tr y j s E CW) :
     Compatible U D E := by
   have hr := hrun.localRun
-  obtain ⟨-, hnD, ellD, A, hpD, -, hvD, hhD⟩ := optimisticLockAt_spec hrun hx hd
-  obtain ⟨-, hnE, ellE, A', hpE, -, hvE, hhE⟩ := optimisticLockAt_spec hrun hy he
+  obtain ⟨-, hnD, ellD, A, hpD, -, hvD, hhD, -⟩ :=
+    optimisticLockAt_spec hrun hx hd (CommitteeDict.full sp.n) (fun _ _ _ => mem_full _ _)
+  obtain ⟨-, hnE, ellE, A', hpE, -, hvE, hhE, -⟩ :=
+    optimisticLockAt_spec hrun hy he (CommitteeDict.full sp.n) (fun _ _ _ => mem_full _ _)
   rw [hrun.stock] at hnD hnE
   have hi := Set.ncard_inter_add_ncard_union (voters CV) (voters CW)
   have hu := Set.ncard_le_ncard (Set.subset_univ (voters CV ∪ voters CW))

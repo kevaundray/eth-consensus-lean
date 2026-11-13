@@ -35,6 +35,7 @@ import ConsensusLean.Instances.Goldilocks.Lemmas.Compose.LockKeepHonest
 import ConsensusLean.Instances.Goldilocks.Lemmas.AC.OpponentsHonest
 import ConsensusLean.Lemmas.Tactic.Linarith
 import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Obligations.Healthy.SeedCandidate
+import ConsensusLean.Instances.Goldilocks.Lemmas.AC.Steps.Committee
 
 public section
 
@@ -168,7 +169,8 @@ theorem clean_optimistic_writer_candidate_interval_at
     fun m hm' => Trace.upTo_state tr y fun k hk => hnt k (by omega)
   have hr := Compose.Growing.acRun_upTo hrun hnc ht0
   obtain ⟨_, _, ell, _, hpoint, hRq, _, _⟩ := SA.optimisticLockAt_spec hr hy
-    ((Compose.Growing.sa_optimisticLockAt_upTo hm).mpr ⟨hqt, hop⟩)
+    ((Compose.Growing.sa_optimisticLockAt_upTo hm).mpr ⟨hqt, hop⟩) (SA.CommitteeDict.full sp.n)
+    (fun _ _ _ => SA.mem_full _ _)
   have hcallq : tr.projAC.CallAt y q ell := ((Trace.upTo_callAt _).mp hpoint.1).2
   have hframe := Compose.Growing.frame_of_projAC_at hrun hyq hcallq
   have hRq' : R ∈ (tr.state y q).fg.tree := (hframe ▸ hRq).1

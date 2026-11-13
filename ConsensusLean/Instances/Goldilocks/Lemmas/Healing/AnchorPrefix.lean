@@ -6,6 +6,7 @@ import ConsensusLean.Instances.Goldilocks.Lemmas.AC.Steps.CarryPrefix
 import ConsensusLean.Instances.Goldilocks.Lemmas.Healing.ProposalPath
 import ConsensusLean.Lemmas.Tactic.Linarith
 import ConsensusLean.Instances.Goldilocks.Lemmas.FGChain.QuorumMargin
+import ConsensusLean.Instances.Goldilocks.Lemmas.AC.Steps.Committee
 
 public section
 
@@ -941,7 +942,8 @@ theorem FrameWindow.toFG_later_proposal_head
         obtain ⟨_, _, _, hs, _⟩ := hopt
         exact (SA.ts_le_iff_le_slot sp (hr.time_nonneg a) _).2 (by rw [hs])
       exact (hts (by clear * - hwarm hjlo; omega)).trans hlow
-    have hat := (SA.optimisticLockAt_spec hac hy hopt).1
+    have hat := (SA.optimisticLockAt_spec hac hy hopt (SA.CommitteeDict.full sp.n)
+      (fun _ _ _ => SA.mem_full _ _)).1
     apply hframe.optimistic_write_later_proposal_head hrun hnc hsvc hawake hf hcatch hnr
       (by linarith only [sp.toParams.hΔ, hm]) hmb (by clear * - hwarm hjlo; omega) hy ha halo hat
       hopt hRA hAD ?_ (by clear * - hrlo hjhi; omega) hrN hz hcp hcall hti hd
