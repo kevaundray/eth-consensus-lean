@@ -214,7 +214,7 @@ theorem vote_extends_of_prot_at {k : Nat} (hvi : OutageVoteInv D k) {x : Fin sp.
         exact this)
     ⟨l, hl', hlj, hle, B, hB, hBr, hPB⟩
   obtain ⟨Hd, hHd, hHdr, hPHd⟩ := SA.castAt_head_anc hr hx hcast (Or.inl hC)
-    (SA.castAt_compatible_of_live hr hx hcast (Or.inl hC)) hPC
+    (SA.castAt_compatible_of_live hr (fun _ => SA.voteStart_initial _) hx hcast (Or.inl hC)) hPC
   exact ⟨Hd, hΦU hHd, hHdr, hPHd.mono hΦU⟩
 
 end OutageVoteInv

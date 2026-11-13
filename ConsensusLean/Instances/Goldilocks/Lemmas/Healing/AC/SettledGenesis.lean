@@ -71,7 +71,8 @@ theorem stored_lock_genesis_or_good_originU {m : WriteMode} (hw : m.width = sp.k
         exact hBg (by
           rw [eq_of_anc_genesisU hr hy hupd.1 (hΦU hSt) hSg (Anc.mono hΦU hBS)]
           exact hSg)
-  · obtain ⟨j, -, B, CV, hfl, L, hL, hLr, hLB⟩ := fast_lock_provenanceU hr hy i l hl hf
+  · obtain ⟨j, -, B, CV, hfl, L, hL, hLr, hLB⟩ := fast_lock_provenanceU hr
+      (fun _ => voteStart_initial _) hy i l hl hf
     rcases Nat.eq_zero_or_pos l.slot with h0 | hpos
     · left
       obtain ⟨z, hz, j', e, hv, hes, Hd, hHd, hHdr, hBHd⟩ :=

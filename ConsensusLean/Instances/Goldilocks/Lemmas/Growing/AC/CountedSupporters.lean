@@ -50,8 +50,10 @@ theorem carried_counted_supporters (hrun : ACRun proposer tr H U)
       v₁.val = w → v₂.val = w → v₁ = v₂ := by
     intro w hw v₁ v₂ h₁ h₂ hv₁ hv₂
     by_contra hne
-    rcases hd v₁ h₁ (merged_vote_slot hry.localRun hy hc' v₁ h₁) with h₁' | h₁'
-    · rcases hd v₂ h₂ (merged_vote_slot hry.localRun hy hc' v₂ h₂) with h₂' | h₂'
+    rcases hd v₁ h₁ (merged_vote_slot hry.localRun (fun _ => voteStart_initial _) hy hc' v₁ h₁)
+      with h₁' | h₁'
+    · rcases hd v₂ h₂ (merged_vote_slot hry.localRun (fun _ => voteStart_initial _) hy hc' v₂ h₂)
+      with h₂' | h₂'
       · exact hw ⟨v₁, h₁', v₂, h₂', hne, hv₁, hv₂⟩
       · exact hw (hv₂ ▸ h₂')
     · exact hw (hv₁ ▸ h₁')
@@ -101,7 +103,7 @@ theorem carried_counted_supporters (hrun : ACRun proposer tr H U)
     · exact Or.inl hg
     · exact Or.inr ⟨k, (ACTrace.upTo_acceptAt (A := goldilocksSA sp FGP ro)).mpr
         ⟨ht.le.trans hT.le, hk⟩, ht⟩
-  refine carried_supporter hry hy hc' hs hCt hvs hheld
+  refine carried_supporter hry (fun _ => voteStart_initial _) hy hc' hs hCt hvs hheld
     ⟨Hv, hHv, hHvr, hvs ▸ hHds, hBC.trans hCHd, hacc'⟩ fun hq => ?_
   obtain ⟨x, hx, x', hx', hne, hxv, hx'v⟩ := hq
   exact hne (hone _ hvw x x' hx hx' hxv hx'v)

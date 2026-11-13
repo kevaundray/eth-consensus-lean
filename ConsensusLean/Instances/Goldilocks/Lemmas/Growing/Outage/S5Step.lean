@@ -212,7 +212,9 @@ private theorem vote_extends_of_counted_batch_run
       by_cases hw : v.val ∈ H (tr.time i)
       · obtain ⟨j, -, e', hv', he'⟩ := SA.honest_merged_vote hr hy hc' hv hw
         exact hW _ j e' (hvote _ j e' hw hv') hw
-          (by rw [he']; exact SA.merged_vote_slot hr.localRun hy hc' v hv)
+          (by
+            rw [he']
+            exact SA.merged_vote_slot hr.localRun (fun _ => SA.voteStart_initial _) hy hc' v hv)
       · exact hWc hw)
     hcount
     ⟨⟨hcarry.awake, le_rfl⟩, hcarry.joined, fun v ⟨x, hx, j, e', hv, hev, hvs⟩ => by

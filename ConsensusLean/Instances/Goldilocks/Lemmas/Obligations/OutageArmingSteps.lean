@@ -445,7 +445,8 @@ theorem saved_rows_above (hrun : GoldilocksRun proposer dg H tr) (hnc : NoCollRu
         rw [h, projAC_state hrun.toLocalRun hy, hR]
         rfl
   obtain ⟨r, hrs⟩ := Option.isSome_iff_exists.1 (hsome c hk₀ le_rfl)
-  obtain ⟨k', hk', C', CV, ⟨ℓ', hu', hC', -⟩, hC'r⟩ := SA.saved_result hr hy c q hrs
+  obtain ⟨k', hk', C', CV, ⟨ℓ', hu', hC', -⟩, hC'r⟩ := SA.saved_result hr
+    (fun _ => SA.voteStart_initial _) hy c q hrs
   obtain ⟨R, hR, hCR⟩ := hrow q hj₁ hq₂ k' hk' ℓ' hu'
   rw [projAC_state hrun.toLocalRun hy, hR] at hC'
   obtain rfl : R = C' := Option.some.inj hC'

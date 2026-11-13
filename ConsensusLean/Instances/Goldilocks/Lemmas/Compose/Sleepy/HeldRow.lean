@@ -187,7 +187,8 @@ theorem held_row_late_absurd (hrun : GoldilocksRun proposer dg H tr)
     rw [(SA.trace_mayVote hr hy jt).trans (SA.trace_mayVote hr hy i).symm, ← hs]
     exact SA.mayVote_of_castAt hr hy hc
   by_cases hvs : (tr.projAC.state y jt).votedSlot = ((s + 1 : Nat) : Int)
-  · rcases SA.cast_of_votedSlot hr hy jt (s + 1) hvs with ⟨j, hj, e', hv', hes'⟩ | hmf
+  · rcases SA.cast_of_votedSlot hr (fun _ => SA.voteStart_initial _) hy jt (s + 1) hvs with
+      ⟨j, hj, e', hv', hes'⟩ | hmf
     · have := (SA.one_vote_per_slot sp _ ro H _ tr.projAC hr y hy j i e' e hv' hvi
         (hes'.trans hs.symm)).1
       omega

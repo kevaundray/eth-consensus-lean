@@ -16,6 +16,26 @@ namespace Consensus.Goldilocks.SA
 
 variable {n : Nat} {FGP : Type} {ACP : Type}
 
+/-- **A start up to the vote permission**: the initial state `SAState.initial g` with some own-role
+vote permission `m` installed (`VoteBinding.installVote` touches only `mayVote`). The initial
+state is one (`voteStart_initial`); the AC invariants of the initial state that do not read
+`mayVote` hold at every such start. -/
+def VoteStart (g : Nat) (s : SAState n) : Prop :=
+  ∃ m, s = { SAState.initial g with mayVote := m }
+
+theorem voteStart_iff {g : Nat} {s : SAState n} :
+    VoteStart g s ↔ ∃ m, s = { SAState.initial g with mayVote := m } :=
+  Iff.rfl
+
+theorem voteStart_initial (g : Nat) : VoteStart g (SAState.initial g : SAState n) :=
+  ⟨(SAState.initial g : SAState n).mayVote, rfl⟩
+
+/-- The pools of a start up to the vote permission are empty. -/
+theorem VoteStart.pool {g : Nat} {s : SAState n} (h : VoteStart g s) (σ : Nat) :
+    s.pool σ = [] := by
+  obtain ⟨m, rfl⟩ := h
+  rfl
+
 /-- F.2 (b) for blocks of the SA (`Anc.total`). -/
 theorem anc_total {S : Set (Blk n FGP)} {A A' C : Blk n FGP} (hS : Coherent S)
     (h : Anc S A C) (h' : Anc S A' C) : Anc S A A' ∨ Anc S A' A :=

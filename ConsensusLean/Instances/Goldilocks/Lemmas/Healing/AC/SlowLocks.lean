@@ -50,7 +50,7 @@ theorem slow_window_resultsU
   swap
   · exact ⟨i₀, C, _, ⟨ℓX, hupd, hconf, rfl⟩, Anc.mono hΦU hDC⟩
   obtain ⟨S, hS, hSr, hDS⟩ := hslow j hj (by exact_mod_cast hjs)
-  obtain ⟨k, -, R, CV, hR, hRr⟩ := saved_resultU hr hx i₀ j hSr
+  obtain ⟨k, -, R, CV, hR, hRr⟩ := saved_resultU hr (fun _ => voteStart_initial _) hx i₀ j hSr
   have hRU : R ∈ U := by
     obtain ⟨ℓ', hu', hR', -⟩ := hR
     exact (frameIn_of_callAtU hr hx hu'.1).2 (deepest_mem hR').1.1
@@ -79,7 +79,8 @@ theorem lock_below_originU
     obtain ⟨⟨-, -, hBC⟩, -⟩ := (deepest_mem hdeep).1
     exact ⟨L, hL, hLr, C, hLB.trans (Anc.mono hΦU hBC), j, hj, _,
       Or.inl ⟨ℓX, hupd, hconf, rfl⟩⟩
-  · obtain ⟨j, hj, B, CV, hfl, L, hL, hLr, hLB⟩ := fast_lock_provenanceU hr hy i l hl hf
+  · obtain ⟨j, hj, B, CV, hfl, L, hL, hLr, hLB⟩ := fast_lock_provenanceU hr
+      (fun _ => voteStart_initial _) hy i l hl hf
     rcases hfl with ⟨ℓX, C, hupd, hconf, hfs, -⟩ | hopt
     · have hΦU := (frameIn_of_callAtU hr hy hupd.1).2
       obtain ⟨⟨-, -, hBC⟩, -⟩ := (deepest_mem hfs).1
@@ -197,7 +198,8 @@ theorem slow_live_locksU
       (by omega) (by omega) B₁ (hΦU hB₁) hB₁r)
   · -- a lock of slot `s + 1` or later is optimistic, over earlier honest slot-`(s+1)` votes
     obtain ⟨Φ', A, D', -, hΦ'U, -, h34, hpool, -, L₀, hL₀, hL₀r, hL₀D⟩ :=
-      lock_origin_readPointU hrun hy hc l₀ hl₀ (by rw [hes]; push_cast; omega)
+      lock_origin_readPointU hrun (fun _ => voteStart_initial _) hy hc l₀ hl₀
+        (by rw [hes]; push_cast; omega)
     obtain rfl : L₀ = B₀ := hU.1 hL₀ (hΦU hB₀) (hL₀r.trans hB₀r.symm)
     refine down hL₀D (origin_compatible hU hΦ'U (CommitteeDict.full sp.n) h34
       (fun _ _ => mem_full _ _)

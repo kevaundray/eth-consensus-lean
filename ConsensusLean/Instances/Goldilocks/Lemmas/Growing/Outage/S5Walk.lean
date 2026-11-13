@@ -299,7 +299,7 @@ theorem readPoint_liveLockBlocks_compatible_at {i : Nat} (hinv : OutageLockInv D
   obtain ⟨hΦ, hΦU⟩ := frameIn_at D.hrun D.hnc hy hc.1
   obtain ⟨l', hl', B₀, hB₀, hB₀r, -, rfl⟩ := SA.mem_liveLockBlocks hΦ hL
   obtain ⟨B', hB', hB'r, h⟩ := SA.readPoint_locks_provenance_strict (acRun_upTo D.hrun D.hnc hd)
-    hy (sa_castAt_upTo.mpr ⟨le_rfl, hc⟩) hpos l' hl'
+    (fun _ => SA.voteStart_initial _) hy (sa_castAt_upTo.mpr ⟨le_rfl, hc⟩) hpos l' hl'
   obtain rfl : B₀ = B' := hΦ.coherent.1 hB₀ hB' (hB₀r.trans hB'r.symm)
   refine compatible_of_anc_right hU hBP
     (compatible_of_head_anc hU ((SA.viableAncestor_anc hΦ hB₀).2.mono hΦU) ?_)

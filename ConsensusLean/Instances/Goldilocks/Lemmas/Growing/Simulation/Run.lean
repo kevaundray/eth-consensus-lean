@@ -36,11 +36,14 @@ noncomputable abbrev simIni :
     (goldilocksNode (S.params (pubOf E) hn) (S.ro _)).initial
 
 omit [DecidableEq V] in
-/-- `simIni` changes only the own-role vote permission (`VoteBinding.installVote`): its pools
-are the initial, empty ones. -/
-theorem simIni_pool (y : Fin (Fintype.card V)) (σ : Nat) : (simIni S rho hn y).pool σ = [] := by
+/-- `simIni` changes only the own-role vote permission (`VoteBinding.installVote`): it is a start
+up to the vote permission. -/
+theorem simIni_voteStart (y : Fin (Fintype.card V)) :
+    SA.VoteStart (S.params (pubOf E) hn).genesisRoot (simIni S rho hn y) := by
   unfold simIni VoteBinding.installVote
-  split <;> rfl
+  split
+  · exact SA.voteStart_initial _
+  · exact SA.voteStart_iff.2 ⟨_, rfl⟩
 
 omit [DecidableEq V] in
 /-- TEMP(C2): without a participation kind the engine's starts are the default start. Only the

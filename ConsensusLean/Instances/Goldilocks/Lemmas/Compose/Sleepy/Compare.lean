@@ -415,7 +415,8 @@ theorem vote_of_awake_joined (hrun : GoldilocksRun proposer dg H tr) (hnc : NoCo
   rcases SA.acOnTick_votes y _ ℓ.frame hjo (by rw [htj, hslot])
       (by rw [htj, hslot, projAC_state hrun.toLocalRun hy j]; exact hmv j) with hv | ⟨e, he', hes⟩
   · rw [htj, hslot] at hv
-    rcases SA.cast_of_votedSlot hr hy j s hv with ⟨k, hk, e, hve, hes⟩ | hmf
+    rcases SA.cast_of_votedSlot hr (fun _ => SA.voteStart_initial _) hy j s hv with
+      ⟨k, hk, e, hve, hes⟩ | hmf
     · exact ⟨k, e, hve, hes, (hr.time_mono hk.le).trans htj.le⟩
     · rw [projAC_state hrun.toLocalRun hy j, hmv j] at hmf
       exact absurd hmf (by decide)

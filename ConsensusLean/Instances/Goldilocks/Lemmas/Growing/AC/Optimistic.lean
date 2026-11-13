@@ -91,14 +91,15 @@ theorem optimistic_transfer_stored
   set V := mergedVoteView sp e.readPoint ℓ.frame (s + 1)
   have hcover : SX ⊆ supporters ℓ.frame V s B ∪ equivocators V.votes := by
     rintro w ⟨v, hv, rfl, R, hR, hRr, hDR⟩
-    exact carried_cover hry hy hc' hs hBt hcarry' ⟨hv, R, hR, hRr, hDR⟩
+    exact carried_cover hry (fun _ => voteStart_initial _) hy hc' hs hBt hcarry'
+      ⟨hv, R, hR, hRr, hDR⟩
       (optimisticPoint_pool_slot hrx.localRun hx hpt' hv) ⟨R, hΦxU hR, hRr,
         (frame_slot_le sp hrx.localRun hx hpt'.1 R hR).trans hslx.le,
         hBD.trans (Anc.mono hΦxU hDR)⟩
   have hW : voters V.votes ⊆ K.committee s := by
     rintro u ⟨v, hv, rfl⟩
     have hK := (hT (tr.time i)) y hy i ℓ e hc' s v hv
-    rwa [merged_vote_slot hry.localRun hy hc' v hv] at hK
+    rwa [merged_vote_slot hry.localRun (fun _ => voteStart_initial _) hy hc' v hv] at hK
   have hE : equivocators V.votes ⊆ K.committee s ∩ (H (tr.time i))ᶜ := by
     intro w hw
     refine ⟨?_, fun hwH => honest_not_equivocator hry hy hc' hwH hw⟩
@@ -136,7 +137,8 @@ theorem optimistic_transfer_stored
     cover_count (K.committee s) (hsize s) hSX hW hE h34 hf2
   have hcore := anc_getHead hU hΦ hΦU e.readPoint (tr.time i) V (s : Int)
     (fun B hB => voteDomain_subset_tree hB) hdomA hviab.voteDomain
-    (locks_compatible hry K (hP (tr.time i)) hy hc' hs hBt (S := SX) (fun w hw => by
+    (locks_compatible hry (fun _ => voteStart_initial _) K (hP (tr.time i)) hy hc' hs hBt
+      (S := SX) (fun w hw => by
         rcases hcover hw with ⟨_, x, hx, hxv, hxs, hxa⟩ | h
         · exact Or.inr ⟨x, hx, hxv, by exact_mod_cast hxs, hxa⟩
         · exact Or.inl h)

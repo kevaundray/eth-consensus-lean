@@ -93,7 +93,8 @@ private theorem optimistic_side
     {CV : Set (Vote sp.n)} (hop : SA.OptimisticLockAt tr.projAC X k s D CV) :
     ∃ S : Set (Fin sp.n), 3 * sp.n ≤ 4 * S.ncard ∧ S ⊆ Released tr H X s D := by
   have hd := hrun.time_nonneg k
-  obtain ⟨ell, A, -, -, h34, hfwd⟩ := SA.optimistic_side (acRun_upTo hrun hnc hd) hX
+  obtain ⟨ell, A, -, -, h34, hfwd⟩ := SA.optimistic_side (acRun_upTo hrun hnc hd)
+    (fun _ => SA.voteStart_initial _) hX
     ((sa_optimisticLockAt_upTo hrun.time_mono).2 ⟨le_rfl, hop⟩)
   rw [hrun.stock] at h34
   exact ⟨_, h34, fun u hu => released_of_fwd hrun hd hX (hfwd hu)⟩

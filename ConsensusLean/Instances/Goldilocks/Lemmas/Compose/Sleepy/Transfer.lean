@@ -106,7 +106,7 @@ theorem vote_extends_of_counted_batch (hrun : SA.ACRun proposer tr H U)
     obtain ⟨Hd', hHd', hHd'r, hBHd'⟩ := hall w hwSX j e' hv hvs
     have h1 : Hd = Hv := hU.1 hHd hHv (hHdr.trans hHvr.symm)
     have h2 : Hd' = Hv := hU.1 hHd' hHv (hHd'r.trans hHvr.symm)
-    have := SA.carried_supporter hrun hy hc hs hBt hvs hheld
+    have := SA.carried_supporter hrun (fun _ => SA.voteStart_initial _) hy hc hs hBt hvs hheld
       ⟨Hv, hHv, hHvr, h1 ▸ hvs ▸ hHds, h2 ▸ hBHd', hacc Hv Relation.ReflTransGen.refl⟩
       (SA.honest_not_equivocator hrun hy hc (hvw ▸ hw))
     exact hvw ▸ this
@@ -142,7 +142,8 @@ theorem vote_extends_of_batch (hrun : SA.ACRun proposer tr H U)
     by_cases hw : v.val ∈ H
     · obtain ⟨j, -, e', hv', he'⟩ := SA.honest_merged_vote hrun hy hc hv hw
       exact Or.inl ⟨hw, j, e', hv', by
-        rw [he']; exact SA.merged_vote_slot hrun.localRun hy hc v hv⟩
+        rw [he']; exact SA.merged_vote_slot hrun.localRun (fun _ => SA.voteStart_initial _) hy hc
+          v hv⟩
     · exact Or.inr hw
   have hcount' : (SX ∪ Hᶜ).ncard < 2 * SX.ncard := by
     have := Set.ncard_union_le SX Hᶜ

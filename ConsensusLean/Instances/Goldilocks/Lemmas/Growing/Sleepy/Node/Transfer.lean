@@ -177,7 +177,8 @@ theorem vote_extends_of_batch_at (hrun : Growing.GoldilocksRun proposer dg H tr)
       by_cases hw : v.val ∈ H (tr.time i)
       · obtain ⟨j, -, e', hv', he'⟩ := SA.honest_merged_vote hr hy hc' hv hw
         refine Or.inl (votersAt_iff.2 ⟨hw, j, e', hvote _ j e' hw hv', ?_⟩)
-        rw [he']; exact SA.merged_vote_slot hr.localRun hy hc' v hv
+        rw [he']; exact SA.merged_vote_slot hr.localRun (fun _ => SA.voteStart_initial _) hy hc'
+          v hv
       · exact Or.inr hw)
     (by
       have hcount := faults_lt_voters hrun hnc hB (s := s) (d := tr.time i) hs₀

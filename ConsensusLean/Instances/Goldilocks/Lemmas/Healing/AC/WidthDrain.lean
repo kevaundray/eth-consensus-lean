@@ -39,7 +39,8 @@ theorem drain_provenanceM
     refine ⟨B, hLB, goodOriginW_iff.2 (Or.inr ⟨y, hy, j, hsl, ?_⟩)⟩
     simp only [SAParams.ts]
     linarith
-  · obtain ⟨j, -, B, CV, hfl, hLB⟩ := fast_lock_provenanceU hr hy i l hl hf
+  · obtain ⟨j, -, B, CV, hfl, hLB⟩ := fast_lock_provenanceU hr
+      (fun _ => voteStart_initial _) hy i l hl hf
     refine ⟨B, hLB, goodOriginW_iff.2 (Or.inl ⟨y, hy, j, CV, hfl, ?_⟩)⟩
     have := mul_nonneg hΔ.le (show (0 : Int) ≤ wm.width - 1 by omega)
     simp only [SAParams.ts]
