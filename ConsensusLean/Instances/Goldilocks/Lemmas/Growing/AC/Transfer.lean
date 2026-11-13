@@ -22,7 +22,7 @@ variable {FGP : Type} {sp : SAParams} {ro : ReplayOrder sp FGP}
   {U : Set (Blk sp.n FGP)} {proposer : Nat → Fin sp.n}
 
 /-- Result transfer needs no cross-time honesty or fault count: each node obeys its own cut. -/
-theorem result_transfer (hrun : ACRun proposer tr H U)
+theorem result_transfer {ini} (hrun : ACRun proposer tr H U ini)
     {s : Nat} {X y : Fin sp.n} {i₀ i : Nat} {C : Blk sp.n FGP} {CV : Set (Vote sp.n)}
     {ℓ : ACLabel (goldilocksSA sp FGP ro)} {e : Em sp FGP}
     (hX : X ∈ H (tr.time i₀)) (hres : ResultAt tr X i₀ s C CV)
@@ -40,7 +40,7 @@ theorem result_transfer (hrun : ACRun proposer tr H U)
   obtain ⟨hΦ, hΦU⟩ := frameIn_of_call hr hy hc'.1
   have hσ : ((s + 1 : Nat) : Int) - 1 = (s : Int) := by push_cast; ring
   rw [hs, hσ] at hhead
-  have hdomA := voteDomain_anc hr hy hc'
+  have hdomA := voteDomain_anc_from hr hry.vstart hy hc'
   rw [hs] at hdomA
   have hCt : C ∈ ℓ.frame.tree := by
     rcases hviab with h | h
@@ -55,7 +55,7 @@ theorem result_transfer (hrun : ACRun proposer tr H U)
         (by
           obtain ⟨ℓX, hupd, _, rfl⟩ := hres
           exact carried_counted_supporters hrun hX hy hupd.1 hc hs .refl hcarry hviab hd)
-        (merged_voters_subset hr (fun _ => voteStart_initial _) hy hc' hd)
+        (merged_voters_subset hr hry.vstart hy hc' hd)
         (result_majority hres) hCx hp hCxC
   refine ⟨_, hΦU ?_, hhead.symm, Anc.mono hΦU hcore⟩
   by_cases he : C = getHead sp e.readPoint ℓ.frame (tr.time i)
