@@ -40,7 +40,7 @@ def rise_reset_rounds_at_of (O : ACHealing A sg runs) : Prop :=
   reset_of_high_proposal_at A sg O → round_of_warm_at A sg O →
     proposal_mem_at A sg runs → rise_reset_rounds_at A sg O
 
-/-- UNPROVED whole-run endpoint assembly; no bundled premise replaces the endpoint's inputs. -/
+/-- UNPROVED whole-run endpoint assembly under the shared reset premises. -/
 def exists_reset_of_drain_rounds_noRestartAfter_at_of (O : ACHealing A sg runs) : Prop :=
   reset_of_height_advance_at A sg → hmax_le_of_noAdvance_at A sg → HZ_le_hmax_at A sg →
   snapshotCall_of_awake_at A sg → callLag_of_awake_at A sg →
@@ -64,7 +64,7 @@ def rise_reset_rounds (O : ACHealing A sg runs) : Prop :=
     SlotWindow tr H s₀ N floor kindJ J → gbar g + 4 * P.Δ ≤ P.slotTime s₀ →
     1 ≤ G → ProposalGap tr H proposer G s₀ N → P.slotTime N + 2 * P.Δ ≤ b →
     T ≤ b → NoAdvance tr H g T → ∀ (r : Nat) {u z k X},
-      s₀ ≤ u → s₀ + O.warmup ≤ u → u + r * (P.δt + G - 1) + 1 ≤ N →
+      s₀ + O.warmup ≤ u → u + r * (P.δt + G - 1) + 1 ≤ N →
       P.slotTime (u + r * (P.δt + G - 1) + 1) + 2 * P.Δ ≤ T →
       HonestProposal tr H proposer u z k X →
       HZ tr H g + 1 ≤ ((tr.state z (k + 1)).fg.σ X.root).h + r →
