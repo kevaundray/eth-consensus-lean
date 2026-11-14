@@ -139,7 +139,8 @@ variable (S : Setup) (A : ContractAssumptions S) (V : Type)
 Validity supplies nonnegative send times before converting PSync at zero. -/
 theorem sleepy_raw_syncUntil (r : (Sys (goldilocks S) V).Run)
     (hv : (Sys (goldilocks S) V).Valid r)
-    (hsleepy : (Sys (goldilocks S) V).Sleepy (K S A) r) (b : Time) :
+    (hsleepy : (Sys (goldilocks S) V).Sleepy
+        (shapeProgress (goldilocks S) V).toExternal (K S A) r) (b : Time) :
     r.2.log.SyncUntil r.2.point b := by
   have hp : r.2.log.PSync r.2.point 0 := (Model.sysOf_delivers_iff _ _ _ _).mp hsleepy.1
   apply hp.syncUntil_zero ?_ b
@@ -163,10 +164,10 @@ structure ConfirmedQuery where
   valid : (Sys (goldilocks S) V).Valid run
   noCollision : ¬ run.2.HashCollision
   regime :
-    ((Sys (goldilocks S) V).Sleepy (K S A) run ∧
+    ((Sys (goldilocks S) V).Sleepy (shapeProgress (goldilocks S) V).toExternal (K S A) run ∧
       (Sys (goldilocks S) V).prog (shapeProgress (goldilocks S) V) (K S A) cap index
         0 run.2.horizon run ∧ 0 ≤ query) ∨
-    ((Sys (goldilocks S) V).Healthy (K S A) gst run ∧
+    ((Sys (goldilocks S) V).Healthy (shapeProgress (goldilocks S) V).toExternal (K S A) gst run ∧
       (Sys (goldilocks S) V).prog (shapeProgress (goldilocks S) V) (K S A) cap index
         ((Sys (goldilocks S) V).ready (K S A) gst run) run.2.horizon run ∧
       (Sys (goldilocks S) V).heal (K S A) cap index gst run ≤ query)
@@ -233,7 +234,8 @@ theorem confirmed_duration_supply (Q : ConfirmedQuery S A V) :
 
 /-- Canonical recipient service through the actual query deadline. -/
 theorem sleepy_query_sync (Q : ConfirmedQuery S A V)
-    (hsleepy : (Sys (goldilocks S) V).Sleepy (K S A) Q.run) :
+    (hsleepy : (Sys (goldilocks S) V).Sleepy
+        (shapeProgress (goldilocks S) V).toExternal (K S A) Q.run) :
     Compose.SleepyServiceBefore Q.trace (honestKeys ⟨S, stock⟩ Q.run.2) Q.params.Δ Q.deadline := by
   exact sleepyServiceBefore_of_syncUntil S Q.run.2 Q.hn Q.constant Q.valid
     (noCollRun_simTrace S Q.run.2 Q.hn Q.constant Q.valid Q.noCollision) Q.bounded
@@ -257,7 +259,8 @@ theorem half_ready_of_duration (p : EnvPoint V) {c d t : Time} (hd : c ≤ d)
 
 /-- Population transport at finite slot points, conditional on the joint duration supplier. -/
 theorem sleepy_query_population (Q : ConfirmedQuery S A V)
-    (hsleepy : (Sys (goldilocks S) V).Sleepy (K S A) Q.run) :
+    (hsleepy : (Sys (goldilocks S) V).Sleepy
+        (shapeProgress (goldilocks S) V).toExternal (K S A) Q.run) :
     ∀ s : Nat, ∀ d ∈ ({0, Q.params.Δ, 2 * Q.params.Δ} : Set Time),
       Q.params.ts s + d ≤ Q.deadline →
         Q.trace.FaultBound (honestKeys ⟨S, stock⟩ Q.run.2) (Q.params.ts s + d) := by
@@ -266,7 +269,7 @@ theorem sleepy_query_population (Q : ConfirmedQuery S A V)
   apply (Q.run.2.point.sleepyOn_iff Q.constant _ _ _ _ _).mpr
   intro t ht htb
   exact half_ready_of_duration V Q.run.2.point (confirmed_duration_supply S A V Q)
-    ((Q.run.2.point.sleepyOn_iff Q.constant _ _ _ _ _).mp hsleepy.2
+    ((Q.run.2.point.sleepyOn_iff Q.constant _ _ _ _ _).mp hsleepy.2.1
       t ht (htb.trans Q.bounded))
 
 /-- The recurrence/grid supplier selects readiness at exact endpoint cDur directly.
@@ -295,7 +298,8 @@ theorem healthy_query_slot (Q : ConfirmedQuery S A V) {ready : Time}
 set_option linter.unusedVariables false in
 /-- Recurrence/grid selection at exact cDur, using the joint latency lower bound. -/
 theorem sleepy_query_slot (Q : ConfirmedQuery S A V)
-    (hsleepy : (Sys (goldilocks S) V).Sleepy (K S A) Q.run)
+    (hsleepy : (Sys (goldilocks S) V).Sleepy
+        (shapeProgress (goldilocks S) V).toExternal (K S A) Q.run)
     (hprogress : (Sys (goldilocks S) V).prog (shapeProgress (goldilocks S) V) (K S A)
       Q.cap Q.index 0 Q.run.2.horizon Q.run)
     (hquery : 0 ≤ Q.query) : Nonempty (ConfirmedProducerSlot S A V Q) :=
@@ -321,7 +325,8 @@ theorem confirmed_slot_event (Q : ConfirmedQuery S A V)
 /-- Actual production assembled from selected slot, canonical event and proved
 own acceptance, preserving the exact-cDur readiness selected by recurrence. -/
 theorem sleepy_query_producer (Q : ConfirmedQuery S A V)
-    (hsleepy : (Sys (goldilocks S) V).Sleepy (K S A) Q.run)
+    (hsleepy : (Sys (goldilocks S) V).Sleepy
+        (shapeProgress (goldilocks S) V).toExternal (K S A) Q.run)
     (hprogress : (Sys (goldilocks S) V).prog (shapeProgress (goldilocks S) V) (K S A)
       Q.cap Q.index 0 Q.run.2.horizon Q.run)
     (hquery : 0 ≤ Q.query) :
@@ -342,7 +347,8 @@ theorem sleepy_query_producer (Q : ConfirmedQuery S A V)
 /-- Assembly of the named production, coefficient and finite-service obligations.
 The joint signature is unchanged; its body no longer hides those leaves. -/
 theorem sleepy_serviced_proposal_supply (Q : ConfirmedQuery S A V)
-    (hsleepy : (Sys (goldilocks S) V).Sleepy (K S A) Q.run)
+    (hsleepy : (Sys (goldilocks S) V).Sleepy
+        (shapeProgress (goldilocks S) V).toExternal (K S A) Q.run)
     (hprogress : (Sys (goldilocks S) V).prog (shapeProgress (goldilocks S) V) (K S A)
       Q.cap Q.index 0 Q.run.2.horizon Q.run)
     (hquery : 0 ≤ Q.query) :

@@ -683,6 +683,23 @@ detail in `TRUST.md`.
   Reason: there are no review gates; the line keeps every trusted change visible and is machine-checked.
 - **There is no `.github/CODEOWNERS`**: Code Owner review would be a review gate.
 
+## Committee participation in Sleepy and Healthy
+
+Sleepy retains its population participation condition and adds the same condition
+inside selected committees, without look-back and with the committee look-ahead.
+Healthy retains the population fault fraction β and uses the contract fraction
+βK for each nonempty committee selected from GST onward, charging faults at
+the horizon. Correctness statements are parameterized; instances supply their
+concrete fractions. Admissible pins βK = ½ and requires β ≤ βK. The pin excludes a
+faulty committee majority; βK stays a parameter because correctness is meant to
+allow non-optimal protocols later, with optimal fault tolerance stated separately.
+β ≤ βK relates population to committee: it makes the population bound imply the
+committee bound at full selection. Without it every β in (½, 1] would be admissible,
+and Healthy at full selection would be strictly stronger there than the population
+Healthy. Population thresholds serve population claims; committee bounds serve
+committee-counted claims. Full selection preserves Healthy for admissible contracts.
+The standard and Goldilocks values β = ⅓ and βK = ½ satisfy these conditions.
+
 ## Open questions
 
 - **Sleepy row-independence.** Do the sleepy claims hold at every `ΔFG > 0`, as `System.Sleepy` (no ratio) states,

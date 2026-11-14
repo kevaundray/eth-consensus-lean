@@ -45,10 +45,10 @@ structure ConfirmedQueryAt where
   valid : (Sys (goldilocks S) V).Valid run
   noCollision : ¬ run.2.HashCollision
   regime :
-    ((Sys (goldilocks S) V).Sleepy (K S A) run ∧
+    ((Sys (goldilocks S) V).Sleepy (shapeProgress (goldilocks S) V).toExternal (K S A) run ∧
       (Sys (goldilocks S) V).prog (shapeProgress (goldilocks S) V) (K S A) cap index
         0 run.2.horizon run ∧ 0 ≤ query) ∨
-    ((Sys (goldilocks S) V).Healthy (K S A) gst run ∧
+    ((Sys (goldilocks S) V).Healthy (shapeProgress (goldilocks S) V).toExternal (K S A) gst run ∧
       (Sys (goldilocks S) V).prog (shapeProgress (goldilocks S) V) (K S A) cap index
         ((Sys (goldilocks S) V).ready (K S A) gst run) run.2.horizon run ∧
       (Sys (goldilocks S) V).heal (K S A) cap index gst run ≤ query) ∨
@@ -84,7 +84,7 @@ structure SleepySafetyQueryAt where
   hn : 1 ≤ Fintype.card V
   valid : (Sys (goldilocks S) V).Valid run
   noCollision : ¬ run.2.HashCollision
-  sleepy : (Sys (goldilocks S) V).Sleepy (K S A) run
+  sleepy : (Sys (goldilocks S) V).Sleepy (shapeProgress (goldilocks S) V).toExternal (K S A) run
 
 namespace SleepySafetyQueryAt
 variable {S A V}
@@ -104,7 +104,8 @@ structure FinalQueryAt where
   query : Time
   valid : (Sys (goldilocks S) V).Valid run
   noCollision : ¬ run.2.HashCollision
-  healthy : (Sys (goldilocks S) V).Healthy (K S A) gst run
+  healthy : (Sys (goldilocks S) V).Healthy
+      (shapeProgress (goldilocks S) V).toExternal (K S A) gst run
   progress : (Sys (goldilocks S) V).prog (shapeProgress (goldilocks S) V) (K S A) .final index
     ((Sys (goldilocks S) V).ready (K S A) gst run) run.2.horizon run
   mature : (Sys (goldilocks S) V).heal (K S A) .final index gst run ≤ query
