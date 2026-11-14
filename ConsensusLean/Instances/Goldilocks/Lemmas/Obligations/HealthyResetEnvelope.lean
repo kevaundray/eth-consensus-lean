@@ -46,7 +46,7 @@ variable (S : Setup) (A : ContractAssumptions S) (V : Type) [Fintype V] [Decidab
 private theorem healthy_hsShared (Q : HealthyPreparationQuery S A V) :
     Healing.HSSharedUpTo Q.trace (honestKeys ⟨S, stock⟩ Q.run.2) (digestOf ⟨S, stock⟩ Q.run.2) Q.gst
       (protoFGDelay (Model.pubOf Q.run.1)) Q.run.2.horizon :=
-  Q.hsSharedUpTo_of_le _ le_rfl (protoFGDelay_timeout_of_fgDelay S A V Q.run Q.hn Q.healthy.2.2)
+  Q.hsSharedUpTo_of_le _ le_rfl (protoFGDelay_timeout_of_fgDelay S A V Q.run Q.hn Q.healthy.2.2.1)
 
 /-- The whole-run no-restart premise: a restart is a labelled call, at a time `≤ horizon`, so
 the bounded one of `healthy_hsShared` covers it. -/

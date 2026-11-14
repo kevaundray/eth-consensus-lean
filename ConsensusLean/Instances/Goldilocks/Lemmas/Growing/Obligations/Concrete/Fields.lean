@@ -75,7 +75,7 @@ theorem meetsObligations_finalAccountable_growing : ∀ g, schema.output .final 
 
 theorem meetsObligations_sleepySafe_growing : ∀ cap g, (cap = .available ∨ cap = .stable) →
     schema.output cap = some g → (Sys (goldilocks S) V).Holds
-      ((Sys (goldilocks S) V).Sleepy (K S A)) fun r =>
+      ((Sys (goldilocks S) V).Sleepy (shapeProgress (goldilocks S) V).toExternal (K S A)) fun r =>
         (chainTrace r.2).ReadySafe ((Sys (goldilocks S) V).cDur (K S A) r) g 0 := by
   intro cap g hcap hg r hv hs
   have hg' : g = Out.confirmed := by
@@ -98,7 +98,7 @@ theorem meetsObligations_sleepySafe_growing : ∀ cap g, (cap = .available ∨ c
       (sleepy_raw_syncUntil S A V r hv hs r.2.horizon)
     have hhalf : r.2.point.SleepyOn (1 / 2) (Regimes.catchUp (S.params (Model.pubOf r.1) hn))
         (5 * (S.params (Model.pubOf r.1) hn).Δ) 0 r.2.horizon :=
-      sleepyOn_of_duration V _ ((le_add_of_nonneg_right zero_le_one).trans hd) hs.2
+      sleepyOn_of_duration V _ ((le_add_of_nonneg_right zero_le_one).trans hd) hs.2.1
     have safe := sleepy_safe_engine_at S r.2 hn hv hnc hsync hhalf
     have ready : ∀ v t, r.2.point.Ready ((Sys (goldilocks S) V).cDur (K S A) r) v t →
         r.2.point.Ready (Regimes.catchUp (S.params (Model.pubOf r.1) hn) + 1) v t := by
@@ -114,7 +114,8 @@ theorem meetsObligations_sleepySafe_growing : ∀ cap g, (cap = .available ∨ c
 theorem meetsObligations_healedSafe_growing : ∀ cap g, (cap = .available ∨ cap = .stable) →
     schema.output cap = some g → ∀ (i : (K S A).Idx) (gst : Time),
       (Sys (goldilocks S) V).Holds
-        (fun r => (Sys (goldilocks S) V).Healthy (K S A) gst r ∧
+        (fun r => (Sys (goldilocks S) V).Healthy
+            (shapeProgress (goldilocks S) V).toExternal (K S A) gst r ∧
           (Sys (goldilocks S) V).prog (shapeProgress (goldilocks S) V) (K S A) cap i
             ((Sys (goldilocks S) V).ready (K S A) gst r)
             ((Sys (goldilocks S) V).heal (K S A) cap i gst r) r)
@@ -134,7 +135,7 @@ theorem meetsObligations_healedSafe_growing : ∀ cap g, (cap = .available ∨ c
   by_cases hb : heal ≤ r.2.horizon
   · by_cases hn : 1 ≤ Fintype.card V
     · let Q : HealthyPreparationQueryAt S A V := ⟨r, hn, cap, hcap, idx, gst, r.2.horizon, hv,
-        hcollision, le_rfl, hh⟩
+        hcollision, le_rfl, ⟨hh.1, hh.2.1, hh.2.2.1⟩⟩
       have h0 : 0 ≤ Q.heal :=
         add_nonneg (le_max_right gst 0)
           (mul_nonneg (Int.natCast_nonneg _) r.1.ΔAC_pos.le)
@@ -171,7 +172,8 @@ the payload projection. -/
 theorem meetsObligations_healthyLive_confirmed_growing : ∀ cap g, cap ≠ .final →
     schema.output cap = some g →
     ∀ (i : (K S A).Idx) (gst : Time), (Sys (goldilocks S) V).Holds
-      (fun r => (Sys (goldilocks S) V).Healthy (K S A) gst r ∧
+      (fun r => (Sys (goldilocks S) V).Healthy
+          (shapeProgress (goldilocks S) V).toExternal (K S A) gst r ∧
         (Sys (goldilocks S) V).prog (shapeProgress (goldilocks S) V) (K S A) cap i
           ((Sys (goldilocks S) V).ready (K S A) gst r) ((Sys (goldilocks S) V).pt r).horizon r)
       fun r => ProposalLiveReady r.2 ((Sys (goldilocks S) V).cDur (K S A) r) g
@@ -196,7 +198,8 @@ theorem meetsObligations_healthyLive_confirmed_growing : ∀ cap g, cap ≠ .fin
 
 theorem meetsObligations_healthyLive_growing : ∀ cap g, schema.output cap = some g →
     ∀ (i : (K S A).Idx) (gst : Time), (Sys (goldilocks S) V).Holds
-      (fun r => (Sys (goldilocks S) V).Healthy (K S A) gst r ∧
+      (fun r => (Sys (goldilocks S) V).Healthy
+          (shapeProgress (goldilocks S) V).toExternal (K S A) gst r ∧
         (Sys (goldilocks S) V).prog (shapeProgress (goldilocks S) V) (K S A) cap i
           ((Sys (goldilocks S) V).ready (K S A) gst r) ((Sys (goldilocks S) V).pt r).horizon r)
       fun r => ProposalLiveReady r.2 ((Sys (goldilocks S) V).cDur (K S A) r) g
@@ -209,7 +212,8 @@ theorem meetsObligations_healthyLive_growing : ∀ cap g, schema.output cap = so
 
 theorem meetsObligations_sleepyLive_growing : ∀ cap g, (cap = .available ∨ cap = .stable) →
     schema.output cap = some g → ∀ i : (K S A).Idx, (Sys (goldilocks S) V).Holds
-      (fun r => (Sys (goldilocks S) V).Sleepy (K S A) r ∧
+      (fun r => (Sys (goldilocks S) V).Sleepy
+          (shapeProgress (goldilocks S) V).toExternal (K S A) r ∧
         (Sys (goldilocks S) V).prog (shapeProgress (goldilocks S) V) (K S A) cap i 0
           ((Sys (goldilocks S) V).pt r).horizon r)
       fun r => ProposalLiveReady r.2 ((Sys (goldilocks S) V).cDur (K S A) r) g 0

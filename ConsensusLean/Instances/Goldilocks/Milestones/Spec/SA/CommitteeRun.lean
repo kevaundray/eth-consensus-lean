@@ -15,6 +15,8 @@ The committee facts the committee-native AC step statements take, for a slot dic
   of their slot's committee.
 * **CS** (`FaultBoundK`): among the members of the slot-`s` committee, fewer are faulty than are
   honest, awake and joined at `t`.
+* **The healthy committee bound** (`HealthyFaultsK`): from a slot `σ₀` through a time `b`, fewer
+  than half of each slot's committee is faulty.
 
 Under growing faults (a time-indexed honest set `H`), `CommitteePAt` and `CommitteeTAt` read P and
 T for the nodes honest at each time `t`, at the cuts through `t`: on the prefix of the run through
@@ -46,6 +48,13 @@ def FaultBoundK (K : CommitteeDict sp.n) (s : Nat) (tr : SATrace sp FGP ro)
     (H : Set (Fin sp.n)) (t : Time) : Prop :=
   (K.committee s ∩ Hᶜ).ncard <
     (K.committee s ∩ {y | y ∈ H ∧ tr.awake y t ∧ JoinedAt tr y t}).ncard
+
+/-- **The healthy committee bound on a slot range**: from slot `σ₀`, for every slot whose start is
+at most `b`, fewer than half of the slot's committee is faulty. It is the instance form of the
+committee clause of `System.Healthy` at Goldilocks's fraction `βK = 1/2`: callers take `σ₀` at
+GST and `H` as the validators honest at the bound `b` (faults charged at the bound). -/
+def HealthyFaultsK (K : CommitteeDict sp.n) (H : Set (Fin sp.n)) (σ₀ : Nat) (b : Time) : Prop :=
+  ∀ s : Nat, σ₀ ≤ s → sp.ts s ≤ b → 2 * (K.committee s ∩ Hᶜ).ncard < sp.committeeSize
 
 /-- **P under growing faults**: a node honest at `t` holds only committee signatures in its pools
 before every cut whose earlier cuts are at times `≤ t`, and at every optimistic check of a cut at

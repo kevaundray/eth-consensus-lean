@@ -43,12 +43,12 @@ theorem hsSharedUpTo (Q : FinalQuery S A V) :
       (protoFGDelay (Model.pubOf Q.run.1)) Q.run.2.horizon :=
   Q.hsSharedUpTo_of_rows _ (signed_row_service_psync S Q.run.2 Q.hn Q.constant Q.valid)
     (protoFGDelay_pos _)
-    (protoFGDelay_timeout_of_fgDelay S A V Q.run Q.hn Q.healthy.2.2)
+    (protoFGDelay_timeout_of_fgDelay S A V Q.run Q.hn Q.healthy.2.2.1)
 
 /-- **The FG transport of a final query** at its FG gap: `6Δ + Δ_F,p ≤ 4Δ·fgSlots`. -/
 theorem protoFGDelay_delivery (Q : FinalQuery S A V) :
     6 * Q.params.Δ + protoFGDelay (Model.pubOf Q.run.1) ≤ 4 * Q.params.Δ * (A.fgSlots : Time) :=
-  protoFGDelay_delivery_of_fgDelay S A V Q.run Q.hn Q.healthy.2.2
+  protoFGDelay_delivery_of_fgDelay S A V Q.run Q.hn Q.healthy.2.2.1
 
 end FinalQuery
 

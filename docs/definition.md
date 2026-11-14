@@ -268,8 +268,8 @@ One field per row (`finalAccountable`, `healthyLive`, `sleepySafe`, `sleepyLive`
 | `final_agree` | `FaultsBelow α` ⇒ `Agree final 0 ∨ HC`, in any network |
 | `final_safe_healthy` | `Healthy g` ⇒ `Safe final 0 ∨ HC` (uses `β ≤ α`) |
 | `persists_final_compatible` | through an outage, the stable read at `T` and the final read of a reader ready from `b₁ + recovery·ΔAC` are compatible |
-| **prefix forms** `sleepySafe_prefix` | `SyncUntil b ∧ SleepyOn θ c 0 b` ⇒ `ReadySafeUpTo c g 0 b ∨ HC`: the past is safe whatever happens after `b` |
-| `healedSafe_prefix` | partial synchrony with GST `g` for deadlines up to `b`, `HealthyOn β g b`, `prog[ready, heal]` and `heal ≤ b` ⇒ `ReadySafeUpTo c g heal b ∨ HC` |
+| **prefix forms** `sleepySafe_prefix` | `SyncUntil b ∧ SleepyOn θ c 0 b`, and the selected committees sleepy on the prefix point through `b` ⇒ `ReadySafeUpTo c g 0 b ∨ HC`: the past is safe whatever happens after `b` |
+| `healedSafe_prefix` | partial synchrony with GST `g` for deadlines up to `b`, `HealthyOn β g b`, `CommitteeHealthyOn βK [max g 0, b]`, `prog[ready, heal]` and `heal ≤ b` ⇒ `ReadySafeUpTo c g heal b ∨ HC` |
 | `outage_prefix` | the outage regime up to `b` ⇒ protection of ready readers at reading times in `[b₁ + recovery·ΔAC, b]` ∨ HC |
 
 `TxLive c g start D` covers every submission: a transaction submitted to an

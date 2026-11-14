@@ -168,6 +168,15 @@ theorem CohortOn.committee_univ {a z lo hi : Time} (h : p.CohortOn a z) :
   intro _ _ _ _ _
   simpa only [CohortOn, Finset.inter_univ] using h
 
+/-- A population fault bound below `β ≤ βK` bounds every full committee below `βK`, charged
+at `b`. -/
+theorem HealthyOn.committee_univ {β βK : ℚ} {g b : Time} (h : p.HealthyOn β g b)
+    (hβ : β ≤ βK) : p.CommitteeHealthyOn (fun _ => Finset.univ) βK (max g 0) b := by
+  intro _ _ _ _
+  have h := h.1.trans_le (mul_le_mul_of_nonneg_right hβ
+    (by positivity : (0 : ℚ) ≤ Fintype.card V))
+  simpa [faultCount] using h
+
 end EnvPoint
 
 namespace System.Outage
@@ -228,10 +237,8 @@ theorem healthy_iff_of_full_selection {V : Type} [Fintype V] [DecidableEq V]
     exact ⟨h.1, h.2.1, h.2.2.1⟩
   · rintro ⟨hn, hp, hd⟩
     refine ⟨hn, hp, hd, ?_⟩
-    intro t _ _ _
-    have h := hp.1.trans_le (mul_le_mul_of_nonneg_right hβ
-      (by positivity : (0 : ℚ) ≤ Fintype.card V))
-    simpa [hfull, EnvPoint.faultCount] using h
+    rw [show X.selected (S.pt r).env (X.ext r) = fun _ => Finset.univ from funext hfull]
+    exact hp.committee_univ hβ
 
 end System
 

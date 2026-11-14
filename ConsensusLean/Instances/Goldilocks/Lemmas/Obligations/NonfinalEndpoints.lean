@@ -27,7 +27,8 @@ freshness and the actual proposal/acceptance event are retained. Finite Healthy
 preparation and frozen service must produce this witness; the endpoint acquires
 no extra invariant or whole-run progress premise. -/
 theorem healthy_confirmed_supply (Q : ConfirmedQuery S A V)
-    (hh : (Sys (goldilocks S) V).Healthy (K S A) Q.gst Q.run)
+    (hh : (Sys (goldilocks S) V).Healthy
+        (shapeProgress (goldilocks S) V).toExternal (K S A) Q.gst Q.run)
     (hp : (Sys (goldilocks S) V).prog (shapeProgress (goldilocks S) V) (K S A)
       Q.cap Q.index ((Sys (goldilocks S) V).ready (K S A) Q.gst Q.run)
       Q.run.2.horizon Q.run)
@@ -70,7 +71,7 @@ structure SleepySafetyQuery where
   hn : 1 ≤ Fintype.card V
   valid : (Sys (goldilocks S) V).Valid run
   noCollision : ¬ run.2.HashCollision
-  sleepy : (Sys (goldilocks S) V).Sleepy (K S A) run
+  sleepy : (Sys (goldilocks S) V).Sleepy (shapeProgress (goldilocks S) V).toExternal (K S A) run
 
 /-- Finite safety service, population and joint duration production.
 No recurrence is needed or assumed. Arbitrary-cut output transport remains the
@@ -102,7 +103,7 @@ theorem sleepy_safety_inputs (Q : SleepySafetyQuery S A V) :
     apply (Q.run.2.point.sleepyOn_iff Q.constant _ _ _ _ _).mpr
     intro t ht hth
     exact half_ready_of_duration V Q.run.2.point (by linarith)
-      ((Q.run.2.point.sleepyOn_iff Q.constant _ _ _ _ _).mp Q.sleepy.2 t ht hth)
+      ((Q.run.2.point.sleepyOn_iff Q.constant _ _ _ _ _).mp Q.sleepy.2.1 t ht hth)
 
 end Consensus.Goldilocks.Obligations
 end
