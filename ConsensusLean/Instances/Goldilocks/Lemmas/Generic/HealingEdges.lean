@@ -42,7 +42,7 @@ def rise_reset_rounds_at_of (O : ACHealing A sg runs) : Prop :=
 
 /-- UNPROVED whole-run endpoint assembly under the shared reset premises. -/
 def exists_reset_of_drain_rounds_noRestartAfter_at_of (O : ACHealing A sg runs) : Prop :=
-  reset_of_height_advance_at A sg → hmax_le_of_noAdvance_at A sg → HZ_le_hmax_at A sg →
+  reset_of_height_advance_at A sg → hmax_le_of_noAdvance_at A sg →
   snapshotCall_of_awake_at A sg → callLag_of_awake_at A sg →
   exists_frameWindow_seq_of_service_at A sg → exists_slot_align (P := P) →
   rounds_le_warm_proposal_at A sg O → rise_reset_rounds_at A sg O →
