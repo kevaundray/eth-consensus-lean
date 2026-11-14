@@ -134,10 +134,11 @@ variable (S : Setup) (A : ContractAssumptions S) (V : Type)
 
 /-- Sleepy network service survives removal of the system's environment tags.
 Validity supplies nonnegative send times before converting PSync at zero. -/
-theorem sleepy_raw_syncUntil (r : (Sys (goldilocksWith ⟨S, stock⟩) V).Run)
-    (hv : (Sys (goldilocksWith ⟨S, stock⟩) V).Valid r)
-    (hsleepy : (Sys (goldilocksWith ⟨S, stock⟩) V).Sleepy
-        (shapeProgress (goldilocksWith ⟨S, stock⟩) V).toExternal (K S A) r) (b : Time) :
+theorem sleepy_raw_syncUntil (S : BoundSetup) (A : ContractAssumptions S.toSetup) (V : Type)
+    [Fintype V] [DecidableEq V] (r : (Sys (goldilocksWith S) V).Run)
+    (hv : (Sys (goldilocksWith S) V).Valid r)
+    (hsleepy : (Sys (goldilocksWith S) V).Sleepy
+        (shapeProgress (goldilocksWith S) V).toExternal (K S.toSetup A) r) (b : Time) :
     r.2.log.SyncUntil r.2.point b := by
   have hp : r.2.log.PSync r.2.point 0 := (Model.sysOf_delivers_iff _ _ _ _).mp hsleepy.1
   apply hp.syncUntil_zero ?_ b
@@ -217,7 +218,7 @@ theorem healthy_query_slot (Q : ConfirmedQuery S A V) {ready : Time}
       (shapeProgress (goldilocksWith ⟨S, stock⟩) V) (K S A)
       Q.cap Q.index ready Q.run.2.horizon Q.run)
     (hquery : max ready 0 ≤ Q.query) : Nonempty (ConfirmedProducerSlot S A V Q) := by
-  obtain ⟨s, hs1, hlo, hmargin, hts0, htsh, hR, -⟩ := nonfinal_query_slot S A V Q.run Q.hn
+  obtain ⟨s, hs1, hlo, hmargin, hts0, htsh, hR, -⟩ := nonfinal_query_slot ⟨S, stock⟩ A V Q.run Q.hn
     Q.nonfinal Q.index Q.bounded hprogress hquery
   have hnode := ready_transport S Q.run.2 Q.hn Q.valid hts0 htsh hR
   rw [show Q.run.2.ownKey (Q.run.2.key (runProposer ⟨S, stock⟩ Q.run.2 Q.hn s)) =
