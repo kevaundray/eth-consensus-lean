@@ -115,7 +115,7 @@ private theorem attest_not_excluded (hq : A.Requirements)
   obtain ⟨i, rfl, ℓ, hcall, hto, ht, hC, hfg⟩ := Compose.attest_source hr hv hc
   have hCB := hs i (fun k hk => ih k (by omega)) v hv ℓ C hcall hto hC (ht ▸ hlo) (ht ▸ hhi)
   have hac := Compose.ac_projection P A dg H sg tr proposer hq
-    (fun y _ => hq.reqPayloadFrom_initial y) hr hnc
+    (fun y _ => Compose.payloadFrom_initial hq y) hr hnc
   have hpc := Compose.projAC_callAt.mpr hcall
   obtain ⟨Φ, t, hreach, htime, hok⟩ := pre_reachable hac hv hpc
   have hΦ : ℓ.frame = Φ := by
