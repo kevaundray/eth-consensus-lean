@@ -261,7 +261,6 @@ roots. Callers pass a premise structure's `stock`, their own `hstock`, `rfl` at 
 - `Healing.Growing.KernelProof.slow_live_locks_service_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/SlowReadLocks.lean:19
 - `Healing.Growing.KernelProof.slow_stored_locks_service_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/SlowStored.lean:17
 - `Healing.Growing.KernelProof.optimistic_supporter_later_heads_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/SupporterLater.lean:75
-- `Healing.Growing.ResetExistence.exists_reset` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Reset.lean:19
 - `Healing.Growing.ready_update_selection_of_pool_core_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/SelectionPool.lean:78
 - `Healing.Growing.KernelProof.unanimous_next_votes_of_witness_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/WitnessUnanimity.lean:141
 - `Healing.Growing.KernelProof.unanimous_next_proposal_of_witness_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/WitnessUnanimity.lean:282
