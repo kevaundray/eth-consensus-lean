@@ -211,6 +211,7 @@ public import ConsensusLean.Instances.Goldilocks.Lemmas.Frame.Ancestry
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Generic.ChainRepresentationEdges
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Generic.ClaimReductionEdges
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Generic.CorrectnessEdges
+public import ConsensusLean.Instances.Goldilocks.Lemmas.Generic.Counts
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Generic.EngineEdges
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Generic.GoldilocksBridge
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Generic.HealingEdges
