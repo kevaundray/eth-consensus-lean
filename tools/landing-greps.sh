@@ -87,7 +87,7 @@ awk -F: '{print $1}' "$TMP/g9" | sort | uniq -c | sort -rn | show
 # --- G7(ii), G10, §S reach: reach_outage.py (static, at HEAD) -------------------------------------
 gen_args=(); for g in "${GENERIC[@]}"; do gen_args+=(--generic-dir "$g"); done
 for root in "${ROOTS[@]}"; do
-  python3 "$TOOLS/reach_outage.py" --repo "$WT" --rev HEAD --root "$root" --open-prefixes \
+  python3 "$TOOLS/reach_outage.py" --repo "$WT" --rev HEAD --root "$root" --open-prefixes --static-only \
     --setup-binders --section-s "$TMP/sectionS.md" "${gen_args[@]}" > "$TMP/reach-$root.log" 2>&1 \
     || echo "reach_outage.py exited $? for $root" >> "$TMP/reach-$root.log"
 done

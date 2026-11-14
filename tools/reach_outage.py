@@ -6,10 +6,14 @@ working tree. Used for C2 plan rev 3 §0.4 and gate G7.
 
 Usage:
   python3 reach_outage.py --repo /home/kev/work/ecl-committee-local --rev 9124d968 \
-      --root outage_protected_at \
+      --root outage_protected_at --section-s sectionS.md --static-only \
       --query Consensus.Goldilocks.Compose.vote_extends \
       --query Consensus.Goldilocks.Compose.Growing.vote_extends \
       [--dump reach.txt] [--grep-stock]
+
+Fail-closed: exits 1 without --section-s, with an empty §S list, an entry not at a declaration
+line, a generic → §S edge or a §S declaration reachable from --root, and without --g7-elab unless
+--static-only (a diagnostic run that certifies nothing). Reads ConsensusLean/ and Solution.lean.
 
   --root   suffix of the root declaration's full name (matched as '.<root>' or exact)
   --query  full (or suffix) declaration names; membership is reported for both closures
@@ -46,6 +50,9 @@ from collections import deque
 DECL = re.compile(r"^(?:@\[[^\]]*\]\s*)?(?:private |protected |public |noncomputable |nonrec )*"
                   r"(?:theorem|lemma|def|abbrev|instance|structure|inductive|class)\s+([^\s(:{\[]+)", re.M)
 TOK = re.compile(r"(?<![\w.'])([A-Za-z_][\w'!?₀-₉]*(?:\.[A-Za-z_][\w'!?₀-₉]*)*)")
+SCOPE_OPEN = re.compile(r"^(?:(?:noncomputable|public|private|meta)\s+)*section\b|^namespace\s|^mutual\b")
+BINDER = re.compile(r"[({]([^(){}:]*):([^(){}]*)[)}]")
+S_TOK = re.compile(r"(?<![\w.'])S(?![\w'])")
 
 
 def git(repo, *args):
@@ -53,7 +60,7 @@ def git(repo, *args):
 
 
 def load(repo, rev):
-    files = [l for l in git(repo, "ls-tree", "-r", "--name-only", rev, "--", "ConsensusLean").split()
+    files = [l for l in git(repo, "ls-tree", "-r", "--name-only", rev, "--", "ConsensusLean", "Solution.lean").split()
              if l.endswith(".lean")]
     return {f: git(repo, "show", f"{rev}:{f}") for f in files}
 
@@ -171,6 +178,71 @@ def path(par, k, fullname):
     return out
 
 
+def s_binder(text):
+    """Type of the last `(S : T)` / `{S : T}` binder in `text`, or None if `text` binds no `S`."""
+    ty = None
+    for names, t in BINDER.findall(text):
+        if "S" in names.split():
+            ty = t.strip()
+    return ty
+
+
+def s_scope(text):
+    """Per 0-based line of `text`: the type of the `variable` binding of `S` in scope, or None.
+
+    Scopes follow source order: `section`/`namespace`/`mutual` open one, `end` closes the innermost
+    and drops the `variable`s declared in it; a later `variable` binding `S` shadows an earlier one
+    in the same or an enclosing scope. Comments are blanked first (line numbers kept)."""
+    L = re.sub(r"/-.*?-/", lambda m: "\n" * m.group(0).count("\n"), text, flags=re.S).split("\n")
+    L = [re.sub(r"--.*", "", l) for l in L]
+    stack, out, i = [None], [], 0
+    while i < len(L):
+        j = i + 1
+        if SCOPE_OPEN.match(L[i]):
+            stack.append(None)
+        elif re.match(r"^end\b", L[i]) and len(stack) > 1:
+            stack.pop()
+        elif re.match(r"^variable\b", L[i]):
+            while j < len(L) and re.match(r"[ \t]+\S", L[j]):
+                j += 1
+            ty = s_binder("\n".join(L[i:j]))
+            if ty is not None:
+                stack[-1] = ty
+        out += [next((t for t in reversed(stack) if t is not None), None)] * (j - i)
+        i = j
+    return out
+
+
+STOCK = re.compile(r"\bhstock\b|committeeSize\s*=|⟨S, stock⟩")
+
+
+def header(decl):
+    """A declaration's header, comments stripped: up to the first `:=` outside brackets (`(sp := sp)`
+    is a named argument); a `Prop` definition states its premises in its body, so it is read whole."""
+    text = re.sub(r"--.*", "", re.sub(r"/-.*?-/", "", decl, flags=re.S))
+    depth, end = 0, len(text)
+    for m in re.finditer(r"[([{⟨]|[)\]}⟩]|:=", text):
+        if m.group() == ":=" and depth == 0:
+            end = m.start()
+            break
+        depth += 0 if m.group() == ":=" else (1 if m.group() in "([{⟨" else -1)
+    return (text if re.search(r":\s*Prop\s*$", text[:end]) else text[:end]).rstrip()
+
+
+def stock_marker(decl, scope_ty):
+    """The stock marker of a declaration's header, or None: `hstock`, `committeeSize =`,
+    `⟨S, stock⟩`, or `S` bound to `Setup` by a header binder or (`scope_ty`) the in-scope `variable`."""
+    head = header(decl)
+    m, ty = STOCK.search(head), s_binder(head)
+    if m:
+        return m.group()
+    if ty == "Setup":
+        return "(S : Setup)"
+    if ty is None and S_TOK.search(head) and scope_ty == "Setup":
+        return "variable (S : Setup)"
+    return None
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--repo", required=True)
@@ -186,18 +258,32 @@ def main():
                          "or using `S` in a file with a `variable … (S : Setup)` line")
     ap.add_argument("--section-s",
                     help="(G7(ii) dependency check) markdown/text file listing §S declarations as "
-                         "`name` — path:line; reports every generic declaration (stated over "
-                         "BoundSetup, or any non-§S declaration under --generic-dir) that depends "
-                         "directly on a §S declaration, and any §S declaration reachable from --root")
+                         "`name` — path:line; reports every generic declaration (a `BoundSetup` binder "
+                         "in its header, `S` in its header under an in-scope `variable (S : BoundSetup)` "
+                         "and no local `S` binder, or any non-§S declaration under --generic-dir) that "
+                         "depends directly on a §S declaration, and any §S declaration reachable from --root")
     ap.add_argument("--generic-dir", action="append", default=[],
                     help="path prefix of the generic S/GS files (repeatable)")
+    ap.add_argument("--check-section-s", action="store_true",
+                    help="with --section-s: list §S entries whose header at --rev has no stock marker "
+                         "(`hstock`, `committeeSize =`, `⟨S, stock⟩`, or `S` bound to `Setup` by a header "
+                         "binder or the in-scope `variable`)")
     ap.add_argument("--g7-elab", metavar="WORKTREE",
                     help="(G7(i) refined) run G7Check.lean on the dumped reached set in WORKTREE")
     ap.add_argument("--g7-script",
                     default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "G7Check.lean"))
     ap.add_argument("--g7-mode", default="by-name", choices=["by-name", "+dots"])
+    ap.add_argument("--static-only", action="store_true",
+                    help="diagnostic only: do not certify the elaborated G7 gate")
     a = ap.parse_args()
 
+    if not a.section_s:
+        print("G7 failed: --section-s is required")
+        return 1
+    if not a.static_only and not a.g7_elab:
+        print("G7 failed: combined gate requires --g7-elab; use --static-only for diagnostics")
+        return 1
+    failed = False
     src = load(a.repo, a.rev)
     decls, fullname, opens, nsline, bylast, dotlast = index(src, a.open_prefixes)
     fwd = make_fwd(decls, make_resolver(fullname, opens, nsline, bylast), dotlast)
@@ -257,33 +343,44 @@ def main():
             m = re.search(r"`([^`]+)`\s*[—-]+\s*(\S+):(\d+)", line)
             if m:
                 sec.add((m.group(2), int(m.group(3))))
+        if not sec:
+            print("G7 failed: §S list is empty")
+            return 1
         missing = [k for k in sec if k not in decls]
         if missing:
             print(f"§S entries not at a declaration line: {sorted(missing)}")
+            failed = True
         fwd0 = make_fwd(decls, make_resolver(fullname, opens, nsline, bylast), dotlast)
         bound = re.compile(r"[({]\s*[^(){}:]*:\s*BoundSetup\s*[)}]")
-        varb = {f for f, t in src.items()
-                if any(re.search(r"[({]\s*S\s*:\s*BoundSetup\s*[)}]", blk)
-                       for blk in re.findall(r"^variable\b[^\n]*(?:\n[ \t]+[^\n]*)*", t, re.M))}
+        scope = {f: s_scope(t) for f, t in src.items()}
+        heads = {k: re.sub(r"/-.*?-/", "", body, flags=re.S).split(":=", 1)[0] for k, (_, body) in decls.items()}
         viol = []
         for k in decls:
             if k in sec:
                 continue
-            head = re.sub(r"/-.*?-/", "", decls[k][1], flags=re.S).split(":=", 1)[0]
+            head = heads[k]
             generic = (any(k[0].startswith(g) for g in a.generic_dir) or bool(bound.search(head))
-                       or (k[0] in varb and re.search(r"(?<![\w.'])S(?![\w'])", head)))
+                       or (scope[k[0]][k[1] - 1] == "BoundSetup" and S_TOK.search(head)
+                           and s_binder(head) is None))
             if not generic:
                 continue
             for d in fwd0(k, False):
                 if d in sec:
                     viol.append((k, d))
         print(f"[deps] generic → §S violations: {len(viol)}")
+        failed = failed or bool(viol)
         for k, d in sorted(viol):
             print(f"    {fullname[k]} @ {k[0]}:{k[1]}  →  {fullname[d]} @ {d[0]}:{d[1]}")
         for mode, par in res.items():
             hit = sorted(k for k in sec if k in par)
             print(f"[{mode}] §S declarations reachable from root: {len(hit)}")
+            failed = failed or bool(hit)
             for k in hit:
+                print(f"    {fullname[k]} @ {k[0]}:{k[1]}")
+        if a.check_section_s:
+            bad = sorted(k for k in sec if k in decls and not stock_marker(decls[k][1], scope[k[0]][k[1] - 1]))
+            print(f"[check] §S entries without a stock marker: {len(bad)}")
+            for k in bad:
                 print(f"    {fullname[k]} @ {k[0]}:{k[1]}")
 
     if a.g7_elab:
@@ -299,6 +396,7 @@ def main():
                             "lake", "env", "lean", a.g7_script], cwd=a.g7_elab, env=env)
         if r.returncode:
             return r.returncode
+    return 1 if failed else 0
 
 
 if __name__ == "__main__":

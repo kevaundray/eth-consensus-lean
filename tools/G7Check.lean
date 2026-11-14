@@ -1,4 +1,5 @@
 import ConsensusLean
+import Solution
 /-!
 # G7(i), refined (c56-2325): elaborated-constant check
 
@@ -16,8 +17,8 @@ Not part of the repository. Run from the worktree, with the built `.lake`:
 
 A reached constant is flagged when (1) its type's ∀-telescope has a binder of type `Setup`
 (section variables are ∀-binders of the elaborated type) and (2) its elaborated type or value
-(proofs included; for an inductive, its constructors' types) uses `goldilocks`, `stock` or a §S
-constant. Auxiliary constants the declaration's elaboration produced
+(proofs included; for an inductive, its constructors' types) uses `goldilocks`, `stock`,
+`stockBoundSetupCoe` or a §S constant. Auxiliary constants the declaration's elaboration produced
 under its own name (`c.proof_n`, `c.match_n`, `where` helpers) count as part of `c`. Exempt by
 name: `goldilocks`, `PubState`.
 
@@ -25,6 +26,9 @@ Controls (always checked): `G7Ctrl.g7_ctrl` (a `(S : Setup)` statement applying 
 `(S : BoundSetup)` lemma at `⟨S, stock⟩`) must be flagged; `G7Ctrl.g7_neg` (the same lemma
 over `(S : BoundSetup)`) and `G7Ctrl.g7_neg_setup` (a `(S : Setup)` declaration reading only a
 `Setup` field) must not.
+
+Fail-closed: an empty §S list, a control mismatch, an unresolved or flagged reached constant, or a
+reached axiom other than `propext`, `Classical.choice` and `Quot.sound` is an error (nonzero exit).
 -/
 
 set_option autoImplicit false
@@ -56,7 +60,8 @@ namespace G7
 
 def setupN : Name := ``Consensus.Goldilocks.AsChainShape.Setup
 def stockFamily : Array Name :=
-  #[``Consensus.Goldilocks.AsChainShape.goldilocks, ``Consensus.Goldilocks.AsChainShape.stock]
+  #[``Consensus.Goldilocks.AsChainShape.goldilocks, ``Consensus.Goldilocks.AsChainShape.stock,
+    `Consensus.Goldilocks.stockBoundSetupCoe]
 def exempt : Array Name :=
   #[``Consensus.Goldilocks.AsChainShape.goldilocks, ``Consensus.Goldilocks.AsChainShape.PubState]
 def controls : Array (Name × Bool) :=
@@ -129,6 +134,7 @@ def sectionS (env : Environment) (path : String) : IO (Array Name) := do
     unless cands.size == 1 do
       throw <| IO.userError s!"§S: {short} in {mod}: {cands.size} candidates {cands}"
     out := out.push cands[0]!
+  if out.isEmpty then throw <| IO.userError "§S list is empty"
   return out
 
 def resolve (env : Environment) (priv : Std.HashMap Name Name) (s : String) : Option Name :=
@@ -161,9 +167,11 @@ def run : CoreM Unit := do
     let off := used.toArray.filter (bad.contains ·) |>.qsort Name.lt
     return (setupBinder ci.type, off, hasVal)
   IO.println "controls:"
+  let mut failed := false
   for (n, expect) in controls do
     let some (sb, off, _) := check n | throwError "control {n} missing"
     let flagged := sb && !off.isEmpty
+    if flagged != expect then failed := true
     IO.println s!"    {n}: setupBinder={sb} offenders={off} → {if flagged then "FLAGGED" else "pass"} \
       ({if flagged == expect then "ok" else "CONTROL FAILED"})"
   for file in names.splitOn "," do
@@ -177,7 +185,9 @@ def run : CoreM Unit := do
     let mut axioms := #[]
     for (nm, loc) in rows do
       let some n := resolve env priv nm | unresolved := unresolved.push s!"{nm} @ {loc}"; continue
-      if let some (.axiomInfo _) := env.find? n then axioms := axioms.push n
+      if let some (.axiomInfo _) := env.find? n then
+        unless #[`propext, `Classical.choice, `Quot.sound].contains n do
+          axioms := axioms.push n
       let some (isSB, off, hasVal) := check n | continue
       unless isSB do continue
       let tag := if exempt.contains n then "exempt" else if off.isEmpty then "pass" else "FLAG"
@@ -189,6 +199,8 @@ def run : CoreM Unit := do
     for n in axioms do IO.println s!"    axiom {n}"
     for u in unresolved do IO.println s!"    unresolved {u}"
     for l in sb do IO.println l
+    if !unresolved.isEmpty || !flagged.isEmpty || !axioms.isEmpty then failed := true
+  if failed then throwError "G7 failed: control mismatch, unresolved constant or forbidden edge"
 
 end G7
 

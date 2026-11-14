@@ -61,15 +61,6 @@ Unreached from both gate-(a) roots; each needs the record premise (`simTraceAt_g
 - `catchRun_of_psync_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Obligations/Network/PSync.lean:459
 - `accepted_child_decodes` — ConsensusLean/Instances/Goldilocks/Lemmas/Obligations/ForwardingDecodeBase.lean:247
 
-## Ob leftovers (ObLeft) — namespace Consensus.Goldilocks.Obligations.Growing
-
-Unreached from both gate-(a) roots; each needs the record (`simTraceAt_simulates` /
-`simTraceAt_goldilocksRun`), so stated over `(S : Setup)` in place (file variable is `BoundSetup`).
-
-- `ready_proposal_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Engine/Reads.lean:124
-- `finalized_inBy_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Engine/Reads.lean:151
-- `confirmed_inBy_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Engine/Reads.lean:190
-
 ## C2 §S additions (C2-2f, C2TwoF/C2TwoF2) — scope-(ii) stock-only items
 
 A1.9 ruling (b′) (c56-0243, 2nd comment): `sp.committeeSize = sp.n →` premise placed right after the
@@ -87,9 +78,6 @@ or at concrete test parameters (`rfl` at `sp1`).
 (all unreached from both roots, both modes). Callers pass a home's `stock` where one is in scope;
 the residual run-record reads at the callers are listed in lane-pa/c2tf-handoff.md (T₀ cascade).
 
-- `Compose.vote_fcRoot_old_of` — ConsensusLean/Instances/Goldilocks/Lemmas/Compose/Service/PivotBase.lean:422
-- `Compose.vote_rows_old` — ConsensusLean/Instances/Goldilocks/Lemmas/Compose/Service/SuffixWindow.lean:117
-- `Compose.vote_floor_le_of` — ConsensusLean/Instances/Goldilocks/Lemmas/Compose/Service/SuffixWindow.lean:156
 - `Compose.vote_frame_upTo` — ConsensusLean/Instances/Goldilocks/Lemmas/Compose/Sleepy/FrameLabels.lean:175
 - `Compose.vote_frame_before` — ConsensusLean/Instances/Goldilocks/Lemmas/Compose/Sleepy/FrameLabels.lean:213
 - `Healing.Growing.KernelProof.optimistic_next_votes_of_early_witness_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/OptimisticBaseVotes.lean:33
@@ -131,15 +119,6 @@ roots. Callers pass a premise structure's `stock`, their own `hstock`, `rfl` at 
 - `Compose.proposal_holds_old_before` — ConsensusLean/Instances/Goldilocks/Lemmas/Compose/Service/Pivot.lean:65
 - `Compose.proposal_walk_passes_old_before` — ConsensusLean/Instances/Goldilocks/Lemmas/Compose/Service/Pivot.lean:103
 - `Compose.pivot_before` — ConsensusLean/Instances/Goldilocks/Lemmas/Compose/Service/Pivot.lean:158
-- `Compose.proposal_no_optimistic_of` — ConsensusLean/Instances/Goldilocks/Lemmas/Compose/Service/PivotBase.lean:264
-- `Compose.proposal_locks_slot_of` — ConsensusLean/Instances/Goldilocks/Lemmas/Compose/Service/PivotBase.lean:347
-- `Compose.proposal_best_toward_old_before` — ConsensusLean/Instances/Goldilocks/Lemmas/Compose/Service/PivotSteps.lean:156
-- `Compose.proposal_rows_old_of` — ConsensusLean/Instances/Goldilocks/Lemmas/Compose/Service/PivotSteps.lean:387
-- `Compose.proposal_fcRoot_old_of` — ConsensusLean/Instances/Goldilocks/Lemmas/Compose/Service/PivotSteps.lean:423
-- `Compose.proposal_anchor_old_of` — ConsensusLean/Instances/Goldilocks/Lemmas/Compose/Service/PivotSteps.lean:461
-- `Compose.vote_anchor_cases_of_old` — ConsensusLean/Instances/Goldilocks/Lemmas/Compose/Service/PivotSteps.lean:492
-- `Compose.proposal_suffix_viable_of` — ConsensusLean/Instances/Goldilocks/Lemmas/Compose/Service/PivotSteps.lean:575
-- `Compose.voter_facts_of_old` — ConsensusLean/Instances/Goldilocks/Lemmas/Compose/Service/Suffix.lean:83
 - `Compose.old_child_ineligible_before` — ConsensusLean/Instances/Goldilocks/Lemmas/Compose/Service/Suffix.lean:134
 - `Compose.suffix_agree_before` — ConsensusLean/Instances/Goldilocks/Lemmas/Compose/Service/Suffix.lean:157
 - `Compose.proposal_at_voter_before` — ConsensusLean/Instances/Goldilocks/Lemmas/Compose/Service/Suffix.lean:214
@@ -266,40 +245,6 @@ roots. Callers pass a premise structure's `stock`, their own `hstock`, `rfl` at 
 - `Healing.Growing.KernelProof.unanimous_next_proposal_of_witness_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/WitnessUnanimity.lean:282
 - `Healing.Growing.healthy_base_of_service_catch_before_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Obligations/Healthy/PrefixBase.lean:153
 - `Healing.Growing.optimistic_supporter_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Obligations/Healthy/UnanimousNextCore.lean:402
-- `Regimes.Growing.sleepy_safe_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Node/Regimes.lean:82
-- `Compose.Growing.proposal_held_at_update_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Service/Adopt.lean:79
-- `Compose.Growing.proposal_majority_at_update_from` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Service/Adopt.lean:94
-- `Compose.Growing.proposal_majority_at_update_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Service/Adopt.lean:151
-- `Compose.Growing.adopt_result_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Service/Adopt.lean:221
-- `Compose.Growing.update_adopts_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Service/Adopt.lean:275
-- `Compose.Growing.stop_at_parent_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Service/Agree.lean:95
-- `Compose.Growing.honest_votes_eq_proposal_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Service/Agree.lean:216
-- `Compose.Growing.origin_anc_proposal_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Service/Held.lean:53
-- `Compose.Growing.votes_succ_extend_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Service/Held.lean:80
-- `Compose.Growing.rows_compatible_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Service/Held.lean:113
-- `Compose.Growing.honest_votes_eq_proposal_at_update_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Service/Held.lean:270
-- `Compose.Growing.updater_F_anc_proposal_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Service/Held.lean:288
-- `Regimes.Growing.ready_record_extends_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Service/Inclusion.lean:55
-- `Regimes.Growing.include_sleepy_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Service/Inclusion.lean:176
-- `Regimes.Growing.grow_sleepy_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Service/Inclusion.lean:198
-- `Compose.Growing.update_adopts_extended_from` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Service/Later.lean:61
-- `Compose.Growing.update_adopts_origin_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Service/Later.lean:204
-- `Compose.Growing.later_update_adopts_gt_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Service/Later.lean:248
-- `Compose.Growing.later_update_adopts_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Service/Later.lean:285
-- `Compose.Growing.proposal_holds_old_from` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Service/PivotOld.lean:284
-- `Compose.Growing.proposal_holds_old_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Service/PivotOld.lean:317
-- `Compose.Growing.proposal_best_toward_from` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Service/PivotOld.lean:374
-- `Compose.Growing.proposal_best_toward_old_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Service/PivotOld.lean:565
-- `Compose.Growing.proposal_anchor_old_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Service/PivotWalk.lean:66
-- `Compose.Growing.proposal_suffix_viable_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Service/PivotWalk.lean:83
-- `Compose.Growing.vote_anchor_cases_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Service/PivotWalk.lean:101
-- `Compose.Growing.proposal_walk_passes_from` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Service/PivotWalk.lean:184
-- `Compose.Growing.proposal_walk_passes_old_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Service/PivotWalk.lean:232
-- `Compose.Growing.pivot_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Service/PivotWalk.lean:361
-- `Compose.Growing.genesis_voter_facts` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Service/Suffix.lean:103
-- `Compose.Growing.suffix_agree_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Service/Suffix.lean:227
-- `Compose.Growing.old_child_ineligible_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Service/Suffix.lean:298
-- `Compose.Growing.proposal_at_voter_at` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Sleepy/Service/Suffix.lean:351
 - `SA.acHealingStandalone_of_growing` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Statements/HealingAC.lean:68
 - `SA.acHealingStandaloneCorollary_of_growing` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Statements/HealingAC.lean:77
 - `SA.acInclusion_of_growing` — ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Statements/HealingAC.lean:86
