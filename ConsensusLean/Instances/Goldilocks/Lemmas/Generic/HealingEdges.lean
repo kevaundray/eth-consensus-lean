@@ -5,8 +5,9 @@ public section
 
 /-! # Open generic healing assembly edges
 
-All definitions below are UNPROVED implication contracts, not theorem evidence.
+The definitions below are UNPROVED implication contracts, not theorem evidence.
 Old-premise leaves remain primary; bundled-premise forms are conditional corollaries.
+Proposal existence after warmup is proved directly from the proposal gap.
 -/
 
 namespace Consensus.Goldilocks.Generic
@@ -17,6 +18,15 @@ open Healing.Growing (HZ IsReset)
 
 variable {P : Params} (A : NodeAC P) (sg : A.Msg → Fin P.n)
 variable {runs : ACRun A sg}
+
+/-- A proposal gap supplies an honest proposal after any arithmetic warmup. -/
+theorem warm_exists {tr : RunTrace A} {H : Time → Set (Fin P.n)}
+    {proposer : Nat → Fin P.n} {s₀ warmup G N : Nat}
+    (hfit : s₀ + warmup + G ≤ N + 1) (hgap : ProposalGap tr H proposer G s₀ N) :
+    ∃ u, u + 1 ≤ s₀ + warmup + G ∧ s₀ + warmup ≤ u ∧
+      ∃ z k X, HonestProposal tr H proposer u z k X := by
+  obtain ⟨u, hlo, hhi, hh, k, X, hp, hs⟩ := hgap (s₀ + warmup) (by omega) hfit
+  exact ⟨u, by omega, hlo, proposer u, k, X, ⟨hh, rfl, hp, hs⟩⟩
 
 /-- UNPROVED reset-or-no-advance corollary of the high-signing leaf. -/
 def reset_or_noAdvance : Prop :=
