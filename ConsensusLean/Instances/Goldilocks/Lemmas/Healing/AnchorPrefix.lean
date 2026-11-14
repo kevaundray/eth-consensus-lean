@@ -361,12 +361,12 @@ theorem honest_prefix_of_finality_before (hrun : GoldilocksRun proposer dg H tr)
     obtain ⟨j, ev, hv, hs, -⟩ := honest_votes_before_of_service hrun hnc hsvc hawake hf
       hcatch hnr hm (by rw [hstep] at hmb; linarith only [hmb, ht, hstart]) hstock x hx
     exact ⟨j, ev, hv, hs⟩
-  have hf' : 3 * Hᶜ.ncard < sp.n := by
+  have hf' : 2 * Hᶜ.ncard < sp.n := by
     have hn : 0 < sp.n := sp.toParams.hn
     clear * - hf hn; omega
   rw [← SA.viableTree_voteDomain_eq_of_viable ⟨B, hB⟩]
   exact SA.honest_prefix_of_carry sp hS.run (SA.CommitteeDict.full sp.n) SA.CommitteeT.full
-    (SA.size_binding_full hS.stock) (SA.third_full hS.stock hf') hy hc hes hheads
+    (SA.size_binding_full hS.stock) (SA.cs2_full hS.stock hf') hy hc hes hheads
     (fun x hx _ => hex x hx) hcarry
     (SA.viableTree_voterBlockTree_subset_voteDomain hB) haB
 

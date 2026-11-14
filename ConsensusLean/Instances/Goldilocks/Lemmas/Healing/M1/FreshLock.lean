@@ -244,14 +244,16 @@ theorem unanimous_proposal_carry_before (hS : HealthyBaseUpTo tr H U proposer g 
       (WithBot.coe_lt_coe.mpr (WithTop.coe_lt_coe.mpr (by linarith only [hDelta])))⟩
 
 /-- The unique early honest batch of the slot-`u` committee forces the raw result and fast
-selection, when every pool vote is a committee member's and fewer than a third of the committee
-is faulty. This is a pool calculation, independent of any lock-veto premise. -/
+selection, when every pool vote is a committee member's and fewer than half of the committee
+is faulty. A conflicting block's supporters are faulty voters besides the honest ones, so they
+are not a strict majority of the voters. This is a pool calculation, independent of any
+lock-veto premise. -/
 theorem confirmation_of_unanimous_early_pool
     {A : SAState sp.n} {Phi : Frm sp.n FGP} {u : Nat} {P : Blk sp.n FGP}
     (hPhi : FrameOK Phi) (hPt : P ∈ Phi.tree) (hPg : P.root ≠ sp.genesisRoot)
     (K : CommitteeDict sp.n) (hsize : (K.committee u).ncard = sp.committeeSize)
     (hP : ∀ v ∈ A.pool u, v.val ∈ K.committee u)
-    (hf : 3 * (K.committee u ∩ Hᶜ).ncard < sp.committeeSize)
+    (hf : 2 * (K.committee u ∩ Hᶜ).ncard < sp.committeeSize)
     (hslots : ∀ v ∈ A.pool u, v.slot = u)
     (hpool : ∀ x ∈ H, x ∈ K.committee u → ∃ v ∈ A.pool u, v.val = x ∧ v.head = P.root ∧
       resolutionTime A Phi v < ETime.of (sp.ts u + 2 * sp.Δ) ∧
@@ -268,7 +270,6 @@ theorem confirmation_of_unanimous_early_pool
   have hsplit : (K.committee u ∩ H).ncard + (K.committee u ∩ Hᶜ).ncard =
       (K.committee u).ncard :=
     Set.ncard_inter_add_ncard_sdiff_eq_ncard _ H (Set.toFinite _)
-  have hHle := Set.ncard_le_ncard hHvot
   have hscore : (K.committee u ∩ H).ncard ≤ confirmationScore sp A Phi u P := by
     unfold confirmationScore
     apply Set.ncard_le_ncard (ht := Set.toFinite _)
@@ -278,6 +279,15 @@ theorem confirmation_of_unanimous_early_pool
     · rintro ⟨v', hv', w, hw, hne, hv'x, hwx⟩
       exact hne ((huniq v' hv' hv'x).trans (huniq w hw hwx).symm)
     · exact_mod_cast hslots v hv
+  have hfew : ∀ S ⊆ K.committee u ∩ Hᶜ, S ⊆ voters {v | v ∈ A.pool u} →
+      ¬ (voters {v | v ∈ A.pool u}).ncard < 2 * S.ncard := by
+    intro S hSf hSv hlt
+    have hdisj : Disjoint (K.committee u ∩ H) S :=
+      Set.disjoint_left.2 fun x hx hxS => (hSf hxS).2 hx.2
+    have hU := Set.ncard_le_ncard (Set.union_subset hHvot hSv)
+    rw [Set.ncard_union_eq hdisj] at hU
+    have := Set.ncard_le_ncard hSf
+    omega
   have hconf : getConfirmation sp A Phi u = some P := by
     unfold getConfirmation
     have hPS : P ∈ {B | B ∈ Phi.tree ∧ Phi.Anc Phi.F B ∧
@@ -290,14 +300,15 @@ theorem confirmation_of_unanimous_early_pool
       by_contra hBP
       unfold confirmationScore at hmaj
       dsimp only at hmaj
-      refine absurd hmaj (not_lt.2 (le_trans (Nat.mul_le_mul_left 2
-        (Set.ncard_le_ncard (t := K.committee u ∩ Hᶜ) ?_)) (by omega)))
-      rintro x ⟨-, v, ⟨hv, -⟩, rfl, -, R, hR, hRr, hBR⟩
-      refine ⟨hP v hv, fun hx => ?_⟩
-      obtain ⟨w, -, -, hwh, -, huniq⟩ := hpool _ hx (hP v hv)
-      obtain rfl := huniq v hv rfl
-      obtain rfl : R = P := hPhi.coherent.1 hR hPt (hRr.trans hwh)
-      exact hBP hBR
+      refine hfew _ ?_ ?_ hmaj
+      · rintro x ⟨-, v, ⟨hv, -⟩, rfl, -, R, hR, hRr, hBR⟩
+        refine ⟨hP v hv, fun hx => ?_⟩
+        obtain ⟨w, -, -, hwh, -, huniq⟩ := hpool _ hx (hP v hv)
+        obtain rfl := huniq v hv rfl
+        obtain rfl : R = P := hPhi.coherent.1 hR hPt (hRr.trans hwh)
+        exact hBP hBR
+      · rintro x ⟨-, v, ⟨hv, -⟩, rfl, -⟩
+        exact ⟨v, hv, rfl⟩
     obtain ⟨D, hD⟩ := exists_deepest hPhi (fun B hB => hB.1) ⟨P, hPS⟩
     have hDP := hall D (deepest_mem hD).1
     have hPD := anc_deepest hPhi (fun B hB => hB.1)
@@ -541,7 +552,7 @@ theorem FrameWindow.unanimous_update_selection
   obtain ⟨hconf, hfast⟩ := SA.confirmation_of_unanimous_early_pool
     (SA.frameIn_of_callAt hr hy hu.1).1 hvi.1 hPg (SA.CommitteeDict.full sp.n)
     (SA.size_binding_full hstock u) (fun _ _ => SA.mem_full _ _)
-    (SA.third_full hstock (by have hn := sp.toParams.hn; change 1 ≤ sp.n at hn; omega))
+    (SA.cs2_full hstock (by have hn := sp.toParams.hn; change 1 ≤ sp.n at hn; omega))
     (SA.state_pool_slot sp hr hy k u) (fun x hx _ => hpool x hx)
   exact ⟨hvi, hconf, hfast, hva⟩
 
