@@ -723,7 +723,7 @@ theorem held_target_ancestor_candidate_at_state {b : Time}
   have hSy := hp.mem_tree_of_anc hy hSP hPy
   obtain ⟨-, -, -, -, -, -, -, -, -, hSs⟩ := hp.highOrigin_mem hseed
   refine Store.guarded_seed_ancestor_candidate hreach hp.honest_coherent
-    (fun X hX => ⟨y, hy, i, hX⟩) (Healing.σ_h_le_of_anc hreach) hPt
+    (fun X hX => ⟨y, hy, i, hX⟩) (Healing.h_le_of_store_anc hreach) hPt
     (fun hSy => congrArg (·.h) (hp.σ_eq_run hseed.1 hy hSs hSy).symm) (fun _ => hSy)
     (Or.inr hSP) ?_
     (Origin := fun B => ∃ x r l, r < i ∧ Healing.HighOrigin tr H g x r l B)

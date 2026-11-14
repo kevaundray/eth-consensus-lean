@@ -184,7 +184,7 @@ theorem FrameWindow.reset_of_high_proposal
   have hh' : HZ tr H g + 1 ≤ ((tr.state z i).fg.σ R.root).h := by
     have he := σ_eq_honest hrun hnc hw hz hP hPt
     rw [he] at hh
-    exact hh.trans (σ_h_le_of_anc (Compose.fg_reachable hrun.toLocalRun hz i) hanc)
+    exact hh.trans (h_le_of_store_anc (Compose.fg_reachable hrun.toLocalRun hz i) hanc)
   have hq : Hᶜ.ncard < sp.toParams.fg.q := by
     have hn := sp.toParams.hn
     change 0 < sp.n at hn

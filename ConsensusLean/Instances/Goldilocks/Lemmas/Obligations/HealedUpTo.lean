@@ -118,7 +118,7 @@ theorem ResetPremisesUpTo.highEntryUpTo_of_record
     obtain ⟨E', hE', hE'r, hE'h⟩ := signAt_entry hp.run hy hs
     have hU : Coherent (tr.HonestBlocks H) := hp.honest_coherent
     obtain rfl : E' = E := hU.1 ⟨y, hy, k, hE'⟩ ⟨y, hy, k, hE⟩ (hE'r.trans hEr.symm)
-    have hJE' := σ_h_le_of_anc (Compose.fg_reachable hp.run.toLocalRun hy k) hJE
+    have hJE' := h_le_of_store_anc (Compose.fg_reachable hp.run.toLocalRun hy k) hJE
     obtain ⟨E'', ⟨⟨x, i', j, B, ho, hi'b, hE''B⟩, ⟨z, hz, m, hE''m, -, -⟩⟩, hE''r⟩ :=
       hp.highEntryUpTo_of_row hy hs hkb (by omega)
     obtain rfl : E'' = E' := hU.1 ⟨z, hz, m, hE''m⟩ ⟨y, hy, k, hE'⟩ (hE''r.trans hE'r.symm)

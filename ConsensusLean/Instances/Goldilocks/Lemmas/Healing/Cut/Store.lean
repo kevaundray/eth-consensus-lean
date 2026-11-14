@@ -1,6 +1,7 @@
 module
 public import ConsensusLean.Instances.Goldilocks.Lemmas.FGStore.Entries
 public import ConsensusLean.Instances.Goldilocks.Lemmas.FGChain.Transition
+import ConsensusLean.Instances.Goldilocks.Lemmas.FGStore.CutSteps
 
 public section
 
@@ -16,7 +17,9 @@ The store facts that HR.1 reads at the honest nodes of a run:
   state (`σ_eq_of_mem`);
 * **G0.2 (f)**: a chain leaves a height only with a progress quorum of attestations of that height
   on it, so with fewer than `q` faulty validators every height below a block's state height has an
-  honest attestation on the block's chain (`exists_honest_att_of_lt`). -/
+  honest attestation on the block's chain (`exists_honest_att_of_lt`);
+* along the store's ancestry the state height does not decrease (`h_le_of_store_anc`), and while
+  it stays the entry stays (`Th_eq_of_anc`, G0.2 (i)). -/
 
 namespace Consensus.Goldilocks.Healing
 
@@ -324,6 +327,35 @@ theorem exists_honest_att_of_lt (hr : st.Reachable acp₀) {H : Set (Fin P.n)}
         exact ⟨Y, hY, a, ha, hvH, hah⟩
 
 end Store
+
+/-! ## Along the store's ancestry -/
+
+section Anc
+
+variable {P : Params} {ACP : Type} {acp₀ : ACP} {st : Store P ACP}
+
+/-- Along ancestry in a reachable store the state height does not decrease. -/
+theorem h_le_of_store_anc (hr : st.Reachable acp₀) {A W : NodeBlock P ACP} (h : st.Anc A W) :
+    (st.σ A.root).h ≤ (st.σ W.root).h := by
+  induction h with
+  | refl => exact le_rfl
+  | tail _ hYW ih =>
+    obtain ⟨-, -, -, ht⟩ := Store.step_σ hr hYW.2.1 hYW.2.2
+    rcases stateTransition_bits ht with ⟨hh, -⟩ | ⟨hh, -⟩ <;> omega
+
+/-- **Entry constancy** (G0.2 (i)): while the height stays along ancestry, the entry stays. -/
+theorem Th_eq_of_anc (hr : st.Reachable acp₀) {A W : NodeBlock P ACP} (h : st.Anc A W)
+    (hh : (st.σ W.root).h = (st.σ A.root).h) : (st.σ W.root).Th = (st.σ A.root).Th := by
+  induction h with
+  | refl => rfl
+  | tail hAY hYW ih =>
+    obtain ⟨-, -, -, ht⟩ := Store.step_σ hr hYW.2.1 hYW.2.2
+    have h₁ := h_le_of_store_anc hr hAY
+    rcases (Goldilocks.Store.step_fields ht).1 with ⟨he, hT⟩ | ⟨he, -⟩
+    · rw [hT]; exact ih (by omega)
+    · omega
+
+end Anc
 
 end Consensus.Goldilocks.Healing
 
