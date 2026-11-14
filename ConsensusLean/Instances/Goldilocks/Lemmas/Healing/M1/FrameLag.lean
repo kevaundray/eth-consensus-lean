@@ -30,10 +30,8 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 
 theorem accept_mem' (hrun : GoldilocksRun proposer dg H tr) {y : Fin sp.n} (hy : y ∈ H)
     {k : Nat} {B : SA.Blk sp.n (List (FG.Att sp.n))} (h : tr.AcceptAt y k B) :
-    B ∈ (tr.state y (k + 1)).fg.tree := by
-  rw [tr.state_succ_of_call h, (Store.tree_grows _ _ _ _
-    (Compose.fg_reachable hrun.toLocalRun hy k)).1 B _ (hrun.toLocalRun.cutLaw y hy k _ h).2.1]
-  exact Set.mem_insert _ _
+    B ∈ (tr.state y (k + 1)).fg.tree :=
+  accept_mem_from hrun.toLocalRun hy h
 
 /-- A block held by an honest `x` at `i`, of height at least `h_max(z)` at `m`, is held by `z`
 at `m`: by relay (accepted at `≥ g`) or by catch-up (accepted before `g`). The relay deadline is
