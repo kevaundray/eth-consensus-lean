@@ -3,5 +3,6 @@ Landing-gate tooling for the committee port (Kev). Files are byte-identical to t
 - tools/reach_outage.py: static/elaborated reach from the two gate roots.
 - tools/G7Check.lean: elaborated G7 check (positive control uses explicit ⟨S, stock⟩ after the coercion's removal).
 - tools/ElabReach.lean: elaborated constant closure of both roots.
-- tools/GateA.lean (if present): gate (a) closure counts.
+- tools/GateA.lean: gate (a) closure counts (size-premise binders, run-record stock, mayVote-stock, hmv, Fact-participationKind, §S) on both roots.
+- tools/R2Check.lean: run-record stock / pinned-statement reach check.
 - tools/sectionS.md: the §S (stock-only, scope-(ii)) declaration list.
