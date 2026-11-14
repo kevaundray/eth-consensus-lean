@@ -1,5 +1,6 @@
 module
 public import ConsensusLean.Instances.Goldilocks.Milestones.Spec.AC.Trace
+public import ConsensusLean.Instances.Goldilocks.Milestones.Spec.SA.Committee
 public import ConsensusLean.Instances.Goldilocks.Spec.SA.Instance
 
 @[expose] public section
@@ -35,6 +36,32 @@ def VoteStart {n : Nat} (g : Nat) (s : SAState n) : Prop :=
 /-- The initial state is a start up to the vote permission. -/
 theorem voteStart_initial {n : Nat} (g : Nat) : VoteStart g (SAState.initial g : SAState n) :=
   ⟨(SAState.initial g : SAState n).mayVote, rfl⟩
+
+/-- The initial state with exactly the selected slots enabled for each validator.
+All state fields other than vote permission keep their initial values. -/
+noncomputable def committeeStart {n : Nat} (g : Nat) (K : CommitteeDict n) :
+    Fin n → SAState n := by
+  classical
+  exact fun y => { SAState.initial g with mayVote := fun s => decide (y ∈ K.committee s) }
+
+/-- Canonical committee starts satisfy the run records' start predicate. -/
+theorem voteStart_committeeStart {n : Nat} (g : Nat) (K : CommitteeDict n) (y : Fin n) :
+    VoteStart g (committeeStart g K y) := by
+  classical
+  exact ⟨fun s => decide (y ∈ K.committee s), rfl⟩
+
+/-- Vote permission is precisely slot-committee membership. -/
+theorem committeeStart_mayVote {n : Nat} (g : Nat) (K : CommitteeDict n) (y : Fin n)
+    (s : Nat) : (committeeStart g K y).mayVote s = true ↔ y ∈ K.committee s := by
+  classical
+  simp [committeeStart]
+
+/-- Full selection recovers the complete stock initial state. -/
+theorem committeeStart_full {n : Nat} (g : Nat) :
+    committeeStart g (CommitteeDict.full n) = fun _ => SAState.initial g := by
+  classical
+  funext y
+  simp [committeeStart, CommitteeDict.full, SAState.initial]
 
 variable {FGP : Type} (sp : SAParams)
 
