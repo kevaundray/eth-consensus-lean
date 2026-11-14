@@ -50,7 +50,8 @@ service at `Δ_F` (`hrow`), `6Δ + Δ_F ≤ 4Δ·δt` (`htd`, the field `timeout
 theorem hsSharedUpTo_of_rows (run : (Sys (goldilocks S) V).Run) (hn : 1 ≤ Fintype.card V)
     (hconst : run.2.point.ConstantFaults)
     (valid : (Sys (goldilocks S) V).Valid run) (noCollision : ¬ run.2.HashCollision) {g : Time}
-    (healthy : (Sys (goldilocks S) V).Healthy (K S A) g run) {ΔF : Time}
+    (healthy : (Sys (goldilocks S) V).Healthy
+        (shapeProgress (goldilocks S) V).toExternal (K S A) g run) {ΔF : Time}
     (hrow : PSyncFGAttTransport S run.2 (simTrace ⟨S, stock⟩ run.2 hn)
         (honestKeys ⟨S, stock⟩ run.2) ΔF)
     (hΔF : 0 < ΔF)
@@ -134,7 +135,8 @@ theorem protoFGDelay_timeout_of_fgDelay (run : (Sys (goldilocks S) V).Run)
 theorem hsSharedUpTo_of_healthy (run : (Sys (goldilocks S) V).Run) (hn : 1 ≤ Fintype.card V)
     (hconst : run.2.point.ConstantFaults)
     (valid : (Sys (goldilocks S) V).Valid run) (noCollision : ¬ run.2.HashCollision) {g : Time}
-    (healthy : (Sys (goldilocks S) V).Healthy (K S A) g run) {ΔF : Time}
+    (healthy : (Sys (goldilocks S) V).Healthy
+        (shapeProgress (goldilocks S) V).toExternal (K S A) g run) {ΔF : Time}
     (hΔF : protoFGDelay (Model.pubOf run.1) ≤ ΔF)
     (htd : 6 * (S.params (Model.pubOf run.1) hn).Δ + ΔF ≤
       4 * (S.params (Model.pubOf run.1) hn).Δ * (S.δt : Time)) :

@@ -269,7 +269,8 @@ theorem final_payload_projection_at
         W.CacheCoverage) :
     ∀ g, schema.output .final = some g →
     ∀ (i : (K S A).Idx) (gst : Time), (Sys (goldilocks S) V).Holds
-      (fun r => (Sys (goldilocks S) V).Healthy (K S A) gst r ∧
+      (fun r => (Sys (goldilocks S) V).Healthy
+          (shapeProgress (goldilocks S) V).toExternal (K S A) gst r ∧
         (Sys (goldilocks S) V).prog (shapeProgress (goldilocks S) V) (K S A) .final i
           ((Sys (goldilocks S) V).ready (K S A) gst r) ((Sys (goldilocks S) V).pt r).horizon r)
       fun r => ProposalLiveReady r.2 ((Sys (goldilocks S) V).cDur (K S A) r)
@@ -326,7 +327,8 @@ theorem final_payload_projection_at
 at the final capability. -/
 theorem meetsObligations_healthyLive_final_growing : ∀ g, schema.output .final = some g →
     ∀ (i : (K S A).Idx) (gst : Time), (Sys (goldilocks S) V).Holds
-      (fun r => (Sys (goldilocks S) V).Healthy (K S A) gst r ∧
+      (fun r => (Sys (goldilocks S) V).Healthy
+          (shapeProgress (goldilocks S) V).toExternal (K S A) gst r ∧
         (Sys (goldilocks S) V).prog (shapeProgress (goldilocks S) V) (K S A) .final i
           ((Sys (goldilocks S) V).ready (K S A) gst r) ((Sys (goldilocks S) V).pt r).horizon r)
       fun r => ProposalLiveReady r.2 ((Sys (goldilocks S) V).cDur (K S A) r)

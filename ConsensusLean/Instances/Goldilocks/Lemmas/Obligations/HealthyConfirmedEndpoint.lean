@@ -153,7 +153,8 @@ theorem healthy_cut_tips_ancestor_of_preparation (Q : HealthyPreparationQuery S 
 /-- Engine readiness from health: an honest validator is ready at every `t ∈ [ready, horizon]`
 (HealthyOn keeps it awake on `[max g 0, horizon]`). -/
 private theorem confirmed_ready_of_healthy (Q : ConfirmedQuery S A V)
-    (hh : (Sys (goldilocks S) V).Healthy (K S A) Q.gst Q.run) {v : V}
+    (hh : (Sys (goldilocks S) V).Healthy
+        (shapeProgress (goldilocks S) V).toExternal (K S A) Q.gst Q.run) {v : V}
     (hv : Q.run.2.point.HonestAt v 0) {t : Time}
     (hr : (Sys (goldilocks S) V).ready (K S A) Q.gst Q.run ≤ t) (htb : t ≤ Q.run.2.horizon) :
     Q.run.2.point.Ready Q.duration v t := by
@@ -196,7 +197,8 @@ private theorem confirmed_cutAfter_unique (Q : ConfirmedQuery S A V) {i j : Nat}
 of `healthy_confirmed_supply`, with one more hypothesis: the type of the initializer
 `healthy_preparation_initialize`, which `healthy_confirmed_supply` supplies. -/
 theorem healthy_confirmed_supply_of_initializer (Q : ConfirmedQuery S A V)
-    (hh : (Sys (goldilocks S) V).Healthy (K S A) Q.gst Q.run)
+    (hh : (Sys (goldilocks S) V).Healthy
+        (shapeProgress (goldilocks S) V).toExternal (K S A) Q.gst Q.run)
     (hp : (Sys (goldilocks S) V).prog (shapeProgress (goldilocks S) V) (K S A)
       Q.cap Q.index ((Sys (goldilocks S) V).ready (K S A) Q.gst Q.run)
       Q.run.2.horizon Q.run)

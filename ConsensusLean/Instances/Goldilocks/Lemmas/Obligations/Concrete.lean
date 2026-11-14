@@ -369,7 +369,8 @@ theorem final_payload_projection
         W.CacheCoverage) :
     ∀ g, schema.output .final = some g →
     ∀ (i : (K S A).Idx) (gst : Time), (Sys (goldilocks S) V).Holds
-      (fun r => r.2.point.ConstantFaults ∧ (Sys (goldilocks S) V).Healthy (K S A) gst r ∧
+      (fun r => r.2.point.ConstantFaults ∧ (Sys (goldilocks S) V).Healthy
+          (shapeProgress (goldilocks S) V).toExternal (K S A) gst r ∧
         (Sys (goldilocks S) V).prog (shapeProgress (goldilocks S) V) (K S A) .final i
           ((Sys (goldilocks S) V).ready (K S A) gst r) ((Sys (goldilocks S) V).pt r).horizon r)
       fun r => ProposalLiveReady r.2 ((Sys (goldilocks S) V).cDur (K S A) r)
@@ -424,7 +425,8 @@ Coverage is the anchor route (`final_anchor_coverage`); the open leaf is
 `final_reset_premises` (via `final_window_extract`; `final_duty_proposal` is proved). -/
 theorem meetsObligations_healthyLive_final : ∀ g, schema.output .final = some g →
     ∀ (i : (K S A).Idx) (gst : Time), (Sys (goldilocks S) V).Holds
-      (fun r => r.2.point.ConstantFaults ∧ (Sys (goldilocks S) V).Healthy (K S A) gst r ∧
+      (fun r => r.2.point.ConstantFaults ∧ (Sys (goldilocks S) V).Healthy
+          (shapeProgress (goldilocks S) V).toExternal (K S A) gst r ∧
         (Sys (goldilocks S) V).prog (shapeProgress (goldilocks S) V) (K S A) .final i
           ((Sys (goldilocks S) V).ready (K S A) gst r) ((Sys (goldilocks S) V).pt r).horizon r)
       fun r => ProposalLiveReady r.2 ((Sys (goldilocks S) V).cDur (K S A) r)
@@ -442,7 +444,8 @@ or repaired engine timing transport.
 This field must not acquire whole-run progress before ready as a premise. -/
 theorem meetsObligations_healthyLive : ∀ cap g, schema.output cap = some g →
     ∀ (i : (K S A).Idx) (gst : Time), (Sys (goldilocks S) V).Holds
-      (fun r => r.2.point.ConstantFaults ∧ (Sys (goldilocks S) V).Healthy (K S A) gst r ∧
+      (fun r => r.2.point.ConstantFaults ∧ (Sys (goldilocks S) V).Healthy
+          (shapeProgress (goldilocks S) V).toExternal (K S A) gst r ∧
         (Sys (goldilocks S) V).prog (shapeProgress (goldilocks S) V) (K S A) cap i
           ((Sys (goldilocks S) V).ready (K S A) gst r)
           ((Sys (goldilocks S) V).pt r).horizon r)
@@ -473,7 +476,8 @@ theorem meetsObligations_healthyLive : ∀ cap g, schema.output cap = some g →
 readiness and read-cut transport. Node route: sleepy_invariant and ready reads. -/
 theorem meetsObligations_sleepySafe : ∀ cap g, (cap = .available ∨ cap = .stable) →
     schema.output cap = some g → (Sys (goldilocks S) V).Holds
-      (fun r => r.2.point.ConstantFaults ∧ (Sys (goldilocks S) V).Sleepy (K S A) r) fun r =>
+      (fun r => r.2.point.ConstantFaults ∧ (Sys (goldilocks S) V).Sleepy
+          (shapeProgress (goldilocks S) V).toExternal (K S A) r) fun r =>
         (chainTrace r.2).ReadySafe ((Sys (goldilocks S) V).cDur (K S A) r) g 0 := by
   intro cap g hcap hg r hv ⟨hconst, hs⟩
   have hg' : g = Out.confirmed := by
@@ -502,7 +506,8 @@ for the exact recurrence/readiness/deadline transport; keep this gap explicit. -
 theorem meetsObligations_sleepyLive : ∀ cap g, (cap = .available ∨ cap = .stable) →
     schema.output cap = some g → ∀ i : (K S A).Idx,
       (Sys (goldilocks S) V).Holds
-        (fun r => r.2.point.ConstantFaults ∧ (Sys (goldilocks S) V).Sleepy (K S A) r ∧
+        (fun r => r.2.point.ConstantFaults ∧ (Sys (goldilocks S) V).Sleepy
+            (shapeProgress (goldilocks S) V).toExternal (K S A) r ∧
           (Sys (goldilocks S) V).prog (shapeProgress (goldilocks S) V) (K S A) cap i
             0 ((Sys (goldilocks S) V).pt r).horizon r)
         fun r => ProposalLiveReady r.2 ((Sys (goldilocks S) V).cDur (K S A) r)
@@ -528,7 +533,8 @@ has no completed proof. -/
 theorem meetsObligations_healedSafe : ∀ cap g, (cap = .available ∨ cap = .stable) →
     schema.output cap = some g → ∀ (i : (K S A).Idx) (gst : Time),
       (Sys (goldilocks S) V).Holds
-        (fun r => r.2.point.ConstantFaults ∧ (Sys (goldilocks S) V).Healthy (K S A) gst r ∧
+        (fun r => r.2.point.ConstantFaults ∧ (Sys (goldilocks S) V).Healthy
+            (shapeProgress (goldilocks S) V).toExternal (K S A) gst r ∧
           (Sys (goldilocks S) V).prog (shapeProgress (goldilocks S) V) (K S A) cap i
             ((Sys (goldilocks S) V).ready (K S A) gst r)
             ((Sys (goldilocks S) V).heal (K S A) cap i gst r) r)
@@ -616,6 +622,7 @@ theorem meetsObligations_admissible : (K S A).params.Admissible := by
     catchUp_pos := (contract_coefficients S A).catchUp.pos
     θ_range := by norm_num [Params.standard]
     β_range := by norm_num [Params.standard]
+    βK_range := by norm_num [Params.standard]
     cover_range := by norm_num [Params.standard]
     α_range := by norm_num [Params.standard]
     budget_pos := by have := S.two_le_k; dsimp [Params.standard]; omega }
