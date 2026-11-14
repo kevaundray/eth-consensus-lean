@@ -1,0 +1,23 @@
+#25 evidence: commit 9f76d0b36597d0a29686e333382d65d4d358b555 (LANDED; parent b18924b9b, the #12 follow-up;
+tree 133a38999cc11b4d45ed7e14984f7b7cb1eced37, diff sha256 010e4c2c1c20e0ea80a928ae4f56f0c415acbef5662c8ced6904f8556bba5821).
+Gate 6/6 PASS: rf/logs/tt25r-9f76d0b36.log. Parent snapshots are identical to 502174611's.
+Worktree: /home/kev/work/ecl-rf-k2
+
+(a) Snapshot diffs against the parent (git diff b18924b9b 9f76d0b36):
+    a-instance-snapshot.diff   62 changed lines = 26 value-hash lines x2 + 4 removed theorems x2 + 1 added theorem x2
+    a-spec-snapshot.diff       empty (no spec snapshot change)
+(b) Per-constant hash table (old = parent snapshot, new = 9f76d0b36 snapshot):
+    b-hash-table.txt           instance snapshot: removed/added constants and the 26 hash rows
+    b-spec-hash-table.txt      spec snapshot: no change
+    hash-table.py              the script: python3 hash-table.py OLD NEW
+(c) Strip-optParam comparison:
+    c-optparam-check.lean      run in the built worktree: lake env lean c-optparam-check.lean
+    c-optparam-check.out       raw output: 26/26 MATCH after stripping; moved theorem types equal (hash 1317440395)
+
+Const-diff rows versus the expected list:
+- 26 value-hash rows, no type-hash change, equal to the parent after stripping optParam: as expected.
+- goldilocks_stock removed: as expected.
+- VoteBinding.installVote_eq_mayVote added (moved from Lemmas Simulation.installVote_eq_mayVote, type == old): as expected.
+- No private match_1.eq / splitter rows.
+- Also removed, as in the original #25 before this amendment (and stated in its message): the theorems
+  VoteBinding.candidateRole_vote, stock_candidateRole_poll, goldilocksWith_init_mayVote. These are not in the expected list.

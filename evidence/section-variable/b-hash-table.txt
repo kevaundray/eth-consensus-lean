@@ -1,0 +1,41 @@
+constants: old 1225  new 1222
+removed:
+  Consensus.Goldilocks.AsChainShape.VoteBinding.candidateRole_vote
+  Consensus.Goldilocks.AsChainShape.goldilocksWith_init_mayVote
+  Consensus.Goldilocks.AsChainShape.goldilocks_stock
+  Consensus.Goldilocks.AsChainShape.stock_candidateRole_poll
+added:
+  Consensus.Goldilocks.AsChainShape.VoteBinding.installVote_eq_mayVote
+
+hash changes: 26
+| constant | old type hash | new type hash | old value hash | new value hash |
+|---|---|---|---|---|
+| `Consensus.Goldilocks.AsChainShape.IsAttObj` | 549114975 | 549114975 | 3173222568 | 3258582087 |
+| `Consensus.Goldilocks.AsChainShape.apply` | 2611524971 | 2611524971 | 3370398362 | 367075689 |
+| `Consensus.Goldilocks.AsChainShape.attObj` | 3821176259 | 3821176259 | 2900818675 | 777354916 |
+| `Consensus.Goldilocks.AsChainShape.blockObj` | 1442293986 | 1442293986 | 3774763344 | 4260330008 |
+| `Consensus.Goldilocks.AsChainShape.canonEvent` | 1800620764 | 1800620764 | 3636392709 | 573342379 |
+| `Consensus.Goldilocks.AsChainShape.conflicts` | 1480024902 | 1480024902 | 2275202749 | 1580338944 |
+| `Consensus.Goldilocks.AsChainShape.decodeAttObj` | 3106054158 | 3106054158 | 4162782420 | 1161116186 |
+| `Consensus.Goldilocks.AsChainShape.decodeBlock` | 669357531 | 669357531 | 800171956 | 3231432629 |
+| `Consensus.Goldilocks.AsChainShape.decodeVoteObj` | 226258628 | 226258628 | 1052448496 | 537032198 |
+| `Consensus.Goldilocks.AsChainShape.delivered` | 3691839923 | 3691839923 | 81304459 | 1057648989 |
+| `Consensus.Goldilocks.AsChainShape.fgUpdate` | 3641196527 | 3641196527 | 2679473495 | 3227118453 |
+| `Consensus.Goldilocks.AsChainShape.forwardObj` | 3061772518 | 3061772518 | 2261724180 | 2687652455 |
+| `Consensus.Goldilocks.AsChainShape.forwardParent?` | 1521082006 | 1521082006 | 1858530694 | 3490773344 |
+| `Consensus.Goldilocks.AsChainShape.isFGAtt` | 549114975 | 549114975 | 2209564624 | 705505429 |
+| `Consensus.Goldilocks.AsChainShape.nodeTick` | 3641196527 | 3641196527 | 821537297 | 3487986906 |
+| `Consensus.Goldilocks.AsChainShape.payloadObjs` | 3149302229 | 3149302229 | 2193728946 | 2308264405 |
+| `Consensus.Goldilocks.AsChainShape.poll` | 803332523 | 803332523 | 3827642591 | 2134797901 |
+| `Consensus.Goldilocks.AsChainShape.pollBatch` | 586769863 | 586769863 | 1361043783 | 3865882161 |
+| `Consensus.Goldilocks.AsChainShape.process` | 2374939030 | 2374939030 | 1051931326 | 68209260 |
+| `Consensus.Goldilocks.AsChainShape.processOne` | 2417921689 | 2417921689 | 3700177894 | 1507400517 |
+| `Consensus.Goldilocks.AsChainShape.propose` | 3537509520 | 3537509520 | 1654435988 | 3297960559 |
+| `Consensus.Goldilocks.AsChainShape.queueAccepted` | 516196988 | 516196988 | 2193970879 | 234335536 |
+| `Consensus.Goldilocks.AsChainShape.recordOwn` | 2374939030 | 2374939030 | 3065203484 | 3850843953 |
+| `Consensus.Goldilocks.AsChainShape.relayIf` | 3303667581 | 3303667581 | 3496529543 | 891063941 |
+| `Consensus.Goldilocks.AsChainShape.restore` | 3313897111 | 3313897111 | 2734205620 | 1890315548 |
+| `Consensus.Goldilocks.AsChainShape.voteObj` | 496735130 | 496735130 | 516067500 | 3260169203 |
+
+type-hash changes: 0
+header-line (displayed signature) changes: 0
