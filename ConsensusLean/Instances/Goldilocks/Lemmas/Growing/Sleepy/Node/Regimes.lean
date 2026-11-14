@@ -52,7 +52,7 @@ structure ReadySafeOn (tr : GoldilocksTrace sp ro) (H : Time → Set (Fin sp.n))
 `Σ.F`) when it is one of the two, for a node honest at a time `t ≥ 0` at or after every cut before
 `j`. -/
 private theorem read_effective_at
-    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr)
+    {ini} (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr ini)
     {y : Fin sp.n} {j : Nat} {t u : Time} (ht0 : 0 ≤ t) (hj : ∀ k < j, tr.time k ≤ t)
     (hy : y ∈ H t)
     (h : (∃ R ∈ (Node.frame (tr.state y j)).tree,
@@ -81,21 +81,22 @@ private theorem read_effective_at
 
 /-- **Finite ready-reader safety under growing faults** through `b`, from the finite service and
 the count shapes through `b`. -/
-theorem sleepy_safe_at (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr)
+theorem sleepy_safe_at {ini}
+    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr ini)
     (hnc : Compose.NoCollRun dg tr) {ΔF b : Time} (hb : 0 ≤ b)
     (hsync : Compose.Growing.SleepyServiceBefore tr H ΔF b)
-    (hB : Compose.Growing.SleepyBoundsFrom tr H 0 b) (hstock : sp.committeeSize = sp.n) :
+    (hB : Compose.Growing.SleepyBoundsFrom tr H 0 b) {K : SA.CommitteeDict sp.n}
+    (hKB : CommitteeFacts tr H K) (hBK : CommitteeBoundsFrom tr H K 0 b) :
     ReadySafeOn tr H (catchUp sp) 0 b := by
-  have hinv := sleepy_invariant_at hrun hnc (CommitteeFacts.of_full hrun hnc hstock) hb hsync hB
-    (CommitteeBoundsFrom.of_full hrun hB)
+  have hinv := sleepy_invariant_at hrun hnc hKB hb hsync hB hBK
   refine ⟨fun y z i j t t' hi hj _ _ ht0 htb ht0' htb' hy hz => ?_,
     fun y i j t t' hi hj _ _ hij htt ht0 htb hy hy' => ?_⟩
   · exact hinv.read_compatible_at hrun hnc ht0 hi.1 htb hy.1 ht0' hj.1 htb' hz.1 t t'
   · have ht0' := ht0.trans htt
     rw [read_effective_at hrun ht0 hi.1 hy.1
-        (ready_read_record_at hrun hnc hinv hsync hB hi ht0 hy (htt.trans htb)),
+        (ready_read_record_at hrun hnc hinv hsync hKB hBK hi ht0 hy (htt.trans htb)),
       read_effective_at hrun ht0' hj.1 hy'.1
-        (ready_read_record_at hrun hnc hinv hsync hB hj ht0' hy' htb)]
+        (ready_read_record_at hrun hnc hinv hsync hKB hBK hj ht0' hy' htb)]
     exact hinv.effective_record_mono_at hrun hnc hij ht0' hj.1 htb hy'.1
 
 end Consensus.Goldilocks.Regimes.Growing
