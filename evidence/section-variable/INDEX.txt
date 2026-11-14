@@ -21,3 +21,10 @@ Const-diff rows versus the expected list:
 - No private match_1.eq / splitter rows.
 - Also removed, as in the original #25 before this amendment (and stated in its message): the theorems
   VoteBinding.candidateRole_vote, stock_candidateRole_poll, goldilocksWith_init_mayVote. These are not in the expected list.
+
+Posted commit (fork work/committee-tail): 336153757b714b8325efc7f463562db4ed7e9873
+  tree 57c208cd7c8eacdbb5c16d611b00c4c996cc3274, parent 4e2523fc01f138ee406f7a3037adf4fe20b91fe9
+  sha256 of `git diff --full-index 4e2523fc 33615375`: 594e8cbc5fc507cf2c32bba0242ec54f3fa1a535da04928dbe2ae03a06fe4acc
+The files above were produced on the working-branch twin 9f76d0b36 (tree 133a3899, parent b18924b9b);
+its instance-snapshot diff is byte-identical to that of the posted commit. BOX's rerun of
+c-optparam-check.lean on its own build of 33615375 is the evidence of record.
