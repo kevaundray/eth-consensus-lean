@@ -62,6 +62,13 @@ theorem _root_.Consensus.Goldilocks.ACInterface.reachableAtFrom_iff {P : Params}
     | block B => exact .step (A := A) (.block B) ih ht hok
     | restart => exact .step (A := A) .restart ih ht hok
 
+/-- Requirement 5 is requirement 5 from the initial state (`ReqPayloadFrom A.initial`) at every
+validator. -/
+theorem _root_.Consensus.Goldilocks.ACInterface.Requirements.reqPayloadFrom_initial
+    {P : Params} {A : ACInterface P FGP} (h : A.Requirements) (self : Fin P.n) :
+    A.ReqPayloadFrom A.initial self :=
+  h.payload self
+
 /-- A call of `{A with initial := s₀}` as the same call of `A`. -/
 def _root_.Consensus.Goldilocks.ACInterface.Call.ofStart {P : Params} {A : ACInterface P FGP}
     {s₀ : A.State} : ({ A with initial := s₀ } : ACInterface P FGP).Call → A.Call
