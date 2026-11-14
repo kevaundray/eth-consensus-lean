@@ -44,7 +44,7 @@ def rise_reset_rounds_at_of (O : ACHealing A sg runs) : Prop :=
 def exists_reset_of_drain_rounds_noRestartAfter_at_of (O : ACHealing A sg runs) : Prop :=
   reset_of_height_advance_at A sg → hmax_le_of_noAdvance_at A sg →
   snapshotCall_of_awake_at A sg → callLag_of_awake_at A sg →
-  exists_frameWindow_seq_of_service_at A sg → exists_slot_align (P := P) →
+  exists_slot_align (P := P) →
   rounds_le_warm_proposal_at A sg O → rise_reset_rounds_at A sg O →
     exists_reset_of_drain_rounds_noRestartAfter_at A sg O
 
@@ -72,7 +72,7 @@ def highCanonical (O : ACHealing A sg runs) : Prop :=
 
 /-- UNPROVED slot-budget reset assembly; it is not the old real-time endpoint. -/
 def exists_reset (O : ACHealing A sg runs) : Prop :=
-  reset_or_noAdvance A sg (runs := runs) → exists_frameWindow_seq_of_service_at A sg →
+  reset_or_noAdvance A sg (runs := runs) →
   rounds_le_warm_proposal_at A sg O → rise_reset_rounds A sg O →
   ∀ {cm βK tr H proposer dg g ΔF b G s}, βK ≤ 1 / 2 →
     runs.Run cm proposer dg H tr → Premises tr H cm βK proposer dg sg g ΔF b → 1 ≤ G →
