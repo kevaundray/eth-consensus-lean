@@ -1,6 +1,7 @@
 module
 public import ConsensusLean.Instances.Goldilocks.Milestones.Statements.Generic.Obligations
 import Mathlib.Tactic.Linarith
+import ConsensusLean.Lemmas.Tactic.Linarith
 
 public section
 
