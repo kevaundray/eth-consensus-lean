@@ -16,7 +16,7 @@ to the generic contracts by conditional implications. Nothing here supplies prov
 Every original premise and conclusion is retained, up to unused proof-binder alpha-renaming.
 
 This leaf has an isolated concrete bridge proof closure, not a vocabulary-only closure.
-`Kernel.Boundaries` supplies `FrameWindow`, `ProposalGap`, `DrainOutputs`, `NoRestartUpTo`,
+`Kernel.Boundaries` supplies `FrameWindow`, `ProposalGap`, `DrainOutputs`,
 `frameKey'`, `riseRounds`, and `Obligations.resetBoundRounds` in the exact original types below.
 `Report.Row` supplies the concrete report-row declaration whose complete type is restated below.
 `RowService` supplies `ResetPremisesUpTo.high_entry_eq_at` and the retained-origin vocabulary
@@ -282,33 +282,6 @@ def rise_reset_rounds_at_goldilocks : Prop := ∀
     ∃ a, IsReset tr H g a ∧
       a ≤ sp.ts (u + r * (sp.toParams.fg.δt + G - 1) + 1 : Nat) + 2 * sp.Δ
 
-/-- Original side: `Growing/Healing/Kernel/Boundaries.lean:75`; free `Ld`, bounded restarts. -/
-def exists_reset_of_drain_rounds_awake_at_goldilocks : Prop := ∀
-    (_hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr)
-    (_hnc : Compose.NoCollRun dg tr) {g ΔF b r : Time} {G Ld : Nat}
-    (_hf : ∀ t, 0 ≤ t → t ≤ b → 3 * (H t)ᶜ.ncard ≤ sp.n - 1)
-    (_hsvc : ResetService tr H g ΔF b)
-    (_hawake : ∀ y t, y ∈ H t → gbar g ≤ t → t ≤ b → tr.awake y t)
-    (_hcatch : CatchRun tr H g (2 * sp.Δ))
-    (_hnr : Healing.Growing.NoRestartUpTo tr H (gbar g) b)
-    (_hH : (H b).Nonempty) (_hδ : 3 ≤ sp.toParams.fg.δt)
-    (_hΔF : 6 * sp.Δ + ΔF ≤ 4 * sp.Δ * (sp.toParams.fg.δt : Time))
-    (_hr : 0 ≤ r) (_hgr : gbar g ≤ r) (_hG : 1 ≤ G)
-    (_hcz : cutZ sp.toParams g + sp.Δ + 1 ≤ r + 4 * sp.Δ)
-    (_hb : Obligations.resetBoundRounds r sp.Δ (2 * sp.Δ) sp.toParams.fg.δt G Ld ≤ b)
-    (_hgp : ∀ s₀ N : Nat, r + 4 * sp.Δ ≤ sp.ts s₀ →
-      sp.ts N + 2 * sp.Δ <
-        Obligations.resetBoundRounds r sp.Δ (2 * sp.Δ) sp.toParams.fg.δt G Ld →
-      Healing.Growing.ProposalGap tr H proposer G s₀ N)
-    (_hdrain : Healing.Growing.DrainOutputs tr proposer H g G Ld b),
-    ∃ a, IsReset tr H g a ∧
-      a ≤ Obligations.resetBoundRounds r sp.Δ (2 * sp.Δ) sp.toParams.fg.δt G Ld
-
-/-- Public restatement of the private supplier at `Kernel/ResetRounds.lean:707`. -/
-def goldilocksRun_truncH : Prop := ∀
-    (_hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr) (b : Time),
-    Consensus.Goldilocks.Growing.GoldilocksRun proposer dg (fun t => {y | y ∈ H t ∧ t ≤ b}) tr
-
 /-- Original side: `Growing/Healing/Outcome/RowSource.lean:107`. -/
 def high_row_source_at_goldilocks {tr : GoldilocksTrace sp ro}
     {H : Time → Set (Fin sp.n)} : Prop := ∀
@@ -463,15 +436,6 @@ def rise_reset_rounds_at_bridge : Prop :=
     GoldilocksHealingData sp ro O →
     rise_reset_rounds_at (goldilocksNode sp ro) (fun v => v.val) O →
       ∀ {proposer dg H tr}, rise_reset_rounds_at_goldilocks (sp := sp) (ro := ro)
-        (proposer := proposer) (dg := dg) (H := H) (tr := tr)
-
-/-- UNPROVED finite-horizon endpoint implication, Boundaries.lean:75.
-Free Ld, bounded NoRestartUpTo and the original resetBoundRounds remain in the consequent. -/
-def exists_reset_of_drain_rounds_awake_at_bridge : Prop :=
-  ∀ O : ACHealing (goldilocksNode sp ro) (fun v => v.val),
-    GoldilocksHealingData sp ro O →
-    exists_reset_of_drain_rounds_awake_at (goldilocksNode sp ro) (fun v => v.val) O →
-      ∀ {proposer dg H tr}, exists_reset_of_drain_rounds_awake_at_goldilocks (sp := sp) (ro := ro)
         (proposer := proposer) (dg := dg) (H := H) (tr := tr)
 
 /-- UNPROVED high-row implication, Outcome/RowSource.lean:107. -/

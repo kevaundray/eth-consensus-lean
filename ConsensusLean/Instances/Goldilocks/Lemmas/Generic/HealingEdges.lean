@@ -48,13 +48,6 @@ def exists_reset_of_drain_rounds_noRestartAfter_at_of (O : ACHealing A sg runs) 
   rounds_le_warm_proposal_at A sg O → rise_reset_rounds_at A sg O →
     exists_reset_of_drain_rounds_noRestartAfter_at A sg O
 
-/-- UNPROVED finite-horizon assembly through the protocol's run and warmth truncation laws. -/
-def exists_reset_of_drain_rounds_awake_at_of (O : ACHealing A sg runs) : Prop :=
-  exists_reset_of_drain_rounds_noRestartAfter_at A sg O →
-  resetService_truncH A → catchRun_truncH A → proposalGap_truncH A →
-  drainOutputs_truncH A sg O → isReset_of_truncH A →
-    exists_reset_of_drain_rounds_awake_at A sg O
-
 /-- UNPROVED bundled rise corollary, retaining the exact proposal and cutoff inputs. -/
 def rise_reset_rounds (O : ACHealing A sg runs) : Prop :=
   rise_reset_rounds_at A sg O →
