@@ -53,8 +53,8 @@ theorem bounds (Q : OutageQueryAt S A V)
     (add_nonneg (Compose.Growing.ts_natCast_nonneg 0) Q.params.toParams.hΔ.le) (le_max_right _ _)
 
 /-- CS and current-slot CS2 inside the slot committees through every `b ≤ horizon`, from the
-committee η-sleepy premise at look-back `0` (look-ahead `committeeAhead = 5`), read at the slot
-committees (`mem_K_iff_selected`, nonempty by `K_nonempty`). -/
+committee η-sleepy premise at look-back `0` (look-ahead `committeeAhead = 5`): `voteK_bounds`
+at the contract's threshold. -/
 theorem boundsK (Q : OutageQueryAt S A V) {ini}
     (hrun : Growing.GoldilocksRun (runProposer S Q.run.2 Q.hn) (digestOf S Q.run.2) Q.keys Q.trace
       ini) {b : Time} (hb : b ≤ Q.run.2.horizon) :
@@ -62,14 +62,16 @@ theorem boundsK (Q : OutageQueryAt S A V) {ini}
   have hdur := outage_duration_supply_at Q
   have hcu : Regimes.catchUp Q.params = 18 * Q.params.Δ := rfl
   have hΔ := Q.params.toParams.hΔ
-  exact committee_bounds_at S Q.run.2 Q.hn Q.valid hrun
-    (fun t ht _ => by simp only [sub_zero, max_eq_right ht]; exact Q.mem_K_iff_selected ht)
-    Q.K_nonempty (by change (1 / 2 : ℚ) ≤ 1 / 2; norm_num)
+  refine voteK_bounds S Q.run.2 Q.hn Q.valid hrun (Obligations.K S.toSetup A) le_rfl
+    (η := ((Obligations.K S.toSetup A).params.η : Time) * Q.run.1.ΔAC)
+    (c := max Q.duration (((Obligations.K S.toSetup A).params.η : Time) * Q.run.1.ΔAC - 1))
     ((by linarith : 8 * Q.params.Δ ≤ Q.duration + 1).trans (add_le_add (le_max_left _ _) le_rfl))
     (by change 5 * Q.run.1.ΔAC ≤ ((5 : Nat) : Int) * Q.run.1.ΔAC; norm_num) hb
-    (fun t h₁ h₂ => Q.outage.committeeSleepy le_rfl
-      (mul_nonneg (by positivity) Q.run.1.ΔAC_pos.le) t h₁ (h₂.trans hb))
-    (add_nonneg (Compose.Growing.ts_natCast_nonneg 0) hΔ.le) (le_max_right _ _)
+    fun t h₁ h₂ => ?_
+  have h := Q.outage.committeeSleepy le_rfl (mul_nonneg (by positivity) Q.run.1.ΔAC_pos.le) t h₁
+    (h₂.trans hb)
+  simp only [sub_zero, max_eq_right h₁] at h
+  exact h
 
 theorem end_le_horizon (Q : OutageQueryAt S A V) : Q.winEnd ≤ Q.run.2.horizon :=
   min_le_right _ _
