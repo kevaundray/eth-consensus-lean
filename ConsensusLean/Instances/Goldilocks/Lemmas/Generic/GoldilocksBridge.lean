@@ -6,13 +6,15 @@ public import ConsensusLean.Instances.Goldilocks.Lemmas.Generic.CorrectnessEdges
 public import ConsensusLean.Instances.Goldilocks.Statements.Obligations
 public import ConsensusLean.Instances.Goldilocks.Milestones.Statements.Generic.Truncation
 public import ConsensusLean.Instances.Goldilocks.Milestones.Statements.Generic.GoldilocksBridge
+import ConsensusLean.Instances.Goldilocks.Lemmas.Compose.Run.GoldilocksAC
 
 public section
 
 /-! # Goldilocks old-premise bridge statements
 
-These unproved Prop contracts retain the original Goldilocks statement sides and connect them
-to the generic contracts by conditional implications. Nothing here supplies proved evidence.
+The shared run interface supplies the canonical committee start and its run laws. The remaining
+unproved Prop contracts retain the original Goldilocks statement sides and connect them
+to the generic contracts by conditional implications; they supply no healing evidence.
 Every original premise and conclusion is retained, up to unused proof-binder alpha-renaming.
 
 This leaf has an isolated concrete bridge proof closure, not a vocabulary-only closure.
@@ -35,6 +37,22 @@ open Healing Healing.Growing
 variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
   {proposer : Nat → Fin sp.n} {dg : Digest (List (FG.Att sp.n)) (Payload sp.n)}
   {H : Time → Set (Fin sp.n)} {tr : GoldilocksTrace sp ro}
+
+/-- The shared Goldilocks run interface, starting each node with its committee permission. -/
+noncomputable def goldilocksRunInterface (sp : SAParams)
+    (ro : ReplayOrder sp (List (FG.Att sp.n))) :
+    ACRun (goldilocksNode sp ro) (fun v => v.val) where
+  Run cm proposer dg H tr := Growing.GoldilocksRun proposer dg H tr
+    (SA.committeeStart sp.genesisRoot (dictOfTime sp cm))
+  start cm := SA.committeeStart sp.genesisRoot (dictOfTime sp cm)
+  start_univ := by
+    have h : dictOfTime sp (fun _ => Finset.univ) = SA.CommitteeDict.full sp.n := by
+      simp [dictOfTime, SA.CommitteeDict.full]
+    rw [h]
+    exact SA.committeeStart_full _
+  run_local h := h.toLocalRun
+  run_requirements h y := Compose.requirements_from sp ro (h.vstart y)
+  run_root h := h.genesis_root_ok
 
 /-- Original side: `Growing/Healing/Kernel/NoAdvance.lean:24`. -/
 def reset_of_height_advance_at_goldilocks : Prop := ∀
@@ -375,7 +393,7 @@ def reset_of_high_report_at_bridge : Prop :=
 
 /-- UNPROVED full-set proposal membership implication, ResetRounds.lean:251. -/
 def proposal_mem_at_bridge : Prop :=
-  proposal_mem_at (goldilocksNode sp ro) (fun v => v.val) →
+  proposal_mem_at (goldilocksNode sp ro) (fun v => v.val) (goldilocksRunInterface sp ro) →
     ∀ {proposer dg H tr}, proposal_mem_at_goldilocks (sp := sp) (ro := ro)
       (proposer := proposer) (dg := dg) (H := H) (tr := tr)
 
@@ -388,7 +406,7 @@ def exists_frameWindow_seq_of_service_at_bridge : Prop :=
 /-- UNPROVED report-row implication, Report/Row.lean:24.
 The old consequent has no added report-tree membership premise. -/
 def row_or_high_of_report_at_bridge : Prop :=
-  row_or_high_of_report_at (goldilocksNode sp ro) (fun v => v.val) →
+  row_or_high_of_report_at (goldilocksNode sp ro) (fun v => v.val) (goldilocksRunInterface sp ro) →
     ∀ {proposer dg H tr}, row_or_high_of_report_at_goldilocks (sp := sp) (ro := ro)
       (proposer := proposer) (dg := dg) (H := H) (tr := tr)
 
@@ -400,7 +418,7 @@ def round_cross_at_bridge : Prop :=
 
 /-- UNPROVED deficit implication, ResetRounds.lean:530. -/
 def rounds_le_warm_proposal_at_bridge : Prop :=
-  ∀ O : ACHealing (goldilocksNode sp ro) (fun v => v.val),
+  ∀ O : ACHealing (goldilocksNode sp ro) (fun v => v.val) (goldilocksRunInterface sp ro),
     GoldilocksHealingData sp ro O →
     rounds_le_warm_proposal_at (goldilocksNode sp ro) (fun v => v.val) O →
       ∀ {proposer dg H tr}, rounds_le_warm_proposal_at_goldilocks (sp := sp) (ro := ro)
@@ -408,7 +426,7 @@ def rounds_le_warm_proposal_at_bridge : Prop :=
 
 /-- UNPROVED report-kind implication, ResetRounds.lean:285. -/
 def report_kind_of_warm_at_bridge : Prop :=
-  ∀ O : ACHealing (goldilocksNode sp ro) (fun v => v.val),
+  ∀ O : ACHealing (goldilocksNode sp ro) (fun v => v.val) (goldilocksRunInterface sp ro),
     GoldilocksHealingData sp ro O →
     report_kind_of_warm_at (goldilocksNode sp ro) (fun v => v.val) O →
       ∀ {proposer dg H tr}, report_kind_of_warm_at_goldilocks (sp := sp) (ro := ro)
@@ -416,7 +434,7 @@ def report_kind_of_warm_at_bridge : Prop :=
 
 /-- UNPROVED high-proposal implication, ResetRounds.lean:415; original arithmetic Warm retained. -/
 def reset_of_high_proposal_at_bridge : Prop :=
-  ∀ O : ACHealing (goldilocksNode sp ro) (fun v => v.val),
+  ∀ O : ACHealing (goldilocksNode sp ro) (fun v => v.val) (goldilocksRunInterface sp ro),
     GoldilocksHealingData sp ro O →
     reset_of_high_proposal_at (goldilocksNode sp ro) (fun v => v.val) O →
       ∀ {proposer dg H tr}, reset_of_high_proposal_at_goldilocks (sp := sp) (ro := ro)
@@ -424,7 +442,7 @@ def reset_of_high_proposal_at_bridge : Prop :=
 
 /-- UNPROVED round implication, ResetRounds.lean:320; no stronger timeout premise. -/
 def round_of_warm_at_bridge : Prop :=
-  ∀ O : ACHealing (goldilocksNode sp ro) (fun v => v.val),
+  ∀ O : ACHealing (goldilocksNode sp ro) (fun v => v.val) (goldilocksRunInterface sp ro),
     GoldilocksHealingData sp ro O →
     round_of_warm_at (goldilocksNode sp ro) (fun v => v.val) O →
       ∀ {proposer dg H tr}, round_of_warm_at_goldilocks (sp := sp) (ro := ro)
@@ -432,7 +450,7 @@ def round_of_warm_at_bridge : Prop :=
 
 /-- UNPROVED rise implication, ResetRounds.lean:457; original numerical timeout retained. -/
 def rise_reset_rounds_at_bridge : Prop :=
-  ∀ O : ACHealing (goldilocksNode sp ro) (fun v => v.val),
+  ∀ O : ACHealing (goldilocksNode sp ro) (fun v => v.val) (goldilocksRunInterface sp ro),
     GoldilocksHealingData sp ro O →
     rise_reset_rounds_at (goldilocksNode sp ro) (fun v => v.val) O →
       ∀ {proposer dg H tr}, rise_reset_rounds_at_goldilocks (sp := sp) (ro := ro)
@@ -440,7 +458,7 @@ def rise_reset_rounds_at_bridge : Prop :=
 
 /-- UNPROVED high-row implication, Outcome/RowSource.lean:107. -/
 def high_row_source_at_bridge : Prop :=
-  ∀ O : ACHealing (goldilocksNode sp ro) (fun v => v.val),
+  ∀ O : ACHealing (goldilocksNode sp ro) (fun v => v.val) (goldilocksRunInterface sp ro),
     GoldilocksHealingData sp ro O →
     high_row_source_at (goldilocksNode sp ro) (fun v => v.val) O →
       ∀ {proposer dg tr H}, high_row_source_at_goldilocks (sp := sp) (ro := ro)
@@ -448,16 +466,14 @@ def high_row_source_at_bridge : Prop :=
 
 /-- UNPROVED no-contest implication, Outcome/Contest.lean:41; old reset record unchanged. -/
 def no_high_contest_at_bridge : Prop :=
-  ∀ O : ACHealing (goldilocksNode sp ro) (fun v => v.val),
-    GoldilocksHealingData sp ro O →
-    no_high_contest_at (goldilocksNode sp ro) (fun v => v.val) O →
+  no_high_contest_at (goldilocksNode sp ro) (fun v => v.val) (goldilocksRunInterface sp ro) →
       ∀ {proposer dg H tr}, no_high_contest_at_goldilocks (sp := sp) (ro := ro)
         (proposer := proposer) (dg := dg) (H := H) (tr := tr)
 
 /-- UNPROVED historical-entry implication, RowService.lean:235.
 Arbitrary observation times are retained. -/
 def high_entry_eq_at_bridge : Prop :=
-  ∀ O : ACHealing (goldilocksNode sp ro) (fun v => v.val),
+  ∀ O : ACHealing (goldilocksNode sp ro) (fun v => v.val) (goldilocksRunInterface sp ro),
     GoldilocksHealingData sp ro O →
     high_entry_eq_at (goldilocksNode sp ro) (fun v => v.val) O →
       ∀ {dg H tr proposer}, high_entry_eq_at_goldilocks (sp := sp) (ro := ro)
