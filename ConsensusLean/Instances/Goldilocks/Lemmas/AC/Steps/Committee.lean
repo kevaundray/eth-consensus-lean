@@ -21,7 +21,11 @@ and (ii) `∀ s, (K.committee s).ncard = sp.committeeSize`. Thresholds are in
   (`CommitteeP.full`, `CommitteeT.full`, `CommitteePAt.full`, `CommitteeTAt.full`,
   `faultBoundK_full_iff`); the half, third and
   three-quarter fault bounds at the full committee from the population ones (`cs2_full`,
-  `third_full`, `four_thirds_full`). -/
+  `third_full`, `four_thirds_full`).
+* The healthy committee bound `HealthyFaultsK`: its monotonicity (`HealthyFaultsK.mono`), its
+  reduction at the full committee (`healthyFaultsK_full_iff`), and the counts it feeds: CS from
+  the half bound (`faultBoundK_of_two`), the half bound from CS (`cs2_of_faultBoundK`), and the
+  honest members as a committee half (`half_of_members`). -/
 
 namespace Consensus.Goldilocks.SA
 
@@ -264,6 +268,64 @@ theorem four_thirds_full (hc : sp.committeeSize = sp.n) {F : Set (Fin sp.n)}
   exact hf
 
 end Full
+
+/-! ## The healthy committee bound -/
+
+section Healthy
+
+variable {FGP : Type} {sp : SAParams} {ro : ReplayOrder sp FGP} {K : CommitteeDict sp.n}
+  {H : Set (Fin sp.n)} {σ₀ : Nat} {b : Time}
+
+/-- The healthy bound holds on a smaller slot range and for a larger honest set. -/
+theorem HealthyFaultsK.mono {σ₁ : Nat} {b' : Time} {H' : Set (Fin sp.n)}
+    (h : HealthyFaultsK K H σ₀ b) (hσ : σ₀ ≤ σ₁) (hb : b' ≤ b) (hH : H ⊆ H') :
+    HealthyFaultsK K H' σ₁ b' := fun s hs hsb =>
+  lt_of_le_of_lt (Nat.mul_le_mul_left 2 (Set.ncard_le_ncard
+    (Set.inter_subset_inter_right _ (Set.compl_subset_compl.mpr hH)) (Set.toFinite _)))
+    (h s (hσ.trans hs) (hsb.trans hb))
+
+/-- **The healthy bound at `K = full`** is the population half bound, at any slot of the range. -/
+theorem healthyFaultsK_full_iff (hc : sp.committeeSize = sp.n) {s : Nat} (hs : σ₀ ≤ s)
+    (hb : sp.ts s ≤ b) :
+    HealthyFaultsK (CommitteeDict.full sp.n) H σ₀ b ↔ 2 * Hᶜ.ncard < sp.n := by
+  constructor
+  · intro h
+    have := h s hs hb
+    rwa [ncard_inter_full, hc] at this
+  · exact fun hf _ _ _ => cs2_full hc hf
+
+/-- **CS from the half bound**: when every honest member of the slot-`s` committee is awake and
+joined at `t`, fewer than half faulty members are fewer than the honest awake joined ones. -/
+theorem faultBoundK_of_two {tr : SATrace sp FGP ro} {s : Nat} {t : Time}
+    (hsize : (K.committee s).ncard = sp.committeeSize)
+    (h2 : 2 * (K.committee s ∩ Hᶜ).ncard < sp.committeeSize)
+    (hJ : K.committee s ∩ H ⊆ {y | y ∈ H ∧ tr.awake y t ∧ JoinedAt tr y t}) :
+    FaultBoundK K s tr H t := by
+  have hsplit := Set.ncard_inter_add_ncard_sdiff_eq_ncard (K.committee s) H (Set.toFinite _)
+  rw [Set.sdiff_eq] at hsplit
+  have hle : (K.committee s ∩ H).ncard ≤
+      (K.committee s ∩ {y | y ∈ H ∧ tr.awake y t ∧ JoinedAt tr y t}).ncard :=
+    Set.ncard_le_ncard (Set.subset_inter Set.inter_subset_left hJ) (Set.toFinite _)
+  unfold FaultBoundK
+  omega
+
+/-- **The half bound from CS** at a committee of `committeeSize` members. -/
+theorem cs2_of_faultBoundK {tr : SATrace sp FGP ro} {s : Nat} {t : Time}
+    (hsize : (K.committee s).ncard = sp.committeeSize) (h : FaultBoundK K s tr H t) :
+    2 * (K.committee s ∩ Hᶜ).ncard < sp.committeeSize :=
+  hsize ▸ cs2_of_cs _ (fun _ hy => hy.1) h
+
+/-- **Honest members are a committee half**: under the half bound, a set containing every honest
+member of the slot-`s` committee has at least half the committee size. -/
+theorem half_of_members {s : Nat} (hsize : (K.committee s).ncard = sp.committeeSize)
+    (h2 : 2 * (K.committee s ∩ Hᶜ).ncard < sp.committeeSize) {V : Set (Fin sp.n)}
+    (hV : K.committee s ∩ H ⊆ V) : sp.committeeSize ≤ 2 * V.ncard := by
+  have hsplit := Set.ncard_inter_add_ncard_sdiff_eq_ncard (K.committee s) H (Set.toFinite _)
+  rw [Set.sdiff_eq] at hsplit
+  have hle := Set.ncard_le_ncard hV (Set.toFinite V)
+  omega
+
+end Healthy
 
 end Consensus.Goldilocks.SA
 
