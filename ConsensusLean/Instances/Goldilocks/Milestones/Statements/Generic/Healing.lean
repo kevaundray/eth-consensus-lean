@@ -5,8 +5,9 @@ public import ConsensusLean.Instances.Goldilocks.Milestones.Statements.Generic.O
 
 /-! # Generic healing leaf contracts
 
-Every declaration is an UNPROVED intended theorem type. Old-premise leaves are primary;
-no definition here supplies theorem evidence or replaces an existing theorem.
+Every contract is an intended theorem type. Old-premise leaves are primary; no definition here
+supplies theorem evidence or replaces an existing theorem. A contract whose docstring names a
+theorem is proved by it; the others are UNPROVED.
 -/
 
 namespace Consensus.Goldilocks.Generic
@@ -121,7 +122,8 @@ def sign_from_report (runs : ACRun A sg) : Prop :=
       ∃ E ∈ (tr.state y i).fg.tree, (tr.state y i).fg.Anc E R ∧ E.root = att.T ∧
         ((tr.state y i).fg.σ E.root).h = att.h ∧ ((tr.state y i).fg.σ E.root).Th = E.root
 
-/-- UNPROVED leaf 8: deficit at a fixed key, using the healing supplier's proposal floor. -/
+/-- Leaf 8: deficit at a fixed key, using the healing supplier's proposal floor. Proved over any
+supplier by `rounds_le_warm_proposal_at_of_healing` (Lemmas/Generic/HealingRounds). -/
 def rounds_le_warm_proposal_at (_O : ACHealing A sg runs) : Prop :=
   ∀ {cm proposer dg H tr} {g af len : Time} {u floor v : Nat} {kindJ : Prop} {J B : A.Blk}
     {z : Fin P.n} {kB : Nat},
@@ -134,7 +136,8 @@ def rounds_le_warm_proposal_at (_O : ACHealing A sg runs) : Prop :=
     (H (P.slotTime u))ᶜ.ncard < 2 * P.fg.q - P.n →
     HZ tr H g + 1 ≤ ((tr.state z (kB + 1)).fg.σ B.root).h + riseRounds (HZ tr H g) v
 
-/-- UNPROVED leaf 9: report kind using the healing supplier's proposal floor. -/
+/-- Leaf 9: report kind using the healing supplier's proposal floor. Proved over any supplier by
+`report_kind_of_warm_at_of_healing` (Lemmas/Generic/HealingRounds). -/
 def report_kind_of_warm_at (_O : ACHealing A sg runs) : Prop :=
   ∀ {cm proposer dg H tr} {lo hi : Time} {floor u : Nat} {kindJ : Prop} {J B R : A.Blk}
     {z : Fin P.n} {kB : Nat} {y : Fin P.n} {i : Nat},
