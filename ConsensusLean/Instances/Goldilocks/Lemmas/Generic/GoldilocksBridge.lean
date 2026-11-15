@@ -230,7 +230,7 @@ def round_of_warm_at_goldilocks : Prop := ∀
     (_hδ : 3 ≤ sp.toParams.fg.δt)
     (_hΔF : 6 * sp.Δ + ΔF ≤ 4 * sp.Δ * (sp.toParams.fg.δt : Time))
     (_hux : u + sp.toParams.fg.δt ≤ x) (_hxN : x ≤ N) (_hmb : sp.ts N + 2 * sp.Δ ≤ b)
-    (_hTb : T ≤ b)
+    (_hH : (H b).Nonempty) (_hTb : T ≤ b)
     (_hna : ∀ v k att, v ∈ H (max (cutZ sp.toParams g) (tr.time k)) → tr.SignAt v k att →
       tr.time k < T → att.h ≤ HZ tr H g)
     (_hT : sp.ts (u + 1 : Nat) + 2 * sp.Δ < T)

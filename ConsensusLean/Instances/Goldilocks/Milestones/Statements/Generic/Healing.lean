@@ -176,11 +176,12 @@ def round_of_warm_at (O : ACHealing A sg runs) : Prop :=
     Service tr H g ΔF b → (∀ y t, y ∈ H t → gbar g ≤ t → t ≤ b → tr.awake y t) →
     (∀ t, 0 ≤ t → t ≤ b → 3 * (H t)ᶜ.ncard ≤ P.n - 1) →
     CatchRun tr H g (2 * P.Δ) → NoRestartAfter tr H (gbar g) →
-    (∀ s : Nat, P.slotTime s = (s : Time) * (4 * P.Δ)) →
+    (∀ s, P.slotTime s + 4 * P.Δ ≤ P.slotTime (s + 1)) →
+    (∀ s, P.slotTime (s + 1) + 2 * P.Δ + ΔF ≤ P.slotTime (s + P.δt)) →
     (∃ k, FirstCutAfter tr k (cutZ P g) ∧ tr.time k ≤ b) →
     gbar g + 4 * P.Δ ≤ P.slotTime s₀ → s₀ ≤ u → s₀ + O.warmup ≤ u → O.follow ≤ P.δt →
     (∀ s, P.slotTime s + 6 * P.Δ + ΔF ≤ P.slotTime (s + P.δt)) →
-    u + P.δt ≤ x → x ≤ N → P.slotTime N + 2 * P.Δ ≤ b → T ≤ b →
+    u + P.δt ≤ x → x ≤ N → P.slotTime N + 2 * P.Δ ≤ b → (H b).Nonempty → T ≤ b →
     NoAdvance tr H g T → P.slotTime (u + 1) + 2 * P.Δ < T →
     z ∈ H (P.slotTime u + P.Δ) → z = proposer u → tr.ProposesAt z kB B → B.slot = u →
     p ∈ H (tr.time kX) → p = proposer x → tr.ProposesAt p kX X → X.slot = x →

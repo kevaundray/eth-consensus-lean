@@ -52,7 +52,7 @@ def exists_reset (O : ACHealing A sg runs) : Prop :=
   reset_or_noAdvance A sg (runs := runs) →
   rounds_le_warm_proposal_at A sg O → rise_reset_rounds_at A sg O →
   ∀ {cm βK tr H proposer dg g ΔF b G s}, βK ≤ 1 / 2 →
-    (∀ u : Nat, P.slotTime u = (u : Time) * (4 * P.Δ)) →
+    (∀ u, P.slotTime (u + 1) + 2 * P.Δ + ΔF ≤ P.slotTime (u + P.δt)) →
     runs.Run cm proposer dg H tr → Premises tr H cm βK proposer dg sg g ΔF b → 1 ≤ G →
     gbar g ≤ P.slotTime s → cutZ P g ≤ P.slotTime s →
     ProposalGap tr H proposer G s (s + resetSlots O.warmup G P.δt) →
@@ -63,7 +63,7 @@ def exists_reset (O : ACHealing A sg runs) : Prop :=
 def generic_healing (O : ACHealing A sg runs) : Prop :=
   exists_reset A sg O → highCanonical A sg O →
   ∀ {cm βK tr H proposer dg g ΔF b G s}, βK ≤ 1 / 2 →
-    (∀ u : Nat, P.slotTime u = (u : Time) * (4 * P.Δ)) →
+    (∀ u, P.slotTime (u + 1) + 2 * P.Δ + ΔF ≤ P.slotTime (u + P.δt)) →
     runs.Run cm proposer dg H tr → Premises tr H cm βK proposer dg sg g ΔF b → 1 ≤ G →
     gbar g ≤ P.slotTime s → cutZ P g ≤ P.slotTime s →
     ProposalGap tr H proposer G s (s + resetSlots O.warmup G P.δt) →
