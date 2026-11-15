@@ -225,6 +225,9 @@ truncated after `b`: `premises_truncH` (Lemmas/Generic/HealingEdges.lean) builds
 `Premises tr (truncH H b) …` from the other fields as stated here, and
 `ACRun.run_truncH` gives the run there. `H_z` and a reset by `b` are unchanged by the
 truncation (`HZ_truncH`, `isReset_truncH_iff` in Lemmas/Generic/HealingLeaves.lean).
+`ACRun.run_truncH` is an instance obligation; Goldilocks supplies it in
+`goldilocksRunInterface` (Lemmas/Generic/GoldilocksBridge.lean), from
+`KernelProof.goldilocksRun_truncH` and `CommitteeFacts.truncH`.
 
 ### Generic healing report-delivery delay
 
