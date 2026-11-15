@@ -3,6 +3,7 @@ public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Simulation.RunCo
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Simulation.Run
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Simulation.RunMap
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Generic.GoldilocksBridge
+import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Outage.Engine.Members
 import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Simulation.NoColl
 
 public section
@@ -44,8 +45,15 @@ theorem goldilocksRunMap_transport (hv : rho.ExecutionValid) :
   run hv' := by
     rw [Generic.ACRun.cast_run, goldilocksRunMap_committee, goldilocksRunMap_proposer,
       goldilocksRunMap_digest, goldilocksRunMap_honest, goldilocksRunMap_trace]
-    exact (Generic.goldilocksRunInterface_run_iff _).2
-      (simIni_eq_runStart S rho hn hv' ▸ simTraceAt_goldilocksRun S rho hn hv')
+    apply (Generic.goldilocksRunInterface_run_iff _).2
+    refine ⟨simIni_eq_runStart S rho hn hv' ▸ simTraceAt_goldilocksRun S rho hn hv',
+      S.committeeSize_pos (pubOf E) hn, ?_, ?_⟩
+    · rw [dictOfTime_runCommittee]
+      exact Obligations.Growing.voteK_ncard S rho hn hv'
+    · intro hnc
+      rw [dictOfTime_runCommittee]
+      exact Obligations.Growing.voteK_facts S rho hn hv' hnc
+        (simTraceAt_goldilocksRun S rho hn hv')
   no_collision hv' hc := by
     rw [goldilocksRunMap_digest, goldilocksRunMap_trace]
     exact noCollRun_simTraceAt S rho hn hv' hc
