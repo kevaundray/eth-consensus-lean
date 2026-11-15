@@ -134,6 +134,9 @@ structure ACRun (A : NodeAC P) (sg : A.Msg → Fin P.n) where
   /-- The run supplies the genesis digest equation independently of a finite horizon. -/
   run_root : ∀ {cm proposer dg H tr}, Run cm proposer dg H tr →
     (P.genesisBlock A.genesisPayload).RootOk dg
+  /-- Removing honesty strictly after a horizon preserves the same run and committee start. -/
+  run_truncH : ∀ {cm proposer dg H tr}, Run cm proposer dg H tr →
+    ∀ b, Run cm proposer dg (truncH H b) tr
 
 /-- Canonical high entries, with historical honesty read at independently bounded cuts. -/
 structure HighCanonical
