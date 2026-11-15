@@ -121,8 +121,8 @@ def sign_from_report (runs : ACRun A sg) : Prop :=
       ∃ E ∈ (tr.state y i).fg.tree, (tr.state y i).fg.Anc E R ∧ E.root = att.T ∧
         ((tr.state y i).fg.σ E.root).h = att.h ∧ ((tr.state y i).fg.σ E.root).Th = E.root
 
-/-- UNPROVED leaf 8: deficit at a fixed key, with slot-start proposer honesty. -/
-def rounds_le_warm_proposal_at (runs : ACRun A sg) : Prop :=
+/-- UNPROVED leaf 8: deficit at a fixed key, using the healing supplier's proposal floor. -/
+def rounds_le_warm_proposal_at (_O : ACHealing A sg runs) : Prop :=
   ∀ {cm proposer dg H tr} {g af len : Time} {u floor v : Nat} {kindJ : Prop} {J B : A.Blk}
     {z : Fin P.n} {kB : Nat},
     runs.Run cm proposer dg H tr → Compose.NoCollRun dg tr →
@@ -134,8 +134,8 @@ def rounds_le_warm_proposal_at (runs : ACRun A sg) : Prop :=
     (H (P.slotTime u))ᶜ.ncard < 2 * P.fg.q - P.n →
     HZ tr H g + 1 ≤ ((tr.state z (kB + 1)).fg.σ B.root).h + riseRounds (HZ tr H g) v
 
-/-- UNPROVED leaf 9: report kind under old window/proposer premises. -/
-def report_kind_of_warm_at (runs : ACRun A sg) : Prop :=
+/-- UNPROVED leaf 9: report kind using the healing supplier's proposal floor. -/
+def report_kind_of_warm_at (_O : ACHealing A sg runs) : Prop :=
   ∀ {cm proposer dg H tr} {lo hi : Time} {floor u : Nat} {kindJ : Prop} {J B R : A.Blk}
     {z : Fin P.n} {kB : Nat} {y : Fin P.n} {i : Nat},
     runs.Run cm proposer dg H tr → Compose.NoCollRun dg tr → FrameWindow tr H lo hi floor kindJ J →
@@ -158,6 +158,9 @@ def reset_of_high_proposal_at (O : ACHealing A sg runs) : Prop :=
     Service tr H g ΔF b → (∀ y t, y ∈ H t → gbar g ≤ t → t ≤ b → tr.awake y t) →
     (∀ t, 0 ≤ t → t ≤ b → 3 * (H t)ᶜ.ncard ≤ P.n - 1) →
     CatchRun tr H g (2 * P.Δ) → NoRestartAfter tr H (gbar g) →
+    (∀ s, P.slotTime s + 4 * P.Δ ≤ P.slotTime (s + 1)) →
+    (∀ s, P.slotTime s + 6 * P.Δ + ΔF ≤ P.slotTime (s + P.δt)) →
+    (∃ k, FirstCutAfter tr k (cutZ P g) ∧ tr.time k ≤ b) →
     gbar g + 4 * P.Δ ≤ P.slotTime s₀ → s₀ ≤ u → s₀ + O.warmup ≤ u →
     u + 1 ≤ N → P.slotTime N + 2 * P.Δ ≤ b → (H b).Nonempty →
     z ∈ H (P.slotTime u + P.Δ) → z = proposer u → tr.ProposesAt z kB B → B.slot = u →
@@ -173,6 +176,8 @@ def round_of_warm_at (O : ACHealing A sg runs) : Prop :=
     Service tr H g ΔF b → (∀ y t, y ∈ H t → gbar g ≤ t → t ≤ b → tr.awake y t) →
     (∀ t, 0 ≤ t → t ≤ b → 3 * (H t)ᶜ.ncard ≤ P.n - 1) →
     CatchRun tr H g (2 * P.Δ) → NoRestartAfter tr H (gbar g) →
+    (∀ s : Nat, P.slotTime s = (s : Time) * (4 * P.Δ)) →
+    (∃ k, FirstCutAfter tr k (cutZ P g) ∧ tr.time k ≤ b) →
     gbar g + 4 * P.Δ ≤ P.slotTime s₀ → s₀ ≤ u → s₀ + O.warmup ≤ u → O.follow ≤ P.δt →
     (∀ s, P.slotTime s + 6 * P.Δ + ΔF ≤ P.slotTime (s + P.δt)) →
     u + P.δt ≤ x → x ≤ N → P.slotTime N + 2 * P.Δ ≤ b → T ≤ b →
@@ -202,8 +207,8 @@ def high_row_source_at (O : ACHealing A sg runs) : Prop :=
         E.root = att.T ∧ ((tr.state v r).fg.σ E.root).h = att.h ∧
         ((tr.state v r).fg.σ E.root).Th = E.root
 
-/-- UNPROVED leaf 13: no high contest under committee-aware reset premises. -/
-def no_high_contest_at (runs : ACRun A sg) : Prop :=
+/-- UNPROVED leaf 13: no high contest using the healing supplier's comparable origins. -/
+def no_high_contest_at (_O : ACHealing A sg runs) : Prop :=
   ∀ {cm proposer dg H tr} {βK : ℚ} {g ΔF a b : Time} {p : Fin P.n} {i : Nat},
     βK ≤ 1 / 2 → runs.Run cm proposer dg H tr →
     Premises tr H cm βK proposer dg sg g ΔF b → IsReset tr H g a → a ≤ b →

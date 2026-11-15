@@ -204,6 +204,8 @@ def reset_of_high_proposal_at_goldilocks : Prop := ∀
     (_hawake : ∀ y t, y ∈ H t → gbar g ≤ t → t ≤ b → tr.awake y t)
     (_hf : ∀ t, 0 ≤ t → t ≤ b → 3 * (H t)ᶜ.ncard ≤ sp.n - 1)
     (_hcatch : CatchRun tr H g (2 * sp.Δ)) (_hnr : NoRestartAfter tr H (gbar g))
+    (_htimeout : ∀ s, sp.ts s + 6 * sp.Δ + ΔF ≤ sp.ts (s + sp.toParams.δt))
+    (_hsnapshot : ∃ k, FirstCutAfter tr k (cutZ sp.toParams g) ∧ tr.time k ≤ b)
     (_hm : gbar g + 4 * sp.Δ ≤ sp.ts s₀) (_hsu : s₀ ≤ u) (_hwarm : s₀ + 2 * sp.k ≤ u)
     (_hN : u + 1 ≤ N) (_hmb : sp.ts N + 2 * sp.Δ ≤ b) (_hH : (H b).Nonempty)
     {z : Fin sp.n} (_hz : z ∈ H (sp.ts u + sp.Δ)) (_hdes : z = proposer u)
@@ -223,6 +225,7 @@ def round_of_warm_at_goldilocks : Prop := ∀
     (_hawake : ∀ y t, y ∈ H t → gbar g ≤ t → t ≤ b → tr.awake y t)
     (_hf : ∀ t, 0 ≤ t → t ≤ b → 3 * (H t)ᶜ.ncard ≤ sp.n - 1)
     (_hcatch : CatchRun tr H g (2 * sp.Δ)) (_hnr : NoRestartAfter tr H (gbar g))
+    (_hsnapshot : ∃ k, FirstCutAfter tr k (cutZ sp.toParams g) ∧ tr.time k ≤ b)
     (_hm : gbar g + 4 * sp.Δ ≤ sp.ts s₀) (_hsu : s₀ ≤ u) (_hwarm : s₀ + 2 * sp.k ≤ u)
     (_hδ : 3 ≤ sp.toParams.fg.δt)
     (_hΔF : 6 * sp.Δ + ΔF ≤ 4 * sp.Δ * (sp.toParams.fg.δt : Time))
@@ -251,6 +254,7 @@ def rise_reset_rounds_at_goldilocks : Prop := ∀
     (_hawake : ∀ y t, y ∈ H t → gbar g ≤ t → t ≤ b → tr.awake y t)
     (_hf : ∀ t, 0 ≤ t → t ≤ b → 3 * (H t)ᶜ.ncard ≤ sp.n - 1)
     (_hcatch : CatchRun tr H g (2 * sp.Δ)) (_hnr : NoRestartAfter tr H (gbar g))
+    (_hsnapshot : ∃ k, FirstCutAfter tr k (cutZ sp.toParams g) ∧ tr.time k ≤ b)
     (_hm : gbar g + 4 * sp.Δ ≤ sp.ts s₀)
     (_hδ : 3 ≤ sp.toParams.fg.δt) (_hG : 1 ≤ G)
     (_hΔF : 6 * sp.Δ + ΔF ≤ 4 * sp.Δ * (sp.toParams.fg.δt : Time))
@@ -394,14 +398,15 @@ def row_or_high_of_report_at_bridge : Prop :=
 
 /-- UNPROVED implication for `Healing.Growing.rounds_le_warm_proposal_at`. -/
 def rounds_le_warm_proposal_at_bridge : Prop :=
-  rounds_le_warm_proposal_at (goldilocksNode sp ro) (fun v => v.val)
-    (goldilocksRunInterface sp ro) →
+  ∀ O : ACHealing (goldilocksNode sp ro) (fun v => v.val) (goldilocksRunInterface sp ro),
+    rounds_le_warm_proposal_at (goldilocksNode sp ro) (fun v => v.val) O →
       ∀ {proposer dg H tr}, rounds_le_warm_proposal_at_goldilocks (sp := sp) (ro := ro)
         (proposer := proposer) (dg := dg) (H := H) (tr := tr)
 
 /-- UNPROVED implication for `Healing.Growing.report_kind_of_warm_at`. -/
 def report_kind_of_warm_at_bridge : Prop :=
-  report_kind_of_warm_at (goldilocksNode sp ro) (fun v => v.val) (goldilocksRunInterface sp ro) →
+  ∀ O : ACHealing (goldilocksNode sp ro) (fun v => v.val) (goldilocksRunInterface sp ro),
+    report_kind_of_warm_at (goldilocksNode sp ro) (fun v => v.val) O →
       ∀ {proposer dg H tr}, report_kind_of_warm_at_goldilocks (sp := sp) (ro := ro)
         (proposer := proposer) (dg := dg) (H := H) (tr := tr)
 
@@ -448,7 +453,8 @@ def high_row_source_at_bridge : Prop :=
 
 /-- UNPROVED no-contest implication, Outcome/Contest.lean:41; committee-aware reset record. -/
 def no_high_contest_at_bridge : Prop :=
-  no_high_contest_at (goldilocksNode sp ro) (fun v => v.val) (goldilocksRunInterface sp ro) →
+  ∀ O : ACHealing (goldilocksNode sp ro) (fun v => v.val) (goldilocksRunInterface sp ro),
+    no_high_contest_at (goldilocksNode sp ro) (fun v => v.val) O →
       ∀ {proposer dg H tr}, no_high_contest_at_goldilocks (sp := sp) (ro := ro)
         (proposer := proposer) (dg := dg) (H := H) (tr := tr)
 
