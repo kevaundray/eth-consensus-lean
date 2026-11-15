@@ -46,7 +46,8 @@ def rise_reset_rounds_at (O : ACHealing A sg runs) : Prop :=
     (∀ y t, y ∈ H t → gbar g ≤ t → t ≤ b → tr.awake y t) →
     (∀ t, 0 ≤ t → t ≤ b → 3 * (H t)ᶜ.ncard ≤ P.n - 1) →
     CatchRun tr H g (2 * P.Δ) → NoRestartAfter tr H (gbar g) →
-    (∀ s : Nat, P.slotTime s = (s : Time) * (4 * P.Δ)) →
+    (∀ s, P.slotTime s + 4 * P.Δ ≤ P.slotTime (s + 1)) →
+    (∀ s, P.slotTime (s + 1) + 2 * P.Δ + ΔF ≤ P.slotTime (s + P.δt)) →
     (∃ k, FirstCutAfter tr k (cutZ P g) ∧ tr.time k ≤ b) →
     gbar g + 4 * P.Δ ≤ P.slotTime s₀ → O.follow ≤ P.δt → 1 ≤ G →
     (∀ s, P.slotTime s + 6 * P.Δ + ΔF ≤ P.slotTime (s + P.δt)) →

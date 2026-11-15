@@ -174,6 +174,20 @@ OPEN obligations of the instance realization:
 | snapshot | actual FirstCutAfter cutZ witness within consuming deadline |
 | nonempty | actual honest population nonempty at consuming deadline |
 
+### Generic healing report-delivery delay
+
+OPEN instance obligation: `round_of_warm_at`, `rise_reset_rounds_at`,
+`exists_reset` and `generic_healing` require
+`∀ s, P.slotTime (s + 1) + 2 * P.Δ + ΔF ≤ P.slotTime (s + P.δt)`.
+The first healthy-reduction consumer must supply this inequality; the old
+`Premises.timeoutDelay` and `Premises.slotLen` do not together imply it.
+The leaves also require `slotLen`; the assemblies obtain it from `Premises`.
+Goldilocks can supply the delay from its four-Δ grid and numerical timeout
+bound, but that generic instance obligation is not discharged here.
+`round_of_warm_at` additionally requires `(H b).Nonempty`, also explicit in
+its Goldilocks bridge target. Earlier proposer honesty does not supply honesty
+at the later horizon. The rise contract already has this premise.
+
 ## Verification and inherited scope
 
 Both leaves elaborate with `lean -DwarningAsError=true`, using exact pinned dependency
