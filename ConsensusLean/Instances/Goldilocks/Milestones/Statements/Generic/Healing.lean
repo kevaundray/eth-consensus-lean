@@ -188,11 +188,15 @@ def HighOrigin (O : ACHealing A sg runs) (tr : RunTrace A) (H : Time → Set (Fi
   x ∈ H (max (cutZ P g) (tr.time i)) ∧ O.Origin tr x i j B ∧
     HZ tr H g + 1 ≤ ((tr.state x i).fg.σ B.root).h
 
-/-- UNPROVED leaf 12: strict source cut, original entry identities and ancestry. -/
+/-- UNPROVED leaf 12: strict source cut, original entry identities and ancestry.
+The reset premises are required by the abstract origin producer `report_origin`. -/
 def high_row_source_at (O : ACHealing A sg runs) : Prop :=
-  ∀ {cm proposer dg H tr} {g : Time} {v : Fin P.n} {d : Nat} {att : FG.Att P.n},
-    runs.Run cm proposer dg H tr → Compose.NoCollRun dg tr →
-    v ∈ H (max (cutZ P g) (tr.time d)) → tr.SignAt v d att → HZ tr H g + 1 ≤ att.h →
+  ∀ {cm proposer dg H tr} {βK : ℚ} {g ΔF a b : Time}
+    {v : Fin P.n} {d : Nat} {att : FG.Att P.n},
+    βK ≤ 1 / 2 → runs.Run cm proposer dg H tr →
+    Premises tr H cm βK proposer dg sg g ΔF b → IsReset tr H g a → a ≤ b →
+    v ∈ H (max (cutZ P g) (tr.time d)) → tr.time d ≤ b →
+    tr.SignAt v d att → HZ tr H g + 1 ≤ att.h →
     ∃ r < d, ∃ l Og, HighOrigin A sg O tr H g v r l Og ∧
       ∃ E ∈ (tr.state v r).fg.tree, (tr.state v r).fg.Anc E Og ∧
         E.root = att.T ∧ ((tr.state v r).fg.σ E.root).h = att.h ∧
