@@ -37,7 +37,7 @@ import ConsensusLean.Lemmas.Tactic.Linarith
 -- One module holds every generic healing leaf, so a single boundary exception
 -- (scripts/boundaries.toml) and a single cut guard
 -- (ConsensusLeanTest.Goldilocks.Generic.HealingLeavesCut) cover them all.
-set_option linter.style.longFile 1800
+set_option linter.style.longFile 1900
 
 public section
 
@@ -89,8 +89,8 @@ target at the signed height.
 Leaf 14 (`high_entry_eq_at_from`): two self-entries of equal height below two compatible honest
 blocks are the same block. Both lie below the later block, which some node holds at an honest
 observation, and along that store's ancestry the entry is constant at one height
-(`Healing.Th_eq_of_anc`). The generic leaf compares its high origins by
-`ACHealing.origins_comparable`.
+(`Healing.Th_eq_of_anc`). Its generic form over any `ACHealing` (`high_entry_eq_at_of_healing`)
+compares the two high origins by `ACHealing.origins_comparable`.
 
 Slot alignment (`exists_slot_align_of_grid`): on the four-delay grid, `s₀ = ⌈a_f / 4Δ⌉` has
 `a_f ≤ t_{s₀}` and `4Δ·s₀ < a_f + 4Δ`.
@@ -1087,6 +1087,16 @@ theorem high_entry_eq_at_from
   · rcases top hB'B h₂ h₁ with ⟨rfl, rfl, rfl⟩ | hB
     · rfl
     · exact key hB h₁ (h₂.trans hB'B)
+
+/-- Leaf 14 over any healing supplier: the two high origins are compatible by
+`ACHealing.origins_comparable`, and `high_entry_eq_at_from` applies on the run. -/
+theorem high_entry_eq_at_of_healing {runs : ACRun A sg} (O : ACHealing A sg runs) :
+    high_entry_eq_at A sg O := by
+  intro cm proposer dg H tr βK g ΔF a b x x' i j i' j' B B' Z₁ Z₂ y₁ y₂ m₁ m₂ t₁ t₂ hβ hrun hP
+    hr hab ho hib ho' hi'b h₁ h₂ ht₁ hle₁ hy₁ ht₂ hle₂ hy₂ hZ₁ hZ₂ hh hT₁ hT₂
+  exact high_entry_eq_at_from (runs.run_local hrun) hP.noColl
+    (O.origins_comparable hβ hrun hP hr hab ho.1 ho.2.1 hib ho.2.2 ho'.1 ho'.2.1 hi'b ho'.2.2)
+    h₁ h₂ ht₁ hle₁ hy₁ ht₂ hle₂ hy₂ hZ₁ hZ₂ hh hT₁ hT₂
 
 end HighEntry
 
