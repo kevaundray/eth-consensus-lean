@@ -52,7 +52,7 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 under growing faults. -/
 theorem clean_source_proposal_parent_before_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
-    (hc : CatchRun tr H g (2 * sp.Δ)) {x p : Fin sp.n} {r s i u : Nat}
+    {x p : Fin sp.n} {r s i u : Nat}
     (hx : x ∈ H (tr.time r)) (hpH : p ∈ H (tr.time i))
     {B : SA.Blk sp.n (List (FG.Att sp.n))}
     (hsource : (∃ CV, SA.FastLockAt tr.projAC x r s B CV) ∨ SA.SlowLockAt tr.projAC x r s B)
@@ -64,7 +64,7 @@ theorem clean_source_proposal_parent_before_at {cm : Time → Finset (Fin sp.n)}
     (hti : tr.time i = sp.ts u) (hib : tr.time i ≤ b) : Anc (tr.HonestBlocksAt H) B d.head := by
   have hm := hp.run.time_mono
   have hi0 := hp.run.time_nonneg i
-  have hS := healthy_base_of_reset_catch_before_at hp hc hi0 hib
+  have hS := healthy_base_of_reset_catch_before_at hp hi0 hib
   have hr := hS.run.localRun
   have hU := hr.coherent
   have hUc := Compose.Growing.honest_blocks_coherent hp.run hp.noColl
@@ -80,7 +80,7 @@ theorem clean_source_proposal_parent_before_at {cm : Time → Finset (Fin sp.n)}
       ((tr.projAC.upTo (tr.time i)).time i)).2 = some (d, pay) := by
     rw [hst]; exact hd
   obtain ⟨hPhi, hPhiU⟩ := SA.frameIn_of_callAt hr hpH hci'
-  rcases hp.clean_source_proposal_domain_before_at hc hx hpH hsource hs (by omega) hrb hR
+  rcases hp.clean_source_proposal_domain_before_at hx hpH hsource hs (by omega) hrb hR
       hci hcall hd hti hib with hBF | hV
   · obtain ⟨_, hhead⟩ := Compose.acProposal_start_anc_head hPhi hd
     obtain ⟨A₁, _, hstart, _⟩ := Compose.acProposal_walk hd
@@ -101,9 +101,9 @@ theorem clean_source_proposal_parent_before_at {cm : Time → Finset (Fin sp.n)}
     have hqb : tr.time q ≤ b := hqD.trans hib
     have hext : SA.VoteExtends (tr.HonestBlocksAt H) e.msg B := by
       rcases hsource with ⟨CV, hfast⟩ | hslow
-      · exact hp.fast_source_votes_before_at hc hx hfast hs hrb q hqb z hzq ell' e hc'
+      · exact hp.fast_source_votes_before_at hx hfast hs hrb q hqb z hzq ell' e hc'
           (by clear * - hsu hslot; omega)
-      · exact hp.slow_source_votes_before_at hc hx hslow hs hrb q hqb z hzq ell' e hc'
+      · exact hp.slow_source_votes_before_at hx hslow hs hrb q hqb z hzq ell' e hc'
           (by clear * - hsu hslot; omega)
     have hc'' : SA.CastAt (tr.projAC.upTo (tr.time i)) z q ell' e :=
       SA.upTo_castAt.mpr ⟨hqD, hc'⟩

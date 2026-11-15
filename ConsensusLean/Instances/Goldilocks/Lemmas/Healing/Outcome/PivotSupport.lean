@@ -154,7 +154,8 @@ theorem ResetPremisesUpTo.reset_proposal_passes {b : Time}
     refine optimistic_first_proposal_anc hS.run hf ho.1 hop hODU hpH hci
       (SA.proposal_slot hti) hd ⟨hOt, Or.inl hV⟩ ?_ hhigh' hp.stock
     intro v hv
-    obtain ⟨hvs, hsend, B, hB, hBr, hDB, hacc⟩ := fastLock_writer hr ho.1 (Or.inr hop) v hv
+    obtain ⟨hvs, hsend, B, hB, hBr, hDB, hacc⟩ :=
+      fastLock_writer hr (fun _ => SA.voteStart_initial _) ho.1 (Or.inr hop) v hv
     have hFB := hFO.trans (hODU.trans hDB)
     refine SA.heldAtProposal_of_writer hr (hp.sync.syncAC hp.run (le_gbar g))
       (by linarith only [hΔ, hsg]) le_rfl ho.1 hpH hci hti hrs hvs hsend ⟨B, hB, hBr, hFB, ?_⟩

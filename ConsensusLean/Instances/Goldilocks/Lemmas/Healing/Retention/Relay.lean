@@ -305,7 +305,8 @@ theorem relay_mem_voterBlockTree_window_before
 `result_writer` and `optimistic_writer`, for the selected block): each was admitted (or sent) by
 the writer at a time in `[t_s, t_s + 2Δ)`, and its head extends the selected block and is genesis
 or was accepted by the writer before `t_s + 2Δ`. -/
-theorem fastLock_writer (hr : ACLocalRun (SA.goldilocksSA sp FGP ro) H U T)
+theorem fastLock_writer {ini} (hr : ACLocalRun (SA.goldilocksSA sp FGP ro) H U T ini)
+    (hini : ∀ y, SA.VoteStart sp.genesisRoot (ini y))
     {x : Fin sp.n} (hx : x ∈ H) {i₀ s : Nat} {D : SA.Blk sp.n FGP} {CV : Set (Vote sp.n)}
     (hfl : SA.FastLockAt T x i₀ s D CV) :
     ∀ v ∈ CV, v.slot = s ∧
@@ -318,7 +319,7 @@ theorem fastLock_writer (hr : ACLocalRun (SA.goldilocksSA sp FGP ro) H U T)
   rcases hfl with ⟨ℓX, C, ⟨hcX, htick, -, -⟩, -, -, -, rfl⟩ | ⟨ℓx, A, hp, hsl, hsel, rfl⟩
   · have hΦXU : ℓX.frame.tree ⊆ U := (SA.frameIn_of_callAt hr hx hcX).2
     rintro v ⟨hvp, -, hvres, R, hR, hRr, hCR⟩
-    have hvs : v.slot = s := SA.state_pool_slot sp hr hx i₀ s v hvp
+    have hvs : v.slot = s := SA.state_pool_slot_from sp hr hini hx i₀ s v hvp
     obtain ⟨hvst, hbst⟩ : (T.state x i₀).voteStamp v < SA.ETime.of (sp.ts s + 2 * sp.Δ) ∧
         (T.state x i₀).blockStamp v.head < SA.ETime.of (sp.ts s + 2 * sp.Δ) := by
       unfold SA.resolutionTime at hvres
@@ -328,7 +329,7 @@ theorem fastLock_writer (hr : ACLocalRun (SA.goldilocksSA sp FGP ro) H U T)
         · exact absurd hvres (by simp [SA.ETime.of])
         · exact max_lt_iff.1 hvres
     refine ⟨hvs, ?_, R, hΦXU hR, hRr, Anc.mono hΦXU hCR, ?_⟩
-    · rcases SA.pool_origin hr hx i₀ v (by rw [hvs]; exact hvp) with
+    · rcases SA.pool_origin_from hr hini hx i₀ v (by rw [hvs]; exact hvp) with
         ⟨k, -, hsend, hst, hsl⟩ | ⟨k, -, ℓk, hck, -, hst, B, hB, hvB⟩
       · rw [hst, SA.etime_of_lt_of] at hvst
         exact ⟨k, hsend, (SA.ts_le_iff_le_slot sp (hr.time_nonneg k) s).2
@@ -368,9 +369,9 @@ theorem fastLock_writer (hr : ACLocalRun (SA.goldilocksSA sp FGP ro) H U T)
     have hΦU : ℓx.frame.tree ⊆ U := (SA.frameIn_of_callAt hr hx hc).2
     rintro v ⟨hvA, R, hR, hRr, hCR⟩
     have hv1 := SA.optimisticPoint_pool_post hr hx hp s hvA
-    have hvs : v.slot = s := SA.state_pool_slot sp hr hx (i₀ + 1) s v hv1
+    have hvs : v.slot = s := SA.state_pool_slot_from sp hr hini hx (i₀ + 1) s v hv1
     refine ⟨hvs, ?_, R, hΦU hR, hRr, Anc.mono hΦU hCR, ?_⟩
-    · rcases SA.pool_origin hr hx (i₀ + 1) v (by rw [hvs]; exact hv1) with
+    · rcases SA.pool_origin_from hr hini hx (i₀ + 1) v (by rw [hvs]; exact hv1) with
         ⟨k, hk, hsend, -, hsl'⟩ | ⟨k, hk, ℓk, hck, -, -, B, hB, hvB⟩
       · exact ⟨k, hsend, (SA.ts_le_iff_le_slot sp (hr.time_nonneg k) s).2
           (by rw [← hvs]; exact_mod_cast hsl'), lt_of_le_of_lt (hr.time_mono (by omega)) hti⟩
@@ -428,7 +429,7 @@ theorem raw_writer_relay_source
     · exact fastLock_counted_nonempty hcommittee hF
   obtain ⟨v, hv⟩ := hne
   have hw := hwriter.elim (fun hR => result_writer hr (fun _ => SA.voteStart_initial _) hx hR v hv)
-    (fun hF => fastLock_writer hr hx hF v hv)
+    (fun hF => fastLock_writer hr (fun _ => SA.voteStart_initial _) hx hF v hv)
   obtain ⟨D, hD, hDr, hCD, hacc⟩ := hw.2.2
   exact ⟨v, hv, D, hD, hDr, hBC.trans hCD, hacc⟩
 

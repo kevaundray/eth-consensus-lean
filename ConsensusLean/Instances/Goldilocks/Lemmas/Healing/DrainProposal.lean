@@ -466,7 +466,8 @@ theorem proposal_extends_of_optimistic (hrun : GoldilocksRun proposer dg H tr)
   have hPv : ∀ v ∈ CV, SA.HeldAtProposal (tr.projAC.state (proposer (j + 1)) kP)
       ℓp.frame j v := by
     intro v hv'
-    obtain ⟨h₁, h₂, Hv, hHv, hHvr, hDHv, h₃⟩ := fastLock_writer hr hx (Or.inr hopt) v hv'
+    obtain ⟨h₁, h₂, Hv, hHv, hHvr, hDHv, h₃⟩ :=
+      fastLock_writer hr (fun _ => SA.voteStart_initial _) hx (Or.inr hopt) v hv'
     have hFHv := hFB.trans (hBD.trans hDHv)
     refine SA.heldAtProposal_of_writer hr (hS.syncAC le_rfl (sp.ts j + 2 * sp.Δ)) hgj le_rfl hx
       hpH hcP htP' (fun k' _ hrk => lt_of_le_of_lt (hS.restart_le hpH hrk) (by

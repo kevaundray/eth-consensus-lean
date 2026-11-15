@@ -801,7 +801,7 @@ theorem honest_votes_in_slot_before {b : Time} (hS : HealthyBaseUpTo tr H U prop
     ⟨4 * m + 1, by simp only [SAParams.ts]; ring⟩ (hS.awake x hx _ (by linarith) hmb)
   have hj : joined sp (tr.state x c) (tr.time c) := by
     unfold joined
-    rcases restartTime_state hr hx c with h | ⟨r, hrc, hrs, h⟩
+    rcases restartTime_state hr (fun _ => voteStart_initial _) hx c with h | ⟨r, hrc, hrs, h⟩
     · rw [h]; exact bot_le
     · rw [h]
       apply WithBot.coe_le_coe.mpr

@@ -86,7 +86,7 @@ theorem first_carry_of_finalized_anc_at
     linarith [Healing.lt_cutZ sp g, SA.le_gbar g, sp.toParams.hΔ]
   refine carry_of_post_gst_senders_at hp hgj hy hc hs fun v hv => ?_
   obtain ⟨hvs, ⟨k', hxk, hsend, hk1, hk2⟩, Hv, hHvU, hHvr, hDHv, hacc⟩ :=
-    fastLock_writer_at hac.localRun hx hflD v hv
+    fastLock_writer_at hac.localRun hac.vstart hx hflD v hv
   have hBHv := hBD.trans hDHv
   refine ⟨hvs, ⟨x, k', hxk, hsend, hk1, hk2⟩, Hv, hHvr, hF.trans hBHv, ?_⟩
   rcases hacc with hg | ⟨q, hxq, haq, hqt⟩

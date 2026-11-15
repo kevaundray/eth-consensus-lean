@@ -47,7 +47,7 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 the next honest proposal call, within the finite horizon. -/
 theorem clean_optimistic_proposal_parent_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
-    (hc : CatchRun tr H g (2 * sp.Δ)) {x p : Fin sp.n} {r s i : Nat}
+    {x p : Fin sp.n} {r s i : Nat}
     (hx : x ∈ H (tr.time r)) (hpH : p ∈ H (tr.time i))
     {B : SA.Blk sp.n (List (FG.Att sp.n))} {CV : Set (SA.Vote sp.n)}
     (hop : SA.OptimisticLockAt tr.projAC x r s B CV)
@@ -61,7 +61,7 @@ theorem clean_optimistic_proposal_parent_at {cm : Time → Finset (Fin sp.n)} {�
     Anc (tr.HonestBlocksAt H) B d.head := by
   have hm := hp.run.time_mono
   have ht0 := hp.run.time_nonneg i
-  have hS := healthy_base_of_reset_catch_before_at hp hc ht0 hib
+  have hS := healthy_base_of_reset_catch_before_at hp ht0 hib
   have hr := hS.run.localRun
   have hΔ := sp.toParams.hΔ
   have hac := Compose.Growing.goldilocks_ac_projection sp ro dg H tr proposer hp.run hp.noColl
@@ -88,7 +88,7 @@ theorem clean_optimistic_proposal_parent_at {cm : Time → Finset (Fin sp.n)} {�
     exact (SA.ts_lt_iff sp).mpr (by clear * - this; omega)
   obtain ⟨hPhi, hPhiV⟩ := SA.frameIn_of_callAt hr hpH hcp
   have hPhiU := hPhiV.trans subU
-  rcases hp.clean_source_proposal_domain_before_at hc hx hpH (Or.inl ⟨CV, Or.inr hop⟩) hs
+  rcases hp.clean_source_proposal_domain_before_at hx hpH (Or.inl ⟨CV, Or.inr hop⟩) hs
       (by clear * -; omega) hrb hR hci hcall hd hti hib with hBF | hV
   · obtain ⟨_, hhead⟩ := Compose.acProposal_start_anc_head hPhi hd
     obtain ⟨A₁, _, hstart, _⟩ := Compose.acProposal_walk hd
@@ -130,7 +130,7 @@ theorem clean_optimistic_proposal_parent_at {cm : Time → Finset (Fin sp.n)} {�
   refine SA.Growing.ProposalSources.optimistic_first_proposal_anc_at hac hf hx hop .refl hpH hci
     (SA.proposal_slot hti) hd ⟨hV.1, Or.inl hV⟩ ?_ hhigh hp.stock
   intro v hv
-  obtain ⟨hvs, hsend, D, hD, hDr, hBD, hacc⟩ := fastLock_writer_at hac.localRun hx
+  obtain ⟨hvs, hsend, D, hD, hDr, hBD, hacc⟩ := fastLock_writer_at hac.localRun hac.vstart hx
     (Or.inr hop) v hv
   have hFD := hFB.trans hBD
   refine SA.Growing.heldAtProposal_of_writer_at hac.localRun
@@ -160,7 +160,7 @@ theorem clean_optimistic_proposal_parent_at {cm : Time → Finset (Fin sp.n)} {�
     rw [RunTrace.upTo_state_of_le hm le_rfl] at hframe
     have hFeq : ell.frame.F = (tr.state p i).fg.F := congrArg Frame.F hframe
     exact (hF.mono subU).trans (by rwa [← hFeq])
-  obtain ⟨k, hkk, hak⟩ := hc x q' D (hp.run.antitone hqq hqH) haq
+  obtain ⟨k, hkk, hak⟩ := hp.catchUp x q' D (hp.run.antitone hqq hqH) haq
     (by rw [htime]; exact not_le.mp hg) p _
     (hp.run.antitone (hfirst.1.trans (hm hki)) hpH) hfirst hFD'
   have hk := hkk.le.trans hki

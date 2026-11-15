@@ -148,7 +148,7 @@ theorem slow_stored_locks_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
 horizon: the latest-result induction on the source's result. -/
 theorem slow_source_votes_before_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
-    (hc : CatchRun tr H g (2 * sp.Δ)) {x : Fin sp.n} {r s : Nat} (hx : x ∈ H (tr.time r))
+    {x : Fin sp.n} {r s : Nat} (hx : x ∈ H (tr.time r))
     {B : SA.Blk sp.n (List (FG.Att sp.n))} (hslow : SA.SlowLockAt tr.projAC x r s B)
     (hs : cleanLabel sp a + sp.k + 2 ≤ s) (hrb : tr.time r ≤ b) :
     ∀ i, tr.time i ≤ b → ∀ y, y ∈ H (tr.time i) → ∀ ell e, SA.CastAt tr.projAC y i ell e →
@@ -162,10 +162,10 @@ theorem slow_source_votes_before_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ
   have hres : SA.ResultAt tr.projAC x r s C
       (SA.fastCounted sp (tr.projAC.state x r) ellX.frame s C) :=
     ⟨ellX, hupd, hconf, rfl⟩
-  apply hp.late_result_prefix_votes_before_at hc hx hres hBC hrb
+  apply hp.late_result_prefix_votes_before_at hx hres hBC hrb
     (hp.clean_window_timing_at hs s (by have := sp.two_le_k; clear * - this; omega))
   · intro y i ell e hy hcast hib hsi hprior
-    exact ProposalImpl.result_prefix_vote_domain_before_at hp hc hx hy hres hBC hs hrb hcast hsi
+    exact ProposalImpl.result_prefix_vote_domain_before_at hp hx hy hres hBC hs hrb hcast hsi
       hib fun z q hz hqi e' hv hse => hprior z q e' hqi
         (Compose.Growing.hVoteAt_iff.mpr ⟨hz, hv⟩) hse
   · intro y i ell e hy hcast hib hfirst

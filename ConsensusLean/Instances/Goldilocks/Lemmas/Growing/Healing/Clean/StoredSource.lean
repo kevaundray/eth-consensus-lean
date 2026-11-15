@@ -21,7 +21,7 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 /-- A clean raw source compares with a protected stored lock of an honest reader. -/
 theorem clean_source_stored_lock_compatible_at
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK) (hc : CatchRun tr H g (2 * sp.Δ))
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {x y : Fin sp.n} {r s i : Nat} {t : Time} (hx : x ∈ H (tr.time r))
     (ht : 0 ≤ t) (hle : ∀ q < i, tr.time q ≤ t) (hy : y ∈ H t) (htb : t ≤ b)
     {B C : SA.Blk sp.n (List (FG.Att sp.n))} {CV : Set (Vote sp.n)}
@@ -43,7 +43,7 @@ theorem clean_source_stored_lock_compatible_at
     obtain rfl : C = L := hU.1 hC (sub hL) (hCr.trans hLr.symm)
     have hD' := hD.imp (fun h => ((SA.upTo_resultAt hm).mp h).2)
       (fun h => ((SA.upTo_optimisticLockAt hm).mp h).2)
-    rcases hp.clean_sources_compatible_at hc hx (hp.run.antitone (hle q hqi) hy)
+    rcases hp.clean_sources_compatible_at hx (hp.run.antitone (hle q hqi) hy)
         hB hD' hs (hs.trans hsl) hrb ((hle q hqi).trans htb) with h | h
     · exact SA.anc_total hU h (hLD.mono sub)
     · exact Or.inr ((hLD.mono sub).trans h)
@@ -58,7 +58,7 @@ theorem clean_source_stored_lock_compatible_at
             SA.VoteExtends (tr.HonestBlocksAt H) e.msg B := by
         rcases hB with hB | hB
         · obtain ⟨z, hz, j, hjr, e, he, _, hes, hBH⟩ :=
-            ProposalImpl.result_supporter_at hp hc hx hB .refl hrb hts
+            ProposalImpl.result_supporter_at hp hx hB .refl hrb hts
           exact ⟨z, j, hz, hjr.le, e, he, hes, hBH⟩
         · exact (hp.optimistic_supporter_at hx hrb hB).2
       obtain ⟨z, j, hz, hjr, e, ⟨ell, he⟩, hes, Hd, hHd, heHd, hBHd⟩ := supporter
@@ -68,9 +68,9 @@ theorem clean_source_stored_lock_compatible_at
       have hjb := (hm hjr).trans hrb
       have hv : SA.VoteExtends (tr.HonestBlocksAt H) e.msg D := by
         rcases hD with ⟨DV, hD⟩ | hD
-        · exact hp.fast_source_votes_before_at hc hyq hD hls hqb j hjb z hzj ell e he
+        · exact hp.fast_source_votes_before_at hyq hD hls hqb j hjb z hzj ell e he
             (by omega)
-        · exact hp.slow_source_votes_before_at hc hyq hD hls hqb j hjb z hzj ell e he
+        · exact hp.slow_source_votes_before_at hyq hD hls hqb j hjb z hzj ell e he
             (by omega)
       obtain ⟨Hd', hHd', heHd', hDHd⟩ := hv
       obtain rfl : Hd' = Hd := hU.1 hHd' hHd (heHd'.trans heHd.symm)

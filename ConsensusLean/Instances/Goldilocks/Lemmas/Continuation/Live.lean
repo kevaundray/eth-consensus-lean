@@ -154,7 +154,7 @@ theorem continued_include_at (hrun : Growing.GoldilocksRun proposer dg H tr)
       have hσT := hseed.timing.1
       have htσ : sp.ts p ≤ sp.ts σ := ts_le_ts hpσ
       obtain ⟨-, hconf, hnv, -⟩ := Healing.Growing.operational_update_selection_at hpr
-        hseed.catchRun hp (proposesAt_designated hrun hpk hPa) hPa rfl
+        hp (proposesAt_designated hrun hpk hPa) hPa rfl
         (by rw [hdrain]; exact hdt₁.trans ht₁p) (by linarith) (by linarith) hz hu
       rw [projAC_state_at hrun hz] at hconf hnv
       exact ⟨hconf, hnv⟩

@@ -30,7 +30,7 @@ The explicit domain and stored-lock inputs are unchanged from the static boundar
 theorem ResetPremisesUpTo.late_result_prefix_votes_before_at
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
-    (hc : CatchRun tr H g (2 * sp.Δ)) {x : Fin sp.n} {r s : Nat}
+    {x : Fin sp.n} {r s : Nat}
     (hx : x ∈ H (tr.time r))
     {B C : SA.Blk sp.n (List (FG.Att sp.n))} {CV : Set (Vote sp.n)}
     (hres : SA.ResultAt tr.projAC x r s C CV) (hBC : Anc (tr.HonestBlocksAt H) B C)
@@ -48,7 +48,7 @@ theorem ResetPremisesUpTo.late_result_prefix_votes_before_at
     ∀ i, tr.time i ≤ b → ∀ y, y ∈ H (tr.time i) → ∀ ell e,
       SA.CastAt tr.projAC y i ell e → s < e.msg.slot →
         SA.VoteExtends (tr.HonestBlocksAt H) e.msg B := by
-  exact KernelProof.late_result_prefix_votes_before_at hp hc hx hres hBC hrb hts hdomain hstored
+  exact KernelProof.late_result_prefix_votes_before_at hp hx hres hBC hrb hts hdomain hstored
 
 /-- R2: every later-label honest cast extends each high origin within the finite horizon.
 The origin write need not precede the cast; its writer's honesty is carried by HighOrigin. -/

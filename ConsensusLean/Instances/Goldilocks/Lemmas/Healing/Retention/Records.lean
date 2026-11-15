@@ -166,7 +166,7 @@ theorem signAt_wellFormed (hrun : GoldilocksRun proposer dg H tr)
 (h)): the finality pair `(h, r)` that `fg_attest` signs (the justification of the entry state at an
 entry whose previous height is justified, or one of its pending pairs) names the entry at height `h`
 of an ancestor-or-self `J` of the source's entry `E` (whose root is the signed `T`). -/
-theorem signed_fin_pair_entry_of_run (hrun : GoldilocksRun proposer dg H tr)
+theorem signed_fin_pair_entry_of_run {ini} (hrun : GoldilocksRun proposer dg H tr ini)
     {y : Fin sp.n} (hy : y ∈ H)
     {k : Nat} {att : FG.Att sp.n} (hs : tr.SignAt y k att) {h r : Nat}
     (hfin : att.fin = some (h, r)) :

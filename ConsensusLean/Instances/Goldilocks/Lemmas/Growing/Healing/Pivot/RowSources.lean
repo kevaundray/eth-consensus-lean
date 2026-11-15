@@ -29,7 +29,7 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 votes as explicit inputs. -/
 theorem protected_source_compatible_high_origin_of_sources_at
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK) (hc : CatchRun tr H g (2 * sp.Δ))
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {x : Fin sp.n} {r s : Nat} (hx : x ∈ H (tr.time r))
     {B : SA.Blk sp.n (List (FG.Att sp.n))}
     (hsource : (∃ CV, SA.FastLockAt tr.projAC x r s B CV) ∨ SA.SlowLockAt tr.projAC x r s B)
@@ -70,7 +70,7 @@ theorem protected_source_compatible_high_origin_of_sources_at
         SA.VoteExtends (tr.HonestBlocksAt H) e.msg C := by
       rcases hC with hC | hC
       · obtain ⟨z, hz, j, hj, e, hv, _, hes, hCH⟩ :=
-          result_supporter_at hp hc hx hC (.refl : Anc (tr.HonestBlocksAt H) C C) hrb hts
+          result_supporter_at hp hx hC (.refl : Anc (tr.HonestBlocksAt H) C C) hrb hts
         exact ⟨z, j, e, hp.run.antitone (hp.run.time_mono hj.le) hz, hj.le, hv, hes, hCH⟩
       · obtain ⟨_, z, j, hz, hj, e, hv, hes, hCH⟩ := hp.optimistic_supporter_at hx hrb hC
         exact ⟨z, j, e, hp.run.antitone (hp.run.time_mono hj) hz, hj, hv, hes, hCH⟩
@@ -108,7 +108,7 @@ theorem protected_source_compatible_high_origin_of_sources_at
 /-- A clean protected source compares with every bounded high origin at its own honest cut. -/
 theorem protected_source_compatible_high_origin_at
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK) (hc : CatchRun tr H g (2 * sp.Δ))
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {x : Fin sp.n} {r s : Nat} (hx : x ∈ H (tr.time r))
     {B : SA.Blk sp.n (List (FG.Att sp.n))}
     (hsource : (∃ CV, SA.FastLockAt tr.projAC x r s B CV) ∨ SA.SlowLockAt tr.projAC x r s B)
@@ -117,13 +117,13 @@ theorem protected_source_compatible_high_origin_at
     (ho : HighOrigin tr H g y q t D) (hqb : tr.time q ≤ b) :
     Compatible (tr.HonestBlocksAt H) B D := by
   have hts := hp.clean_window_timing_at hs s (by have := sp.two_le_k; omega)
-  apply protected_source_compatible_high_origin_of_sources_at hp hc hx hsource hrb hts
+  apply protected_source_compatible_high_origin_of_sources_at hp hx hsource hrb hts
     (fun hy hqb hC hD => hp.sources_same_label_compatible_at hx hy hC hD hrb hqb hts)
     ?_ ho hqb
   intro i hib z hz e ⟨ell, hcast⟩ hsi
   rcases hsource with ⟨CV, hfast⟩ | hslow
-  · exact hp.fast_source_votes_before_at hc hx hfast hs hrb i hib z hz ell e hcast hsi
-  · exact hp.slow_source_votes_before_at hc hx hslow hs hrb i hib z hz ell e hcast hsi
+  · exact hp.fast_source_votes_before_at hx hfast hs hrb i hib z hz ell e hcast hsi
+  · exact hp.slow_source_votes_before_at hx hslow hs hrb i hib z hz ell e hcast hsi
 
 end Consensus.Goldilocks.Healing.Growing.ProposalImpl
 

@@ -95,7 +95,7 @@ private theorem cast_time (hrun : Consensus.Goldilocks.Growing.GoldilocksRun pro
 /-- The reset premises carry the slot-`u` votes to a slot-`(u+1)` cast. -/
 theorem unanimous_carry_votes_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
-    (hc : CatchRun tr H g (2 * sp.Δ)) {u : Nat} {P : SA.Blk sp.n (List (FG.Att sp.n))}
+    {u : Nat} {P : SA.Blk sp.n (List (FG.Att sp.n))}
     (hP : P ∈ tr.HonestBlocksAt H)
     (hun : ∀ y j e, y ∈ H (tr.time j) → SA.VoteAt tr.projAC y j e → tr.time j ≤ b →
       e.msg.slot = u → e.msg.head = P.root)
@@ -105,13 +105,13 @@ theorem unanimous_carry_votes_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hs : e.msg.slot = u + 1) (hib : tr.time i ≤ b)
     (hFP : Anc (tr.HonestBlocksAt H) ell.frame.F P) :
     SA.CarryAt tr.projAC (tr.HonestBlocksAt H) y i e u (Compose.Growing.honestVotes tr H u) :=
-  unanimous_carry_votes_core_at hp.run hp.noColl hp.sync hc hP hun
+  unanimous_carry_votes_core_at hp.run hp.noColl hp.sync hp.catchUp hP hun
     (by linarith [sp.toParams.hΔ]) hy hcast hs hib hFP
 
 /-- The old origins written before slot `u + 1` are below `P`. -/
 private theorem old_origins_below {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
-    (hc : CatchRun tr H g (2 * sp.Δ)) {u : Nat} {P : SA.Blk sp.n (List (FG.Att sp.n))}
+    {u : Nat} {P : SA.Blk sp.n (List (FG.Att sp.n))}
     (hP : P ∈ tr.HonestBlocksAt H)
     (hun : ∀ y j e, y ∈ H (tr.time j) → SA.VoteAt tr.projAC y j e → tr.time j ≤ b →
       e.msg.slot = u → e.msg.head = P.root)
@@ -119,19 +119,19 @@ private theorem old_origins_below {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hub : sp.ts u + sp.Δ ≤ b) :
     ∀ x r l B, HighOrigin tr H g x r l B → tr.time r < sp.ts (u + 1 : Nat) →
       tr.time r ≤ b → Anc (tr.HonestBlocksAt H) B P :=
-  fun _ _ _ _ ho ht hrb => high_origins_before_next_slot_below_at hp hc hP hun hgu hR hub ho ht hrb
+  fun _ _ _ _ ho ht hrb => high_origins_before_next_slot_below_at hp hP hun hgu hR hub ho ht hrb
 
 /-- The validators honest at `t_{u+1}` voted in slot `u` by `t_u + Δ`. -/
 private theorem next_voters {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
-    (hc : CatchRun tr H g (2 * sp.Δ)) {u : Nat} (hgu : SA.gbar g + 4 * sp.Δ ≤ sp.ts u)
+    {u : Nat} (hgu : SA.gbar g + 4 * sp.Δ ≤ sp.ts u)
     (hR : drainTime sp a ≤ sp.ts (u + 1 : Nat)) (hub : sp.ts u + sp.Δ ≤ b) :
     ∀ x, x ∈ H (sp.ts (u + 1 : Nat)) → ∃ q e, SA.VoteAt tr.projAC x q e ∧
       e.msg.slot = u ∧ tr.time q ≤ sp.ts u + sp.Δ := by
   have hts1 : sp.ts (u + 1 : Nat) = sp.ts u + 4 * sp.Δ := by
     simp only [SAParams.ts]; push_cast; ring
   intro x hx
-  exact honest_votes_in_slot_at hp hc hgu hR hub x
+  exact honest_votes_in_slot_at hp hgu hR hub x
     (hp.run.antitone (by linarith [sp.toParams.hΔ]) hx)
 
 /-- After the drain, the fault bound holds at every cut from `t_{u+1}` through `b`. -/
@@ -164,7 +164,7 @@ private theorem next_fault_bound {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
 /-- The reset premises put `P` in every slot-`(u+1)` frozen viable tree. -/
 theorem unanimous_next_vote_viable_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
-    (hc : CatchRun tr H g (2 * sp.Δ)) {u : Nat} {P : SA.Blk sp.n (List (FG.Att sp.n))}
+    {u : Nat} {P : SA.Blk sp.n (List (FG.Att sp.n))}
     (hP : P ∈ tr.HonestBlocksAt H) (hslot : P.slot = u) (hu : 0 < u)
     (hun : ∀ y j e, y ∈ H (tr.time j) → SA.VoteAt tr.projAC y j e → tr.time j ≤ b →
       e.msg.slot = u → e.msg.head = P.root)
@@ -175,19 +175,19 @@ theorem unanimous_next_vote_viable_at {cm : Time → Finset (Fin sp.n)} {βK : �
     (hs : e.msg.slot = u + 1) (hjb : tr.time j ≤ b) :
     Anc (tr.HonestBlocksAt H) ell.frame.F P ∧
       P ∈ ell.frame.viableTree (SA.voterBlockTree sp e.readPoint ell.frame (u + 1)) := by
-  have hbound := old_origins_below hp hc hP hun hgu hR hub
+  have hbound := old_origins_below hp hP hun hgu hR hub
   have htime : sp.ts (u + 1 : Nat) ≤ tr.time j := by
     have := (cast_time hp.run hp.noColl hy hcast).1
     rwa [hs] at this
   exact unanimous_next_vote_viable_core_at hp.run hp.noColl hP hslot hu hun hy hcast hs hjb
-    (next_voters hp hc hgu hR hub y (hp.run.antitone htime hy))
+    (next_voters hp hgu hR hub y (hp.run.antitone htime hy))
     (hp.reset_vote_root_below_bound_at hR hP hbound hy hcast hs hjb)
     (fun hstore => hp.reset_vote_floor_above_old_at hy hR hcast hs hjb hstore hbound)
 
 /-- The reset premises make every slot-`(u+1)` vote extend `P`. -/
 theorem unanimous_next_votes_extend_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
-    (hc : CatchRun tr H g (2 * sp.Δ)) {u : Nat} {P : SA.Blk sp.n (List (FG.Att sp.n))}
+    {u : Nat} {P : SA.Blk sp.n (List (FG.Att sp.n))}
     (hP : P ∈ tr.HonestBlocksAt H) (hslot : P.slot = u) (hu : 0 < u)
     (hun : ∀ y j e, y ∈ H (tr.time j) → SA.VoteAt tr.projAC y j e → tr.time j ≤ b →
       e.msg.slot = u → e.msg.head = P.root)
@@ -195,9 +195,9 @@ theorem unanimous_next_votes_extend_at {cm : Time → Finset (Fin sp.n)} {βK : 
     (hub : sp.ts u + sp.Δ ≤ b) :
     ∀ y j e, y ∈ H (tr.time j) → SA.VoteAt tr.projAC y j e → tr.time j ≤ b →
       e.msg.slot = u + 1 → SA.VoteExtends (tr.HonestBlocksAt H) e.msg P :=
-  have hbound := old_origins_below hp hc hP hun hgu hR hub
-  unanimous_next_votes_extend_core_at hp.run hp.noColl hp.sync hc hP hslot hu hun
-    (by linarith [sp.toParams.hΔ]) (next_voters hp hc hgu hR hub) (next_fault_bound hp hgu hR)
+  have hbound := old_origins_below hp hP hun hgu hR hub
+  unanimous_next_votes_extend_core_at hp.run hp.noColl hp.sync hp.catchUp hP hslot hu hun
+    (by linarith [sp.toParams.hΔ]) (next_voters hp hgu hR hub) (next_fault_bound hp hgu hR)
     (fun _ _ _ _ hy hcast hs hjb => hp.reset_vote_root_below_bound_at hR hP hbound hy hcast hs hjb)
     (fun _ _ _ _ hy hcast hs hjb hstore =>
       hp.reset_vote_floor_above_old_at hy hR hcast hs hjb hstore hbound) hp.stock
@@ -205,7 +205,7 @@ theorem unanimous_next_votes_extend_at {cm : Time → Finset (Fin sp.n)} {βK : 
 /-- The reset premises make a slot-`(u+1)` optimistic selection compatible with `P`. -/
 theorem unanimous_next_optimistic_compatible_at
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK) (hc : CatchRun tr H g (2 * sp.Δ))
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {u : Nat} {P : SA.Blk sp.n (List (FG.Att sp.n))} (hP : P ∈ tr.HonestBlocksAt H)
     (hslot : P.slot = u) (hu : 0 < u)
     (hun : ∀ y j e, y ∈ H (tr.time j) → SA.VoteAt tr.projAC y j e → tr.time j ≤ b →
@@ -215,9 +215,9 @@ theorem unanimous_next_optimistic_compatible_at
     {D : SA.Blk sp.n (List (FG.Att sp.n))} {CV : Set (SA.Vote sp.n)}
     (hopt : SA.OptimisticLockAt tr.projAC y j (u + 1) D CV) (hjb : tr.time j ≤ b) :
     Compatible (tr.HonestBlocksAt H) D P :=
-  have hbound := old_origins_below hp hc hP hun hgu hR hub
-  unanimous_next_optimistic_compatible_core_at hp.run hp.noColl hp.sync hc hP hslot hu hun
-    (by linarith [sp.toParams.hΔ]) (next_voters hp hc hgu hR hub) (next_fault_bound hp hgu hR)
+  have hbound := old_origins_below hp hP hun hgu hR hub
+  unanimous_next_optimistic_compatible_core_at hp.run hp.noColl hp.sync hp.catchUp hP hslot hu hun
+    (by linarith [sp.toParams.hΔ]) (next_voters hp hgu hR hub) (next_fault_bound hp hgu hR)
     (fun _ _ _ _ hy hcast hs hjb => hp.reset_vote_root_below_bound_at hR hP hbound hy hcast hs hjb)
     (fun _ _ _ _ hy hcast hs hjb hstore =>
       hp.reset_vote_floor_above_old_at hy hR hcast hs hjb hstore hbound) hy hopt hjb hp.stock

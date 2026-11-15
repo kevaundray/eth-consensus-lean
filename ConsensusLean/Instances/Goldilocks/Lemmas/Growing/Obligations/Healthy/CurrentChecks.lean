@@ -167,7 +167,7 @@ theorem healthy_current_live_candidates_at (Q : HealthyPreparationQueryAt S A V)
   rcases hX with hX | hX
   · obtain ⟨l, hl, E, hE, hEr, hlive, rfl⟩ := SA.mem_liveLockBlocks_of_wf hPhi hwf hX
     rw [← hst] at hl
-    have hBE := D.reset.clean_source_stored_lock_compatible_at hc hx C.time_nonneg
+    have hBE := D.reset.clean_source_stored_lock_compatible_at hx C.time_nonneg
       C.readPoint.1 C.honest C.time_bound hsrc hs' hqb hl
       (Healing.drain_stored_lock_label hdrainNow hlive) (hsub hE) hEr
     have hXE := (SA.viableAncestor_anc hPhi hE).2.mono hsub
@@ -177,12 +177,12 @@ theorem healthy_current_live_candidates_at (Q : HealthyPreparationQueryAt S A V)
     · exact Or.inr (SA.anc_tree_of_anc_U hU hPhi hsub hRm h hX.1)
   · obtain rfl := Set.mem_singleton_iff.mp hX
     obtain ⟨z, r, l, S₀, hseed, hrb, -, -, hhold⟩ :=
-      D.reset.reset_seed_held_at_read_at hc C.readPoint C.time_bound C.honest hdrain hgu hbefore
+      D.reset.reset_seed_held_at_read_at C.readPoint C.time_bound C.honest hdrain hgu hbefore
     have hcmp : ∀ z r l B₀, Q.trace.time r ≤ Q.bound →
         Healing.Growing.HighOrigin Q.trace Q.keys Q.gst z r l B₀ →
         Goldilocks.Compatible (Q.trace.HonestBlocksAt Q.keys) R B₀ := fun z r l B₀ hrb' ho =>
       tips_comparable_of_origin_witnesses_at S A V Q hRB .refl
-        (D.reset.clean_source_compatible_high_origin_at hc hx hsrc hs' hqb ho hrb')
+        (D.reset.clean_source_compatible_high_origin_at hx hsrc hs' hqb ho hrb')
     have hcandidate := guarded_seed_ancestor_candidate_at_state_at D.reset C.time_nonneg
       C.readPoint.1 C.honest C.time_bound hRm hseed hrb hhold (hcmp z r l S₀ hrb hseed)
       (fun z r l B₀ hrn ho => hcmp z r l B₀ ((C.readPoint.1 r hrn).trans C.time_bound) ho)
@@ -223,12 +223,12 @@ theorem healthy_current_record_viable_at (Q : HealthyPreparationQueryAt S A V)
   have hl' : Healing.cleanLabel Q.params D.resetTime + 2 * Q.params.k + 1 ≤ l := by
     rw [← D.cleanLabel_eq]; exact hl
   obtain ⟨zS, qS, lS, S₀, hseed, hqSb, -, -, hhold⟩ :=
-    D.reset.reset_seed_held_at_read_at hc C.readPoint C.time_bound C.honest hdrain hgu hbefore
+    D.reset.reset_seed_held_at_read_at C.readPoint C.time_bound C.honest hdrain hgu hbefore
   have hcmp : ∀ z r l B₀, Q.trace.time r ≤ Q.bound →
       Healing.Growing.HighOrigin Q.trace Q.keys Q.gst z r l B₀ →
       Goldilocks.Compatible (Q.trace.HonestBlocksAt Q.keys) R B₀ := fun z r l B₀ hrb' ho =>
     tips_comparable_of_origin_witnesses_at S A V Q hRE .refl
-      (D.reset.clean_source_compatible_high_origin_at hc hz hsrc hl' hqb ho hrb')
+      (D.reset.clean_source_compatible_high_origin_at hz hsrc hl' hqb ho hrb')
   rcases guarded_seed_ancestor_candidate_at_state_at D.reset C.time_nonneg C.readPoint.1
     C.honest C.time_bound hRm hseed hqSb hhold (hcmp zS qS lS S₀ hqSb hseed)
     (fun z r l B₀ hrn ho => hcmp z r l B₀ ((C.readPoint.1 r hrn).trans C.time_bound) ho) with
@@ -254,7 +254,7 @@ theorem healthy_current_vote_domain_at (Q : HealthyPreparationQueryAt S A V)
       Anc (Q.trace.HonestBlocksAt Q.keys) R ell.frame.fcRoot ∨
         R ∈ ell.frame.viableTree (SA.voterBlockTree Q.params e.readPoint ell.frame e.msg.slot) := by
   intro z q ell e hz he hqb hse hprior
-  exact Healing.Growing.ProposalImpl.result_prefix_vote_domain_before_at D.reset hc hx hz hr hRB
+  exact Healing.Growing.ProposalImpl.result_prefix_vote_domain_before_at D.reset hx hz hr hRB
     (by simpa only [D.cleanLabel_eq] using hs) hrb he hse hqb
     (fun w p hw hpq e' hv hs' => hprior w p e' hpq
       (Compose.Growing.hVoteAt_iff.mpr ⟨hw, hv⟩) hs')

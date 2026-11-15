@@ -255,7 +255,7 @@ theorem update_toFG_calls_of_awake_at
     unfold SA.joined
     have hac := (Compose.goldilocks_ac_projection sp ro dg (H T) (tr.upTo T)
       proposer hr (hnc.upTo T)).localRun
-    rcases SA.restartTime_state hac hy i with h | ⟨r, _, hrs, h⟩
+    rcases SA.restartTime_state hac hrun.vstart hy i with h | ⟨r, _, hrs, h⟩
     · rw [h]; exact bot_le
     · rw [h]
       apply WithBot.coe_le_coe.mpr

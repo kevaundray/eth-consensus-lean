@@ -37,12 +37,12 @@ theorem proposal_high_lock_source_at
   have hm := hp.run.time_mono
   have ht0 := hp.run.time_nonneg i
   have hr := hp.run.upTo ht0
-  have hac := (Compose.goldilocks_ac_projection sp ro dg (H (tr.time i))
-    (tr.upTo (tr.time i)) proposer hr (hp.noColl.upTo _)).localRun
+  have hac := (Compose.goldilocks_ac_projection_from hr (hp.noColl.upTo _)).localRun
   have hs : (tr.upTo (tr.time i)).projAC.state p i = tr.projAC.state p i := by
     rw [RunTrace.upTo_projAC]
     exact Trace.upTo_state tr.projAC p fun _ hq => hm hq.le
-  obtain ⟨r, hri, D, hw, L, hL, hLr, hLD⟩ := SA.lock_provenance hac hpH i l (hs ▸ hl)
+  obtain ⟨r, hri, D, hw, L, hL, hLr, hLD⟩ :=
+    SA.lock_provenanceU hac.toU hp.run.vstart hpH i l (hs ▸ hl)
   have hrt : tr.time r ≤ sp.ts u := hti ▸ hm hri.le
   rcases hw with ⟨CV, hop⟩ | ⟨ell', hupd⟩
   · have hop' := hop

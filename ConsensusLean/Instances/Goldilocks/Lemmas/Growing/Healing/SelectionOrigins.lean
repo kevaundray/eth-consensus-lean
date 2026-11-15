@@ -28,7 +28,7 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 Older origins are tested against a surviving voter, not their possibly compromised writer. -/
 theorem high_origins_before_next_slot_below_at
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK) (hc : CatchRun tr H g (2 * sp.Δ))
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {u : Nat} {P : SA.Blk sp.n (List (FG.Att sp.n))} (hP : P ∈ tr.HonestBlocksAt H)
     (hun : ∀ y j e, y ∈ H (tr.time j) → SA.VoteAt tr.projAC y j e → tr.time j ≤ b →
       e.msg.slot = u → e.msg.head = P.root)
@@ -60,7 +60,7 @@ theorem high_origins_before_next_slot_below_at
       have := sp.toParams.hn
       change 0 < sp.n at this
       omega
-    obtain ⟨q, e, hv, hs, hq⟩ := honest_votes_in_slot_at hp hc hgu hR hub w hw
+    obtain ⟨q, e, hv, hs, hq⟩ := honest_votes_in_slot_at hp hgu hR hub w hw
     obtain ⟨ellv, hcast⟩ := hv
     have hwq := hp.run.antitone hq hw
     obtain ⟨Hd, hHd, he, hBH⟩ := hp.high_origin_votes_before_at q (hq.trans hub)
@@ -77,7 +77,7 @@ theorem high_origins_before_next_slot_below_at
         ⟨_, _, _, _, h⟩ | ⟨_, _, _, _, _, h⟩ <;> exact h.1
     have hBD := (SA.anc_viableAncestor ell.frame D).mono hsub
     rw [← hB] at hBD
-    exact hBD.trans (hp.same_slot_source_below_unanimous_at hc hx
+    exact hBD.trans (hp.same_slot_source_below_unanimous_at hx
       (Or.inl ⟨CV, hfl⟩) hrb (hp.cutZ_le_ts_of_highOrigin_at ho) hP hun)
 
 end Consensus.Goldilocks.Healing.Growing

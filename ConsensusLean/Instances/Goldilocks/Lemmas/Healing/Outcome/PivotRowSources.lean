@@ -698,7 +698,8 @@ theorem ResetPremisesUpTo.clean_optimistic_proposal_parent {b : Time}
   refine optimistic_first_proposal_anc hS.run hf hx hop .refl hpH hci
     (SA.proposal_slot hti) hd ⟨hV.1, Or.inl hV⟩ ?_ hhigh hp.stock
   intro v hv
-  obtain ⟨hvs, hsend, D, hD, hDr, hBD, hacc⟩ := fastLock_writer hr hx (Or.inr hop) v hv
+  obtain ⟨hvs, hsend, D, hD, hDr, hBD, hacc⟩ :=
+    fastLock_writer hr (fun _ => SA.voteStart_initial _) hx (Or.inr hop) v hv
   have hFD := hFB.trans hBD
   refine SA.heldAtProposal_of_writer hr (hp.sync.syncAC hp.run (le_gbar g))
     (by linarith only [hsg, hΔ]) le_rfl hx hpH hci hti hrs hvs hsend ⟨D, hD, hDr, hFD, ?_⟩

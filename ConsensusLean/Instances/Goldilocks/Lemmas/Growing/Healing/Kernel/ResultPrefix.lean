@@ -53,7 +53,7 @@ induction on the cast's cut. -/
 theorem late_result_prefix_votes_before_at
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
-    (hc : CatchRun tr H g (2 * sp.Δ)) {x : Fin sp.n} {r s : Nat}
+    {x : Fin sp.n} {r s : Nat}
     (hx : x ∈ H (tr.time r))
     {B C : SA.Blk sp.n (List (FG.Att sp.n))} {CV : Set (Vote sp.n)}
     (hres : SA.ResultAt tr.projAC x r s C CV) (hBC : Anc (tr.HonestBlocksAt H) B C)
@@ -97,7 +97,7 @@ theorem late_result_prefix_votes_before_at
     omega
   by_cases hfirst : e.msg.slot = s + 1
   · exact SA.Growing.result_transfer_anc hrun' hx hres hBC hy hcast hfirst
-      (result_carry_reset_at hp hc hx hres hts hy hcast hfirst (hFB.trans hBC))
+      (result_carry_reset_at hp hx hres hts hy hcast hfirst (hFB.trans hBC))
       (by rw [← hfirst]; exact Or.inl hv)
       (live_locks_of_stored_at hrun hnc hf hy hcast hfirst hv.1.1
         (hstored y i ell e hy hcast hib hfirst)
@@ -132,7 +132,7 @@ theorem late_result_prefix_votes_before_at
       (by
         rw [hp.stock]
         exact hp.half_committee_at hmts (t := tr.time i) (by linarith only [htime, hts1, hΔ]) hib)
-      (honest_votes_carry_reset_at hp hc hy hcast hm hmts hall hFB)
+      (honest_votes_carry_reset_at hp hy hcast hm hmts hall hFB)
       ((SA.ncard_inter_full_lt_iff _ _ _).2 hfb)
       (SA.Growing.cs2_full_of_faultBoundAt hp.stock hfb)
       (by rw [← hm]; exact Or.inl hv)

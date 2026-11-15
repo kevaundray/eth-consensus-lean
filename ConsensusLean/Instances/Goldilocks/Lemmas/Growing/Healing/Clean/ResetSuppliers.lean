@@ -82,8 +82,7 @@ theorem fault_bound_late_at {b : Time} {cm : Time → Finset (Fin sp.n)} {βK : 
   unfold SA.FaultBoundAt
   refine h.trans_le (Set.ncard_le_ncard (fun z hz => ⟨hz.1, hz.2.1, ?_⟩) (Set.toFinite _))
   obtain ⟨hzt, -, hj⟩ := hz
-  have hjp := (Compose.joined_projection sp ro dg (H t) (tr.upTo t) proposer
-    (hp.run.upTo ht0) z hzt t).1
+  have hjp := (Compose.joined_projection_from (hp.run.upTo ht0) hzt t).1
   have hjpre : (tr.upTo t).JoinedAt z t := fun k hk hkt =>
     hj k ((RunTrace.upTo_restartAt tr).mp hk).2 hkt
   intro k hk hkt
@@ -105,7 +104,8 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 /-! ### Node-local facts at a cut, on the prefix through its time -/
 
 /-- The AC projection holds the AC state of a node honest at the cut. -/
-private theorem projAC_state_at (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr)
+private theorem projAC_state_at {ini}
+    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr ini)
     {y : Fin sp.n} {i : Nat} (hy : y ∈ H (tr.time i)) :
     tr.projAC.state y i = (tr.state y i).ac := by
   have h := Compose.projAC_state (hrun.upTo (hrun.time_nonneg i)).toLocalRun hy i
@@ -113,7 +113,8 @@ private theorem projAC_state_at (hrun : Consensus.Goldilocks.Growing.GoldilocksR
     RunTrace.upTo_state_of_le hrun.time_mono le_rfl] at h
 
 /-- `Σ.F` of a node honest at cut `i'` moves only to descendants up to `i'`. -/
-private theorem run_F_mono_at (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr)
+private theorem run_F_mono_at {ini}
+    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr ini)
     {y : Fin sp.n} {i i' : Nat} (hy : y ∈ H (tr.time i')) (hii : i ≤ i') :
     Anc (tr.HonestBlocksAt H) (tr.state y i).fg.F (tr.state y i').fg.F := by
   have hr := (hrun.upTo (hrun.time_nonneg i')).toLocalRun
@@ -123,7 +124,8 @@ private theorem run_F_mono_at (hrun : Consensus.Goldilocks.Growing.GoldilocksRun
   exact h.mono (RunTrace.honestBlocks_upTo_subset hrun.time_mono (hrun.time_nonneg i'))
 
 /-- An AC block call of a node honest at it follows the FG acceptance at the same time. -/
-private theorem acBlock_prev_at (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr)
+private theorem acBlock_prev_at {ini}
+    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr ini)
     {y : Fin sp.n} {i : Nat} (hy : y ∈ H (tr.time i)) {ℓ : ACLabel (goldilocksNode sp ro)}
     {B : (goldilocksNode sp ro).Blk} (hc : tr.CallAt y i (.ac ℓ)) (hb : ℓ.call = .block B) :
     ∃ i', i = i' + 1 ∧ tr.CallAt y i' (.fg (.block B true)) ∧ tr.time i' = tr.time i := by
@@ -133,7 +135,8 @@ private theorem acBlock_prev_at (hrun : Consensus.Goldilocks.Growing.GoldilocksR
   exact ⟨i', rfl, ((Trace.upTo_callAt _).mp hc').2, ht⟩
 
 /-- An FG acceptance of a node honest at it is followed at once by the AC block call. -/
-private theorem accept_next_at (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr)
+private theorem accept_next_at {ini}
+    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr ini)
     {y : Fin sp.n} {i : Nat} (hy : y ∈ H (tr.time i)) {B : (goldilocksNode sp ro).Blk}
     (hc : tr.CallAt y i (.fg (.block B true))) :
     ∃ ℓ : ACLabel (goldilocksNode sp ro), tr.CallAt y (i + 1) (.ac ℓ) ∧ ℓ.call = .block B ∧
@@ -159,7 +162,7 @@ private theorem projAC_callAt_of_upTo {d : Time} {y : Fin sp.n} {k : Nat}
 
 /-- The prefix's AC deadlines at a cut through `d` are the run's. -/
 private theorem projAC_deadline_upTo
-    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr)
+    {ini} (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr ini)
     {d : Time} {y : Fin sp.n} {k : Nat} (hk : tr.time k ≤ d) (τ : Time) :
     (tr.upTo d).projAC.deadline y k τ = tr.projAC.deadline y k τ := by
   rw [Compose.projAC_deadline, Compose.projAC_deadline, RunTrace.upTo_deadline hrun.time_mono hk]
@@ -167,7 +170,8 @@ private theorem projAC_deadline_upTo
 /-- A cast of a node honest at its cut, read on the prefix through its time: its frame is held
 while honest, its head is in the frame above `fc_root` by the slot's `Δ`, and its slot is the
 cut's. -/
-theorem castAt_facts_at (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr)
+theorem castAt_facts_at {ini}
+    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr ini)
     (hnc : Compose.NoCollRun dg tr) {y : Fin sp.n} {i : Nat} (hy : y ∈ H (tr.time i))
     {ℓ : ACLabel (goldilocksNode sp ro)} {e : SA.Em sp (List (FG.Att sp.n))}
     (hcast : SA.CastAt tr.projAC y i ℓ e) :
@@ -176,13 +180,12 @@ theorem castAt_facts_at (hrun : Consensus.Goldilocks.Growing.GoldilocksRun propo
         tr.time i ≤ sp.ts e.msg.slot + sp.Δ) ∧
       e.msg.slot = sp.slot (tr.time i) := by
   have hd := hrun.time_nonneg i
-  have hr := (Compose.goldilocks_ac_projection sp ro dg (H (tr.time i)) (tr.upTo (tr.time i))
-    proposer (hrun.upTo hd) (hnc.upTo _)).localRun
+  have hr := (Compose.goldilocks_ac_projection_from (hrun.upTo hd) (hnc.upTo _)).localRun
   have hcT : SA.CastAt (tr.upTo (tr.time i)).projAC y i ℓ e :=
     ⟨projAC_callAt_upTo le_rfl hcast.1, hcast.2⟩
   obtain ⟨hΦ, hΦU⟩ := SA.frameIn_of_callAt hr hy hcT.1
   exact ⟨⟨hΦ, hΦU.trans (RunTrace.honestBlocks_upTo_subset hrun.time_mono hd)⟩,
-    Compose.cast_head_fcRoot hr hy hcT, (SA.castAt_spec hr hy hcT).2.1⟩
+    Compose.cast_head_fcRoot_from hr hrun.vstart hy hcT, (SA.castAt_spec hr hy hcT).2.1⟩
 
 /-! ### The reset service on the AC projection -/
 
@@ -242,7 +245,8 @@ theorem reset_syncACAt {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
 
 /-- **The pre-GST catch-up on the AC projection**: a block that a node accepted while honest
 before `ḡ` is accepted before `ḡ + 2Δ` by a node honest at a later call whose `Σ.F` it extends. -/
-private theorem reset_catch_at (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr)
+private theorem reset_catch_at {ini}
+    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr ini)
     (hcatch : CatchRun tr H g (2 * sp.Δ)) {w : Fin sp.n} {kw : Nat}
     {B : SA.Blk sp.n (List (FG.Att sp.n))} (hw : w ∈ H (tr.time kw))
     (ha : tr.projAC.AcceptAt w kw B) (hkw : tr.time kw < gbar g) {y : Fin sp.n} {i : Nat}
@@ -277,7 +281,7 @@ before `t_s + 2Δ`. Each delivery comes from the reset service, a pre-GST accept
 catch-up; the voter's side is read on the prefix through its vote. -/
 theorem carry_of_senders {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
-    (hcatch : CatchRun tr H g (2 * sp.Δ)) {s : Nat} (hts : cutZ sp.toParams g ≤ sp.ts s)
+    {s : Nat} (hts : cutZ sp.toParams g ≤ sp.ts s)
     {y : Fin sp.n} {i : Nat} {ℓ : ACLabel (goldilocksNode sp ro)}
     {e : SA.Em sp (List (FG.Att sp.n))} (hy : y ∈ H (tr.time i))
     (hcast : SA.CastAt tr.projAC y i ℓ e) (hs : e.msg.slot = s + 1) {CV : Set (Vote sp.n)}
@@ -293,8 +297,7 @@ theorem carry_of_senders {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
   have hm := hrun.time_mono
   have hΔ : (0 : Time) < sp.Δ := sp.toParams.hΔ
   have hd := hrun.time_nonneg i
-  have hr := (Compose.goldilocks_ac_projection sp ro dg (H (tr.time i)) (tr.upTo (tr.time i))
-    proposer (hrun.upTo hd) (hp.noColl.upTo _)).localRun
+  have hr := (Compose.goldilocks_ac_projection_from (hrun.upTo hd) (hp.noColl.upTo _)).localRun
   have hsub := RunTrace.honestBlocks_upTo_subset (H := H) hm hd
   have hc' : SA.CastAt (tr.upTo (tr.time i)).projAC y i ℓ e :=
     ⟨projAC_callAt_upTo le_rfl hcast.1, hcast.2⟩
@@ -307,7 +310,7 @@ theorem carry_of_senders {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     have hts1 : sp.ts ((s + 1 : Nat) : Int) = sp.ts s + 4 * sp.Δ := by
       simp only [SAParams.ts]; push_cast; ring
     linarith only [h, hts1]
-  have hcarry := Compose.Growing.carryAt_of_delivered hr (fun _ => SA.voteStart_initial _) hy hc'
+  have hcarry := Compose.Growing.carryAt_of_delivered hr hrun.vstart hy hc'
       hs (CV := CV) fun v hv => by
     obtain ⟨hvs, ⟨w, k, hwk, hsend, hk1, hk2⟩, Hv, hHvr, hFHv, hacc⟩ := hW v hv
     refine ⟨hvs, ⟨tr.time k, hk1, hk2, fun hdl => ?_⟩, Hv, hHvr, ?_⟩
@@ -327,7 +330,7 @@ theorem carry_of_senders {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
       have hkyd : tr.time ky ≤ tr.time i := hm hky
       exact ⟨ky, hky, ⟨ℓa, projAC_callAt_upTo hkyd hca, hcall⟩,
         by rw [projAC_deadline_upTo hrun hkyd]; exact hkyt⟩
-    · obtain ⟨ky, hky, ⟨ℓa, hca, hcall⟩, hkyt⟩ := reset_catch_at hrun hcatch hwkw hkw
+    · obtain ⟨ky, hky, ⟨ℓa, hca, hcall⟩, hkyt⟩ := reset_catch_at hrun hp.catchUp hwkw hkw
         (lt_of_lt_of_le (not_le.mp hgk) hgg) hy hcast.1
         (by linarith only [hti, hgs, hΔ]) hFHv
       exact Or.inr (Or.inr ⟨ky, ⟨ℓa, projAC_callAt_upTo (hm hky) hca, hcall⟩,
@@ -345,7 +348,7 @@ writer honest at its update, the voter at its slot-`(s+1)` vote, with the voter'
 below the result. -/
 theorem result_carry_reset_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
-    (hc : CatchRun tr H g (2 * sp.Δ)) {x : Fin sp.n} {r s : Nat}
+    {x : Fin sp.n} {r s : Nat}
     {C : SA.Blk sp.n (List (FG.Att sp.n))} {CV : Set (Vote sp.n)} (hx : x ∈ H (tr.time r))
     (hres : SA.ResultAt tr.projAC x r s C CV) (hts : cutZ sp.toParams g ≤ sp.ts s)
     {y : Fin sp.n} {i : Nat} {ℓ : ACLabel (goldilocksNode sp ro)}
@@ -353,7 +356,7 @@ theorem result_carry_reset_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hcast : SA.CastAt tr.projAC y i ℓ e) (hs : e.msg.slot = s + 1)
     (hFC : Anc (tr.HonestBlocksAt H) ℓ.frame.F C) :
     SA.CarryAt tr.projAC (tr.HonestBlocksAt H) y i e s CV :=
-  carry_of_senders hp hc hts hy hcast hs fun v hv => by
+  carry_of_senders hp hts hy hcast hs fun v hv => by
     obtain ⟨h₁, ⟨k, hk⟩, Hv, -, hHvr, hCHv, h₃⟩ :=
       Compose.Growing.result_writer_at hp.run hp.noColl hx hres v hv
     exact ⟨h₁, ⟨x, k, hk⟩, Hv, hHvr, hFC.trans hCHv, h₃.imp_right fun ⟨k, hk⟩ => ⟨x, k, hk⟩⟩
@@ -363,7 +366,7 @@ above `B`** after the reset's cut (`Carry_y`): each vote is its own voter's, sen
 within `Δ` of `t_m`, with its head in its frame, accepted by its voter while honest. -/
 theorem honest_votes_carry_reset_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
-    (hc : CatchRun tr H g (2 * sp.Δ)) {y : Fin sp.n} {i m : Nat}
+    {y : Fin sp.n} {i m : Nat}
     {ℓ : ACLabel (goldilocksNode sp ro)} {e : SA.Em sp (List (FG.Att sp.n))}
     (hy : y ∈ H (tr.time i)) (hcast : SA.CastAt tr.projAC y i ℓ e) (hm : e.msg.slot = m + 1)
     (hts : cutZ sp.toParams g ≤ sp.ts m) {B : SA.Blk sp.n (List (FG.Att sp.n))}
@@ -375,7 +378,7 @@ theorem honest_votes_carry_reset_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ
         v.slot = m} := by
   have hrun := hp.run
   have hΔ : (0 : Time) < sp.Δ := sp.toParams.hΔ
-  refine carry_of_senders hp hc hts hy hcast hm ?_
+  refine carry_of_senders hp hts hy hcast hm ?_
   rintro v ⟨z, q, e', hz, ⟨ell', hc'⟩, rfl, hslot⟩
   obtain ⟨⟨-, hΦU⟩, ⟨⟨Hd, hHd, hHdr, -⟩, hqt⟩, hsl⟩ := castAt_facts_at hrun hp.noColl hz hc'
   obtain ⟨Hv, hHv, hHvr, hBHv⟩ := hall z q e' hz ⟨ell', hc'⟩ hslot
@@ -389,8 +392,8 @@ theorem honest_votes_carry_reset_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ
     linarith only [hqt, hΔ]
   refine ⟨hslot, ⟨z, q, hz, ⟨ell', hc'.1, Or.inl ⟨e', hc'.2, rfl⟩⟩, htq, hqt'⟩, Hd, hHdr,
     hFB.trans hBHv, ?_⟩
-  have hrq := (Compose.goldilocks_ac_projection sp ro dg (H (tr.time q)) (tr.upTo (tr.time q))
-    proposer (hrun.upTo hq0) (hp.noColl.upTo _)).localRun
+  have hrq := (Compose.goldilocks_ac_projection_from
+    (hrun.upTo hq0) (hp.noColl.upTo _)).localRun
   rcases Compose.frame_anc_accepted hrq hz q ell' (projAC_callAt_upTo le_rfl hc'.1) Hd hHd Hd
       .refl with hg | ⟨k, hk, ℓa, hca, hcall⟩
   · exact Or.inl hg
@@ -418,7 +421,7 @@ theorem writer_merged_reset_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     have := le_gbar g
     linarith
   exact SA.Growing.writer_merged
-    (Compose.Growing.goldilocks_ac_projection sp ro dg H tr proposer hp.run hp.noColl) hx hupd
+    (Compose.Growing.goldilocks_ac_projection_from hp.run hp.noColl) hx hupd
     hy hcast hs (reset_syncACAt hp hg)
 
 /-- **The live locks at a first-successor vote are compatible with `B`**, from the stored-lock

@@ -30,7 +30,7 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 /-- Every earlier high origin is below the bounded post-drain proposal head. -/
 theorem ResetPremisesUpTo.reset_proposal_passes_at {b : Time}
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK) (hc : CatchRun tr H g (2 * sp.Δ))
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {p : Fin sp.n} {i u : Nat} (hpH : p ∈ H (tr.time i))
     (hR : drainTime sp a ≤ sp.ts u) {ell : ACLabel (goldilocksNode sp ro)}
     {d : DutyHead sp.n (List (FG.Att sp.n)) (Payload sp.n)} {pay : Payload sp.n}
@@ -42,7 +42,7 @@ theorem ResetPremisesUpTo.reset_proposal_passes_at {b : Time}
   rintro O ⟨x, r, l, ho, hrt⟩
   have hm := hp.run.time_mono
   have ht0 := hp.run.time_nonneg i
-  have hS := healthy_base_of_reset_catch_before_at hp hc ht0 hib
+  have hS := healthy_base_of_reset_catch_before_at hp ht0 hib
   have hr := hS.run.localRun
   have hΔ := sp.toParams.hΔ
   have hac := Compose.Growing.goldilocks_ac_projection sp ro dg H tr proposer hp.run hp.noColl
@@ -94,7 +94,7 @@ theorem ResetPremisesUpTo.reset_proposal_passes_at {b : Time}
   swap
   · exact below (hOF.mono hPhiU)
   have hFO := (hPhi.rooted.2 O hOt).mono hPhiU
-  have hhigh := hp.proposal_stored_locks_compatible_old_at hc hpH hR hci hcall hti hib ho hrb
+  have hhigh := hp.proposal_stored_locks_compatible_old_at hpH hR hci hcall hti hib ho hrb
   have hhigh' : SA.HighLocksCompatible (tr.HonestBlocksAt H) (tr.projAC.state p i)
       (tr.time i) s O := by simpa only [Nat.add_sub_cancel] using hhigh
   have hcut : cutZ sp.toParams g ≤ sp.ts s :=
@@ -185,7 +185,7 @@ theorem ResetPremisesUpTo.reset_proposal_passes_at {b : Time}
     refine SA.Growing.optimistic_first_proposal_anc_at hac hf hx hop hOD hpH hci
       (SA.proposal_slot hti) hd ⟨hOt, Or.inl hV⟩ ?_ hhigh' hp.stock
     intro v hv
-    obtain ⟨hvs, hsend, B, hB, hBr, hDB, hacc⟩ := fastLock_writer_at hac.localRun hx
+    obtain ⟨hvs, hsend, B, hB, hBr, hDB, hacc⟩ := fastLock_writer_at hac.localRun hac.vstart hx
       (Or.inr hop) v hv
     have hFB := hFO.trans (hOD.trans hDB)
     refine SA.Growing.heldAtProposal_of_writer_at hac.localRun
@@ -215,7 +215,7 @@ theorem ResetPremisesUpTo.reset_proposal_passes_at {b : Time}
         have hFeq : ell.frame.F = (tr.state p i).fg.F := congrArg Frame.F hframe
         have hFB' : Anc (tr.HonestBlocksAt H) (tr.state p i).fg.F B := by rwa [← hFeq]
         exact (hF.mono subU).trans hFB'
-      obtain ⟨k, hkk, hak⟩ := hc x q' B (hp.run.antitone hqq hqH) haq
+      obtain ⟨k, hkk, hak⟩ := hp.catchUp x q' B (hp.run.antitone hqq hqH) haq
         (by rw [htime]; exact not_le.mp hg) p _
         (hp.run.antitone (hfirst.1.trans (hm hki)) hpH) hfirst hBF
       have hk := hkk.le.trans hki

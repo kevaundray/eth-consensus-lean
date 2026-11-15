@@ -44,9 +44,9 @@ private theorem faulty_lt_quorum_inter {f i u v w n : Nat} (hf : 3 * f ≤ n - 1
 private theorem acRun_prefix {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK) {d : Time}
     (hd : 0 ≤ d) :
-    SA.ACRun proposer (tr.projAC.upTo d) (H d) ((tr.upTo d).HonestBlocks (H d)) := by
-  have h := Compose.goldilocks_ac_projection sp ro dg (H d) (tr.upTo d) proposer
-    (hp.run.upTo hd) (hp.noColl.upTo d)
+    SA.ACRun proposer (tr.projAC.upTo d) (H d) ((tr.upTo d).HonestBlocks (H d))
+      (SA.committeeStart sp.genesisRoot (Generic.dictOfTime sp cm)) := by
+  have h := Compose.goldilocks_ac_projection_from (hp.run.upTo hd) (hp.noColl.upTo d)
   rwa [RunTrace.upTo_projAC] at h
 
 /-- **Two optimistic sources of one label are compatible**, for writers honest at their writes

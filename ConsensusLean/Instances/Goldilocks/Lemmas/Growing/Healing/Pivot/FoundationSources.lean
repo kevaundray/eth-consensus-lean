@@ -24,7 +24,7 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 theorem result_supporter_at
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
-    (hc : CatchRun tr H g (2 * sp.Δ)) {x : Fin sp.n} {r s : Nat}
+    {x : Fin sp.n} {r s : Nat}
     (hx : x ∈ H (tr.time r))
     {B C : SA.Blk sp.n (List (FG.Att sp.n))} {CV : Set (Vote sp.n)}
     (hres : SA.ResultAt tr.projAC x r s C CV) (hBC : Anc (tr.HonestBlocksAt H) B C)
@@ -34,7 +34,7 @@ theorem result_supporter_at
   have ht0 := hp.run.time_nonneg r
   have hm := hp.run.time_mono
   have hpre := hp.run.upTo ht0
-  have hS := healthy_base_of_reset_catch_before_at hp hc ht0 hrb
+  have hS := healthy_base_of_reset_catch_before_at hp ht0 hrb
   have hΔ := sp.toParams.hΔ
   obtain ⟨ell, hu, hconf, hCV⟩ := hres
   have ht : tr.time r = sp.ts s + 6 * sp.Δ := hu.2.2.1

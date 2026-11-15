@@ -178,10 +178,10 @@ static healthy AC base of the validators honest at a read time `d ∈ [0, b]`, o
 through `d`, over the blocks they hold there. -/
 theorem healthy_base_of_reset_catch_before_at {b : Time}
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK) (hc : CatchRun tr H g (2 * sp.Δ))
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {d : Time} (hd0 : 0 ≤ d) (hdb : d ≤ b) :
     SA.HealthyBaseUpTo (tr.projAC.upTo d) (H d) ((tr.upTo d).HonestBlocks (H d)) proposer g d :=
-  healthy_base_of_service_catch_before_at hp.run hp.noColl hp.sync hp.awake hp.faults hc hd0 hdb
+  healthy_base_of_service_catch_before_at hp.run hp.noColl hp.sync hp.awake hp.faults hp.catchUp hd0 hdb
     hp.stock
 
 end Consensus.Goldilocks.Healing.Growing

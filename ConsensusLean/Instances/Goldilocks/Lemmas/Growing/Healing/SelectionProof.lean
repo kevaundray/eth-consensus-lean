@@ -36,7 +36,6 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 theorem operational_update_selection_proof_at {b : Time}
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
-    (hc : CatchRun tr H g (2 * sp.Δ))
     {p : Fin sp.n} {k u : Nat} {P : SA.Blk sp.n (List (FG.Att sp.n))}
     (hhold : p ∈ H (sp.ts u + sp.Δ)) (hdesignated : p = proposer u)
     (hactual : tr.ProposesAt p k P) (hPs : P.slot = u)
@@ -57,7 +56,7 @@ theorem operational_update_selection_proof_at {b : Time}
   have hub : sp.ts u + sp.Δ ≤ b := by linarith
   have hun : ∀ z q e, z ∈ H (tr.time q) → SA.VoteAt tr.projAC z q e → tr.time q ≤ b →
       e.msg.slot = u → e.msg.head = P.root := fun z q e hz hv hqb hs =>
-    hp.operational_unanimous_at hc hhold hdesignated hactual hPs hR (by linarith)
+    hp.operational_unanimous_at hhold hdesignated hactual hPs hR (by linarith)
       z q e hz hv hs hqb
   have hRnext := hR.trans ((SA.ts_le_iff sp).2 (show (u : Int) ≤ (u + 1 : Nat) by omega))
   have hu : 0 < u := by
@@ -89,10 +88,10 @@ theorem operational_update_selection_proof_at {b : Time}
     apply ha'.le.trans
     rw [drainTime_eq]
     exact (SA.ts_le_iff sp).2 (by push_cast; omega)
-  have hFP := finalized_below_unanimous_at_update_at hp hc hPU hPs hu hun hgu hRnext hTb hy hup
+  have hFP := finalized_below_unanimous_at_update_at hp hPU hPs hu hun hgu hRnext hTb hy hup
     (by rw [ht]; linarith [haR.trans hR])
   have hyd : y ∈ H (sp.ts u + sp.Δ) := hp.run.antitone (by rw [ht]; linarith) hy
-  obtain ⟨q, e, ⟨ellv, hv⟩, hs, hq⟩ := honest_votes_in_slot_at hp hc hgu hRnext hub y hyd
+  obtain ⟨q, e, ⟨ellv, hv⟩, hs, hq⟩ := honest_votes_in_slot_at hp hgu hRnext hub y hyd
   have hyq : y ∈ H (tr.time q) := hp.run.antitone hq hyd
   have hr :=
     (Compose.Growing.goldilocks_ac_projection sp ro dg H tr proposer hp.run hp.noColl).localRun
@@ -132,14 +131,14 @@ theorem operational_update_selection_proof_at {b : Time}
     have he := hU.1 hPU hGU heq
     have hz : Hd.slot = 0 := by rw [he]; rfl
     omega
-  have hpool := unanimous_pool_at hp hc hun hgu hRnext hy hup.1
+  have hpool := unanimous_pool_at hp hun hgu hRnext hy hup.1
     (by rw [ht]; linarith) hjb hPt
   have hts : cutZ sp.toParams g ≤ sp.ts u := hca.le.trans (haR.trans hR)
   have hvote : ∃ z q ell e, z ∈ H (tr.time q) ∧ SA.CastAt tr.projAC z q ell e ∧
       tr.time q ≤ b ∧ e.msg.slot = u := ⟨y, q, ellv, e, hyq, hv, hq.trans hub, hs⟩
-  have hlocks := hp.call_locks_compatible_of_unanimous_at hc hPU hts hun hvote hy hup.1 hjb
+  have hlocks := hp.call_locks_compatible_of_unanimous_at hPU hts hun hvote hy hup.1 hjb
     (by rw [ht]; linarith) ht.le (fun r hr B CV ho =>
-      unanimous_next_optimistic_compatible_at hp hc hPU hPs hu hun hgu hRnext hub
+      unanimous_next_optimistic_compatible_at hp hPU hPs hu hun hgu hRnext hub
         (hp.run.antitone (hp.run.time_mono hr.le) hy) ho ((hp.run.time_mono hr.le).trans hjb))
   exact ⟨hPt, hp.ready_update_selection_of_pool_at hy hjb hup hPt hPg hpool hlocks⟩
 

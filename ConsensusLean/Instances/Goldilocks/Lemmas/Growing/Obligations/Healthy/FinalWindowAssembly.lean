@@ -115,8 +115,8 @@ theorem final_window_extract_of_gap_at (Q : FinalQueryAt S A V) {c : Nat} (hc2 :
   choose P hP using fun i : Fin 4 => hpropose _ (hanc i).1 (hanc i).2.1 (hanc i).2.2
   have hδ2 : 2 ≤ Q.params.toParams.fg.δt :=
     hc2.trans ((Nat.le_mul_of_pos_left c (by decide)).trans h3c)
-  have hh₀ := seed_height_held_at hreset hc hs hδ2 hPs hu0 hRu hgu (hP 0) hus' hb₀ hgSu
-  have hsteps := anchorSteps_gap_at hreset hc hs hc2 hdel (s₀ := s₀) (P := P) hP
+  have hh₀ := seed_height_held_at hreset hs hδ2 hPs hu0 hRu hgu (hP 0) hus' hb₀ hgSu
+  have hsteps := anchorSteps_gap_at hreset hs hc2 hdel (s₀ := s₀) (P := P) hP
     hR hb3 hgS₀ hh₀
   -- the window fields
   have hready : ∀ i, Regimes.Growing.ReadyAt Q.trace H
@@ -141,7 +141,7 @@ theorem final_window_extract_of_gap_at (Q : FinalQueryAt S A V) {c : Nat} (hc2 :
     obtain ⟨-, -, -, -, -, -, -, -, -, -, -, hpr, -⟩ := hP i
     rw [hpr, Q.params.slotTime_eq]
     exact hnode
-  obtain ⟨W, hWs, hWg, hWb⟩ := finalWindow_data_of_honest_anchors_gap_at Q hreset hc hc2 h3c s₀
+  obtain ⟨W, hWs, hWg, hWb⟩ := finalWindow_data_of_honest_anchors_gap_at Q hreset hc2 h3c s₀
     hP hR hb3 (by rw [Q.params.slotTime_eq]; exact hs₀q)
     (by rw [Q.params.slotTime_eq]; simp only [SA.SAParams.ts] at h3D; push_cast at h3D ⊢
         linarith only [h3D, hΔ])

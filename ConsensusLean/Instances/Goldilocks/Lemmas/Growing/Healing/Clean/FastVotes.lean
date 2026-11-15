@@ -38,7 +38,7 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 honest at it, given the earlier votes of nodes honest at them. -/
 theorem fast_source_votes_of_domain_before_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
-    (hc : CatchRun tr H g (2 * sp.Δ)) {x : Fin sp.n} {r s : Nat} (hx : x ∈ H (tr.time r))
+    {x : Fin sp.n} {r s : Nat} (hx : x ∈ H (tr.time r))
     {B : SA.Blk sp.n (List (FG.Att sp.n))} {CV : Set (Vote sp.n)}
     (hfast : SA.FastLockAt tr.projAC x r s B CV) (hts : cutZ sp.toParams g ≤ sp.ts s)
     (hdomain : ∀ y i ell e, y ∈ H (tr.time i) → SA.CastAt tr.projAC y i ell e →
@@ -76,10 +76,10 @@ theorem fast_source_votes_of_domain_before_at {cm : Time → Finset (Fin sp.n)} 
   by_cases hfirst : e.msg.slot = s + 1
   · have hts1 : sp.ts (s + 1 : Nat) = sp.ts s + 4 * sp.Δ := SA.ts_succ s
     rw [hfirst] at htime
-    have carry := KernelProof.carry_of_senders hp hc hts hy hcast hfirst (CV := CV)
+    have carry := KernelProof.carry_of_senders hp hts hy hcast hfirst (CV := CV)
       fun v hv' => by
         obtain ⟨hvs, ⟨k, hxk, hsend, hk1, hk2⟩, D, -, hDr, hBD, hacc⟩ :=
-          fastLock_writer_at hac.localRun hx hfast v hv'
+          fastLock_writer_at hac.localRun hac.vstart hx hfast v hv'
         exact ⟨hvs, ⟨x, k, hxk, hsend, hk1, hk2⟩, D, hDr, hFB.trans hBD,
           hacc.imp_right fun ⟨k, hk⟩ => ⟨x, k, hk⟩⟩
     have hfb := KernelProof.fault_bound_late_at hp (t := tr.time i)
@@ -115,7 +115,7 @@ theorem fast_source_votes_of_domain_before_at {cm : Time → Finset (Fin sp.n)} 
       (by rw [hp.stock]
           exact hp.half_committee_at hmts (t := tr.time i)
             (by linarith only [htime, hts1, hΔ]) hib)
-      (KernelProof.honest_votes_carry_reset_at hp hc hy hcast hm hmts hall hFB)
+      (KernelProof.honest_votes_carry_reset_at hp hy hcast hm hmts hall hFB)
       ((SA.ncard_inter_full_lt_iff _ _ _).2 hfb)
       (SA.Growing.cs2_full_of_faultBoundAt hp.stock hfb)
       (by rw [← hm]; exact Or.inl hv)
@@ -125,7 +125,7 @@ theorem fast_source_votes_of_domain_before_at {cm : Time → Finset (Fin sp.n)} 
 horizon. -/
 theorem fast_source_votes_before_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
-    (hc : CatchRun tr H g (2 * sp.Δ)) {x : Fin sp.n} {r s : Nat} (hx : x ∈ H (tr.time r))
+    {x : Fin sp.n} {r s : Nat} (hx : x ∈ H (tr.time r))
     {B : SA.Blk sp.n (List (FG.Att sp.n))} {CV : Set (Vote sp.n)}
     (hfast : SA.FastLockAt tr.projAC x r s B CV)
     (hs : cleanLabel sp a + sp.k + 2 ≤ s) (hrb : tr.time r ≤ b) :
@@ -134,15 +134,15 @@ theorem fast_source_votes_before_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ
   have hm := hp.run.time_mono
   have hxU : (tr.state x r).fg.tree ⊆ tr.HonestBlocksAt H :=
     fun _ h => ⟨x, r, tr.time r, hp.run.time_nonneg r, fun _ hq => hm hq.le, hx, h⟩
-  apply hp.fast_source_votes_of_domain_before_at hc hx hfast
+  apply hp.fast_source_votes_of_domain_before_at hx hfast
     (hp.clean_window_timing_at hs s (by have := sp.two_le_k; clear * - this; omega))
   intro y i ell e hy hcast hib hsi hprior
   rcases hfast with ⟨ellX, C, hupd, hconf, hdeep, _⟩ | hop
   · have hBC := ((SA.deepest_mem hdeep).1.1.2.2).mono
       ((frame_tree_subset_at hp.run hp.noColl hx hupd.1).2.trans hxU)
-    exact ProposalImpl.result_prefix_vote_domain_before_at hp hc hx hy ⟨ellX, hupd, hconf, rfl⟩
+    exact ProposalImpl.result_prefix_vote_domain_before_at hp hx hy ⟨ellX, hupd, hconf, rfl⟩
       hBC hs hrb hcast hsi hib hprior
-  · exact hp.optimistic_vote_domain_before_at hc hx hy hop hs hrb hcast hsi hib hprior
+  · exact hp.optimistic_vote_domain_before_at hx hy hop hs hrb hcast hsi hib hprior
 
 end Consensus.Goldilocks.Healing.Growing.ResetPremisesUpTo
 

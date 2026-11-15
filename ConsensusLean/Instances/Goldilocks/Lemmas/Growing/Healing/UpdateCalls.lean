@@ -42,10 +42,9 @@ theorem ResetPremisesUpTo.update_toFG_calls_at
       SA.joined sp ((tr.upTo d).projAC.state y i) ((tr.upTo d).time i) := by
     intro i hi
     have hi' : tr.time i = d := hi
-    have hac := (Compose.goldilocks_ac_projection sp ro dg (H d) (tr.upTo d) proposer
-      hr (hp.noColl.upTo d)).localRun
+    have hac := (Compose.goldilocks_ac_projection_from hr (hp.noColl.upTo d)).localRun
     unfold SA.joined
-    rcases SA.restartTime_state hac hy i with h | ⟨r, hri, hrs, h⟩
+    rcases SA.restartTime_state hac hp.run.vstart hy i with h | ⟨r, hri, hrs, h⟩
     · rw [h]; exact bot_le
     · rw [h]
       apply WithBot.coe_le_coe.mpr

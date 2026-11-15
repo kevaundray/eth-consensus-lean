@@ -59,7 +59,7 @@ theorem restart_before_unanimous_slot_at
 /-- Every node honest at the vote deadline `t_u + Δ` of a post-drain slot votes in it by then. -/
 theorem honest_votes_in_slot_at
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK) (hc : CatchRun tr H g (2 * sp.Δ))
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {u : Nat} (hgu : SA.gbar g + 4 * sp.Δ ≤ sp.ts u)
     (hR : drainTime sp a ≤ sp.ts (u + 1 : Nat)) (hub : sp.ts u + sp.Δ ≤ b) :
     ∀ y, y ∈ H (sp.ts u + sp.Δ) → ∃ j e, SA.VoteAt tr.projAC y j e ∧ e.msg.slot = u ∧
@@ -67,7 +67,7 @@ theorem honest_votes_in_slot_at
   intro y hy
   have hΔ := sp.toParams.hΔ
   have hd0 : 0 ≤ sp.ts u + sp.Δ := by have := SA.gbar_nonneg g; linarith
-  have hS := healthy_base_of_reset_catch_before_at hp hc hd0 hub
+  have hS := healthy_base_of_reset_catch_before_at hp hd0 hub
   obtain ⟨j, e, ⟨ℓ, hcj, hej⟩, hs, hjt⟩ := SA.honest_votes_in_slot_before hS hgu le_rfl
     (fun x hx r hr hrs => by
       obtain ⟨ℓ, hcr, hrl⟩ := hrs
@@ -80,7 +80,7 @@ theorem honest_votes_in_slot_at
 /-- A high origin before a unanimous post-drain slot `u` is below its proposal `P`. -/
 theorem old_origin_below_unanimous_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
-    (hc : CatchRun tr H g (2 * sp.Δ)) {u : Nat} {P : SA.Blk sp.n (List (FG.Att sp.n))}
+    {u : Nat} {P : SA.Blk sp.n (List (FG.Att sp.n))}
     (hP : P ∈ tr.HonestBlocksAt H)
     (hun : ∀ y j e, y ∈ H (tr.time j) → SA.VoteAt tr.projAC y j e → tr.time j ≤ b →
       e.msg.slot = u → e.msg.head = P.root)
@@ -109,7 +109,7 @@ theorem old_origin_below_unanimous_at {cm : Time → Finset (Fin sp.n)} {βK : �
     rw [hne, Set.compl_empty, Set.ncard_univ, Nat.card_eq_fintype_card, Fintype.card_fin] at hf
     have := Fin.pos x
     omega
-  obtain ⟨q, e, hv, hs, hq⟩ := honest_votes_in_slot_at hp hc hgu hR hub w hw
+  obtain ⟨q, e, hv, hs, hq⟩ := honest_votes_in_slot_at hp hgu hR hub w hw
   have hwq : w ∈ H (tr.time q) := hp.run.antitone hq hw
   obtain ⟨ell, hcast⟩ := hv
   have hrb : tr.time r ≤ b := by linarith

@@ -84,7 +84,6 @@ even if advancing finalization has removed it from the filtered frame. -/
 theorem archival_record_source_after_operational_update_at {g ΔF a b : Time}
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
-    (hc : CatchRun tr H g (2 * sp.Δ))
     {p : Fin sp.n} {k u : Nat} {P : SA.Blk sp.n (List (FG.Att sp.n))}
     (hhold : p ∈ H (sp.ts u + sp.Δ)) (hdesignated : p = proposer u)
     (hactual : tr.ProposesAt p k P)
@@ -109,7 +108,7 @@ theorem archival_record_source_after_operational_update_at {g ΔF a b : Time}
     | base =>
       intro _
       obtain ⟨hPt, _, _, _, _, hrecord⟩ :=
-        operational_update_selection_at hp hc hhold hdesignated hactual hPs hR hgu hTb hy hup
+        operational_update_selection_at hp hhold hdesignated hactual hPs hR hgu hTb hy hup
       have hc' := Compose.projAC_callAt.mp hup.1
       have hlaw := hrun.cutLaw y j _ hc' hy
       have hframe : Node.frame (tr.state y (j + 1)) = ell.frame := by
@@ -136,7 +135,7 @@ theorem archival_record_source_after_operational_update_at {g ΔF a b : Time}
             hB hC (hBr.trans hCr.symm))
       rw [← hframe, hstate] at hlookup
       obtain ⟨x, q, s, CV, hx, hqj, -, hs, hsource⟩ :=
-        operational_update_recent_source_at hp hc hhold hdesignated hactual hPs hR hgu hTb hy
+        operational_update_recent_source_at hp hhold hdesignated hactual hPs hR hgu hTb hy
           hup hlookup
       refine ⟨C, ?_, hCr.trans (congrArg SA.SAState.latestConfirmed hstate), s, hs,
         Compose.Growing.originBefore_iff.2 ⟨x, q, CV, by omega, hx, hsource⟩⟩
@@ -175,7 +174,6 @@ at its own cut. -/
 theorem record_source_after_operational_update_at {g ΔF a b : Time}
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
-    (hc : CatchRun tr H g (2 * sp.Δ))
     {p : Fin sp.n} {k u : Nat} {P : SA.Blk sp.n (List (FG.Att sp.n))}
     (hhold : p ∈ H (sp.ts u + sp.Δ)) (hdesignated : p = proposer u)
     (hactual : tr.ProposesAt p k P)
@@ -190,7 +188,7 @@ theorem record_source_after_operational_update_at {g ΔF a b : Time}
     ∃ x q s CV, x ∈ H (tr.time q) ∧ q < n ∧ u ≤ s ∧
       (SA.ResultAt tr.projAC x q s R CV ∨ SA.OptimisticLockAt tr.projAC x q s R CV) := by
   obtain ⟨C, hC, hCr, s, hs, hsource⟩ :=
-    archival_record_source_after_operational_update_at hp hc hhold hdesignated hactual hPs
+    archival_record_source_after_operational_update_at hp hhold hdesignated hactual hPs
       hR hgu hTb hup hjn hnt hyt
   obtain ⟨hR, hRr⟩ := SA.lookup_eq_some hlookup
   have hsub := Compose.Growing.tree_subset_at (tr := tr) (H := H) ht0 hnt hyt

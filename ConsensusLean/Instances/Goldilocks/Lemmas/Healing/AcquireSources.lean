@@ -410,7 +410,8 @@ theorem update_locks_compatible (hrun : GoldilocksRun proposer dg H tr)
       have h := (hslow y hy r l₀.slot _ hO (hclean'.2 hf) y hy iv ℓv ev hcastv
         (hevs ▸ hjs) hvph).1
       exact down _ hLO (Or.inl (below _ fun _ => h.1))
-    · obtain ⟨r, hrk, CV, ℓw, D, hcw, hfl, hLO⟩ := stored_fast_lock_provenance hr' hy k l₀ hl₀ hf
+    · obtain ⟨r, hrk, CV, ℓw, D, hcw, hfl, hLO⟩ :=
+        stored_fast_lock_provenance hr' (fun _ => SA.voteStart_initial _) hy k l₀ hl₀ hf
       have hO : Compose.StoredFastLockAt tr y r l₀.slot (ℓw.frame.viableAncestor D) CV :=
         ⟨ℓw, D, hcw, hfl, rfl⟩
       have h := (hfast y hy r l₀.slot _ CV hO (hclean'.1 hf) y hy iv ℓv ev
@@ -439,7 +440,8 @@ theorem update_locks_compatible (hrun : GoldilocksRun proposer dg H tr)
     exact down _ hLO (Or.inl ((Anc.mono hΦwU ((SA.anc_viableAncestor ℓw.frame D).trans hDC)).trans
       hCHd))
   · -- a fast origin of a label `≥ s`: an honest counted vote of its label, `s` or `s + 1`
-    obtain ⟨r, hrk, CV, ℓw, D, hcw, hfl, hLO⟩ := stored_fast_lock_provenance hr' hy k l₀ hl₀ hf
+    obtain ⟨r, hrk, CV, ℓw, D, hcw, hfl, hLO⟩ :=
+      stored_fast_lock_provenance hr' (fun _ => SA.voteStart_initial _) hy k l₀ hl₀ hf
     have hΦwU := (SA.frameIn_of_callAt hr' hy hcw).2
     have hwt : sp.ts l₀.slot ≤ tr.time r := by
       rcases hfl with ⟨ℓ₁, C, ⟨-, -, ht₁, -⟩, -⟩ | ⟨ℓ₁, A, -, hsl₁, -⟩

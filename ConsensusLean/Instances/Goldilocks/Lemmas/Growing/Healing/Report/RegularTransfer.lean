@@ -35,7 +35,7 @@ theorem fastLock_writer_at
   have hsub := RunTrace.honestBlocks_upTo_subset (H := H) hrun.time_mono hd
   intro v hv
   obtain ⟨hvs, ⟨k, hk, hlo, hhi⟩, Hv, hHv, hroot, hDHv, hacc⟩ :=
-    Healing.fastLock_writer (acRun_upTo hrun hnc hd).localRun hx
+    Healing.fastLock_writer (acRun_upTo hrun hnc hd).localRun (acRun_upTo hrun hnc hd).vstart hx
       ((SA.upTo_fastLockAt hrun.time_mono).mpr ⟨le_rfl, hfl⟩) v hv
   obtain ⟨hkt, hk⟩ := (ac_sendOrAdmit_upTo hrun.time_mono).mp hk
   refine ⟨hvs, ⟨k, hrun.antitone hkt hx, hk, hlo, hhi⟩, Hv, hsub hHv, hroot,

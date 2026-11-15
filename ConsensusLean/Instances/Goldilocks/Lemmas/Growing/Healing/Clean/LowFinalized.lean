@@ -139,7 +139,7 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 
 /-- The FG projection's store of a reader honest at `t`, after cuts by `t`, is the run's. -/
 private theorem projFG_store_at
-    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr) {y : Fin sp.n}
+    {ini} (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr ini) {y : Fin sp.n}
     {m : Nat} {t : Time} (ht : 0 ≤ t) (hle : ∀ q < m, tr.time q ≤ t) (hy : y ∈ H t) :
     tr.projFG.store y m = (tr.state y m).fg := by
   have h := Compose.projFG_state (hrun.upTo ht).toLocalRun hy m
@@ -193,9 +193,8 @@ theorem low_finalized_below_origin_at {cm : Time → Finset (Fin sp.n)} {βK : �
   -- G1.2 at strict height, the faults counted at the later observation
   have hfg : Consensus.Goldilocks.Growing.FGLocalRun (goldilocksNode sp ro).genesisPayload H
       (tr.HonestBlocksAt H) tr.projFG :=
-    have h := SA.interface_requirements sp (List (FG.Att sp.n)) ro
     Compose.Growing.fg_projection _ _ dg H _ tr proposer
-      ⟨h.1, h.2.1, h.2.2.1, h.2.2.2, SA.proposal_payload_valid sp _ ro⟩
+      (fun y => Compose.requirements_from sp ro (hrun.vstart y))
       hrun.genesis_root_ok hrun.toLocalRun hnc
   have hH : (H (max t (tr.time i)))ᶜ.ncard < 2 * sp.toParams.fg.q - sp.toParams.n := by
     have h3 := hp.faults (max t (tr.time i)) (ht.trans (le_max_left _ _)) (max_le htb hib)

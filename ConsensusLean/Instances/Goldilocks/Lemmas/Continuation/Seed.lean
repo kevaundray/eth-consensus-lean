@@ -126,7 +126,7 @@ of that slot, cast no later than the origin's cut. -/
 private theorem origin_supporter
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
-    (hc : Healing.Growing.CatchRun tr H g (2 * sp.Δ)) {x : Fin sp.n} {i s : Nat}
+    {x : Fin sp.n} {i s : Nat}
     {O C : SA.Blk sp.n (List (FG.Att sp.n))} {OV : Set (Vote sp.n)} (hx : x ∈ H (tr.time i))
     (hib : tr.time i ≤ b)
     (hO : SA.ResultAt tr.projAC x i s O OV ∨ SA.OptimisticLockAt tr.projAC x i s O OV)
@@ -136,7 +136,7 @@ private theorem origin_supporter
   have hm := hp.run.time_mono
   rcases hO with hO | hO
   · obtain ⟨z, hz, j, hji, e, hv, -, hes, hCH⟩ :=
-      Healing.Growing.ProposalImpl.result_supporter_at hp hc hx hO hCO hib hts
+      Healing.Growing.ProposalImpl.result_supporter_at hp hx hO hCO hib hts
     exact ⟨z, j, e, hp.run.antitone (hm hji.le) hz, (hm hji.le).trans hib, hv, hes, hCH⟩
   · obtain ⟨-, z, j, hz, hji, e, hv, hes, Hd, hHd, he, hOH⟩ :=
       hp.optimistic_supporter_at hx hib hO
@@ -150,7 +150,7 @@ a time `≤ b` of a later slot extends each member. Origins from `cleanLabel + 2
 at every label (`high_origin_votes_before_at`). -/
 private theorem member_votes {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
-    (hc : Healing.Growing.CatchRun tr H g (2 * sp.Δ)) {r : Nat}
+    {r : Nat}
     (hr : r = Healing.cleanLabel sp a + sp.k + 2) {C : SA.Blk sp.n (List (FG.Att sp.n))}
     {s : Nat} (hC : HealedOrigin tr H g r (r + sp.k - 1) C s b) :
     ∀ y i e, HVoteAt tr H y i e → tr.time i ≤ b → s < e.msg.slot →
@@ -160,12 +160,12 @@ private theorem member_votes {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
   have hk := sp.two_le_k
   rcases healedOrigin_cases hC with ⟨hs, x, q, CV, hx, hqb, hO | hO⟩ | ⟨hs, x, q, hx, hqb,
     ⟨CV, hfl⟩ | hsl⟩ | ⟨x, q, hqb, ho⟩
-  · exact hp.clean_result_prefix_votes_before_at hc hx hO .refl (by omega) hqb i hib y hy ell e
+  · exact hp.clean_result_prefix_votes_before_at hx hO .refl (by omega) hqb i hib y hy ell e
       hcast hse
-  · exact hp.fast_source_votes_before_at hc hx (Or.inr hO) (by omega) hqb i hib y hy ell e
+  · exact hp.fast_source_votes_before_at hx (Or.inr hO) (by omega) hqb i hib y hy ell e
       hcast hse
-  · exact hp.fast_source_votes_before_at hc hx hfl (by omega) hqb i hib y hy ell e hcast hse
-  · exact hp.slow_source_votes_before_at hc hx hsl (by omega) hqb i hib y hy ell e hcast hse
+  · exact hp.fast_source_votes_before_at hx hfl (by omega) hqb i hib y hy ell e hcast hse
+  · exact hp.slow_source_votes_before_at hx hsl (by omega) hqb i hib y hy ell e hcast hse
   · exact hp.high_origin_votes_before_at i hib x q s C ho hqb y ell e hy hcast hse
 
 /-- **The `P` row of the healed family up to `b`**, at the hand-over floors: any two members are
@@ -177,7 +177,7 @@ below its origin. -/
 private theorem member_compatible
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
-    (hc : Healing.Growing.CatchRun tr H g (2 * sp.Δ)) {r : Nat}
+    {r : Nat}
     (hr : r = Healing.cleanLabel sp a + sp.k + 2) {C C' : SA.Blk sp.n (List (FG.Att sp.n))}
     {s s' : Nat} (hC : HealedOrigin tr H g r (r + sp.k - 1) C s b)
     (hC' : HealedOrigin tr H g r (r + sp.k - 1) C' s' b) :
@@ -193,8 +193,8 @@ private theorem member_compatible
     intro C C' s s' hC hC' hss hrs
     obtain ⟨x, i, O, OV, hx, hib, hO, hCO⟩ := member_below_origin hp.run hp.noColl hC'
     obtain ⟨z, j, e, hz, hjb, hv, hes, Hd, hHd, he, hCH⟩ :=
-      origin_supporter hp hc hx hib hO hCO (hts s' hrs)
-    obtain ⟨Hd', hHd', he', hCH'⟩ := member_votes hp hc hr hC z j e
+      origin_supporter hp hx hib hO hCO (hts s' hrs)
+    obtain ⟨Hd', hHd', he', hCH'⟩ := member_votes hp hr hC z j e
       (hVoteAt_iff.mpr ⟨hz, hv⟩) hjb (by omega)
     obtain rfl : Hd' = Hd := hU.1 hHd' hHd (he'.trans he.symm)
     exact SA.anc_total hU hCH' hCH
@@ -236,7 +236,7 @@ the split-slot timing and the record cover give the seed: the frontier is the re
 theorem HandoverSeed.of_reset {T : Time} {r σ : Nat}
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a T cm βK)
-    (hc : Healing.Growing.CatchRun tr H g (2 * sp.Δ)) (hr : r = Healing.cleanLabel sp a + sp.k + 2)
+    (hr : r = Healing.cleanLabel sp a + sp.k + 2)
     (hσ : sp.ts σ + 8 * sp.Δ ≤ T) (hrσ : r + sp.k ≤ σ + 1)
     (hcov : ∃ t₁, t₁ ≤ T ∧ ∀ y n t, t₁ ≤ t → t ≤ T → y ∈ H t → Regimes.ReadPoint tr n t →
       HealedRecordCoverAt tr H (r + sp.k - 1) y n t
@@ -254,7 +254,7 @@ theorem HandoverSeed.of_reset {T : Time} {r σ : Nat}
   have hts (s j : Nat) : sp.ts (s + j : Nat) = sp.ts ((sp.slot a : Int) + 1) +
       4 * sp.Δ * ((s : Int) + j - (sp.slot a + 1)) := by
     simp only [SAParams.ts]; push_cast; ring
-  refine ⟨⟨a, hp, hr⟩, hc, ⟨hσ, hrσ, ?_⟩, ⟨?_, ?_⟩, ?_, ?_, hcov⟩
+  refine ⟨⟨a, hp, hr⟩, hp.catchUp, ⟨hσ, hrσ, ?_⟩, ⟨?_, ?_⟩, ?_, ?_, hcov⟩
   · have h := hts (sp.slot a + 1) (sp.k + 4)
     rw [show sp.slot a + 1 + (sp.k + 4) = r by rw [hr, Healing.cleanLabel_eq]; omega] at h
     rw [h]
@@ -263,10 +263,10 @@ theorem HandoverSeed.of_reset {T : Time} {r σ : Nat}
     linarith [mul_nonneg (show (0 : Time) ≤ 4 * sp.Δ by linarith) hk]
   · rw [healedOriginsBelow_iff]
     intro C j C' j' _ _ hC hC'
-    exact member_compatible hp hc hr hC hC'
+    exact member_compatible hp hr hC hC'
   · rw [healedVotesBelow_iff]
     intro C j hC y i e hv hib hje _
-    exact member_votes hp hc hr hC y i e hv hib hje
+    exact member_votes hp hr hC y i e hv hib hje
   · intro y k att hyz hs hkT hh
     obtain ⟨q, hqk, l, O, ho, E, hE, hEO, hEr, -⟩ := hp.high_row_source_at hyz hs hh
     have hqT := (hrun.time_mono hqk.le).trans hkT
@@ -275,7 +275,7 @@ theorem HandoverSeed.of_reset {T : Time} {r σ : Nat}
         (fun _ h => hrun.time_mono h.le) hqk.le hE, hEr,
       hEO.mono fun _ h => ⟨y, q, tr.time q, hrun.time_nonneg q,
         fun _ h' => hrun.time_mono h'.le, hrun.antitone (le_max_right _ _) ho.1, h⟩⟩
-  · obtain ⟨v, q, l, S, hS, -, hqT, hheld⟩ := hp.reset_seed_held_at_call_at hc
+  · obtain ⟨v, q, l, S, hS, -, hqT, hheld⟩ := hp.reset_seed_held_at_call_at
     refine ⟨v, q, l, S, hS, hqT, fun y c ell hy hcall hc0 hcT hF =>
       hheld y c ell hy hcall ?_ hcT hF⟩
     have h := hts (sp.slot a + 1) 1
@@ -399,7 +399,7 @@ theorem handover_seed_cover_at (Q : HealthyPreparationQueryAt S A V) (h0 : 0 ≤
   have hkk : (({ S with vote := stock } : Setup).params (Model.pubOf Q.run.fst) Q.hn).k =
       (({ S with vote := AsChainShape.stock } : Setup).params (Model.pubOf Q.run.fst) Q.hn).k := rfl
   refine ⟨Healing.cleanLabel Q.params D.resetTime + Q.params.k + 2, Q.params.slot Q.bound - 2,
-    Compose.Growing.HandoverSeed.of_reset hreset (healthy_schedule_catch_at S A V Q D) rfl ?_
+    Compose.Growing.HandoverSeed.of_reset hreset rfl ?_
       (by omega) ⟨_, by linarith, hcov⟩,
     _, by linarith, by rw [hdr]; linarith [mul_le_mul_of_nonneg_right hX hΔ.le],
     by rw [hDq]; linarith, hcov⟩

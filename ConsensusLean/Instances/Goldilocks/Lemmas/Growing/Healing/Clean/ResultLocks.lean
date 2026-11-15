@@ -23,7 +23,7 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 /-- Every older live stored lock compares with a clean raw-result prefix. -/
 theorem result_prefix_stored_locks_at
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK) (hc : CatchRun tr H g (2 * sp.Δ))
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {x y : Fin sp.n} {r s i : Nat} (hx : x ∈ H (tr.time r)) (hy : y ∈ H (tr.time i))
     {B C : SA.Blk sp.n (List (FG.Att sp.n))} {CV : Set (Vote sp.n)}
     (hres : SA.ResultAt tr.projAC x r s C CV) (hBC : Anc (tr.HonestBlocksAt H) B C)
@@ -59,14 +59,14 @@ theorem result_prefix_stored_locks_at
           SA.SlowLockAt tr.projAC y q l.slot D) → Compatible (tr.HonestBlocksAt H) C D := by
       intro q D hyq hqb hsource
       obtain ⟨z, hz, j, hjr, e, ⟨ell, hcast⟩, _, hes, Hd, hHd, he, hCH⟩ :=
-        ProposalImpl.result_supporter_at hp hc hx hres .refl hrb hts
+        ProposalImpl.result_supporter_at hp hx hres .refl hrb hts
       have hzj := hp.run.antitone (hm hjr.le) hz
       have hjb := (hm hjr.le).trans hrb
       have hv : SA.VoteExtends (tr.HonestBlocksAt H) e.msg D := by
         rcases hsource with ⟨CV', hfast⟩ | hslow
-        · exact hp.fast_source_votes_before_at hc hyq hfast hclean hqb j hjb z hzj ell e
+        · exact hp.fast_source_votes_before_at hyq hfast hclean hqb j hjb z hzj ell e
             hcast (by omega)
-        · exact hp.slow_source_votes_before_at hc hyq hslow hclean hqb j hjb z hzj ell e
+        · exact hp.slow_source_votes_before_at hyq hslow hclean hqb j hjb z hzj ell e
             hcast (by omega)
       obtain ⟨Hd', hHd', he', hDH⟩ := hv
       obtain rfl : Hd' = Hd := hU.1 hHd' hHd (he'.trans he.symm)

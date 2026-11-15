@@ -31,7 +31,7 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 /-- The result-prefix reduction uses the frozen vote-domain supplier, not its row-bound helper. -/
 theorem result_prefix_vote_domain_before_of_domain_at
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK) (hc : CatchRun tr H g (2 * sp.Δ))
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hdomain : ∀ {x y v : Fin sp.n} {r i q m : Nat}
       {B S : SA.Blk sp.n (List (FG.Att sp.n))},
       x ∈ H (tr.time r) → y ∈ H (tr.time i) → B ∈ (tr.state x r).fg.tree → tr.time r ≤ b →
@@ -70,7 +70,7 @@ theorem result_prefix_vote_domain_before_of_domain_at
     have := sp.toParams.hΔ
     linarith
   obtain ⟨z, hz, q, hqr, ev, hv, _, hvs, hVB⟩ :=
-    result_supporter_at hp hc hx hres hBC hrb hts
+    result_supporter_at hp hx hres hBC hrb hts
   have hzq := hp.run.antitone (hp.run.time_mono hqr.le) hz
   have hqb := (hp.run.time_mono hqr.le).trans hrb
   obtain ⟨ellX, hupd, hconf, hCV⟩ := hres
@@ -87,7 +87,7 @@ theorem result_prefix_vote_domain_before_of_domain_at
     exact (SA.ts_le_iff sp).mpr (by omega)
   have hgs : g ≤ sp.ts s := by linarith [le_gbar g, sp.toParams.hΔ]
   apply hdomain hx hy hBx hrb hcast hib
-    (raw_writer_voterBlockTree_before_at hp hc hx hy
+    (raw_writer_voterBlockTree_before_at hp hx hy
       (Or.inl ⟨ellX, hupd, hconf, hCV⟩) hBC htiming hcast hsi)
     hseed hdb (by omega)
     (target_compatible_older_origin_at hp hseed hdb hzq hv hqb hvs hms hVB)
@@ -129,7 +129,7 @@ theorem result_prefix_vote_domain_before_of_domain_at
 /-- A result prefix has the frozen vote domain, with the finite domain supplier proved. -/
 theorem result_prefix_vote_domain_before_at
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK) (hc : CatchRun tr H g (2 * sp.Δ))
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {x y : Fin sp.n} {r s i : Nat} (hx : x ∈ H (tr.time r)) (hy : y ∈ H (tr.time i))
     {B C : SA.Blk sp.n (List (FG.Att sp.n))} {CV : Set (SA.Vote sp.n)}
     (hres : SA.ResultAt tr.projAC x r s C CV) (hBC : Anc (tr.HonestBlocksAt H) B C)
@@ -140,7 +140,7 @@ theorem result_prefix_vote_domain_before_at
       s < e'.msg.slot → SA.VoteExtends (tr.HonestBlocksAt H) e'.msg B) :
     Anc (tr.HonestBlocksAt H) B ell.frame.fcRoot ∨
       B ∈ ell.frame.viableTree (SA.voterBlockTree sp e.readPoint ell.frame e.msg.slot) := by
-  exact result_prefix_vote_domain_before_of_domain_at hp hc
+  exact result_prefix_vote_domain_before_of_domain_at hp
     (KernelProof.held_target_vote_domain_before_at hp) hx hy hres hBC hs hrb hcast hsi hib
     (fun z q e' hqi hv hslot =>
       let ⟨hz, hv⟩ := Compose.Growing.hVoteAt_iff.mp hv

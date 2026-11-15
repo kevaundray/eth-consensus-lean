@@ -258,7 +258,7 @@ theorem descendant_source_parent (hrun : GoldilocksRun proposer dg H tr)
     ⟨l₀, hl₀, B₀, hB₀, hB₀r, hlive, rfl⟩).1 hlf
   dsimp only at hclean
   obtain ⟨r, hrk, CV, ℓw, D, hcw, hfl, L₁, hL₁, hL₁r, hL₁O⟩ :=
-    stored_fast_lock_provenance hr' hy k l₀ hl₀ hlf
+    stored_fast_lock_provenance hr' hS.run.vstart hy k l₀ hl₀ hlf
   obtain rfl : B₀ = L₁ := hU.1 (hΦU hB₀) hL₁ (hB₀r.trans hL₁r.symm)
   have hO : Compose.StoredFastLockAt tr y r l₀.slot (ℓw.frame.viableAncestor D) CV :=
     ⟨ℓw, D, hcw, hfl, rfl⟩

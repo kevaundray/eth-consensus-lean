@@ -517,7 +517,7 @@ theorem clean_source_votes_before
       rcases horig with ⟨CV, hfast⟩ | hslow
       · exact SA.first_transfer_stored sp hS.run _ SA.CommitteeP.full SA.CommitteeT.full
           (SA.size_binding_full hp.stock) hx hfast .refl hy hcast hfirst
-          (sync s le_rfl) (carry CV (fastLock_writer hr hx hfast))
+          (sync s le_rfl) (carry CV (fastLock_writer hr (fun _ => SA.voteStart_initial _) hx hfast))
           ((SA.faultBoundK_full_iff _ _).2 hfault) (SA.cs2_full_of_faultBound sp hp.stock hfault)
           viab earlier
       · obtain ⟨ellX, C, hupd, hconf, hdeep⟩ := id hslow

@@ -299,14 +299,14 @@ theorem ResetPremisesUpTo.ready_update_selection_of_pool {b : Time}
 /-- An honest designated actual proposal is the unique block of its positive slot
 in every honest frame, without reset or readiness premises. -/
 theorem proposal_frame_unique
-    (hrun : GoldilocksRun proposer dg H tr) (hnc : Compose.NoCollRun dg tr)
+    {ini} (hrun : GoldilocksRun proposer dg H tr ini) (hnc : Compose.NoCollRun dg tr)
     {p : Fin sp.n} {k u : Nat} {P : SA.Blk sp.n (List (FG.Att sp.n))}
     (hpH : p ∈ H) (hdesignated : p = proposer u) (hactual : tr.ProposesAt p k P)
     (hPs : P.slot = u) (hu : 0 < u)
     {y : Fin sp.n} (hy : y ∈ H) {j : Nat} {ell : ACLabel (goldilocksNode sp ro)}
     (hcall : tr.projAC.CallAt y j ell) {Q : SA.Blk sp.n (List (FG.Att sp.n))}
     (hQ : Q ∈ ell.frame.tree) (hQu : Q.slot = u) : Q = P := by
-  have hac := Compose.goldilocks_ac_projection sp ro dg H tr proposer hrun hnc
+  have hac := Compose.goldilocks_ac_projection_from hrun hnc
   have hr := hac.localRun
   obtain ⟨_, _, _, _, _, _, _, _, _, _, _, hPprop, _, ja, _, hacc, _⟩ :=
     honestProposalRun_of_proposesAt hrun hnc hpH hdesignated hactual hPs

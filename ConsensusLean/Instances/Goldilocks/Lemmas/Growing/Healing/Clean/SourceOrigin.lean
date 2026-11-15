@@ -21,7 +21,7 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 /-- A clean raw source compares with each high origin written through the horizon. -/
 theorem clean_source_compatible_high_origin_at
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK) (hc : CatchRun tr H g (2 * sp.Δ))
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {x : Fin sp.n} {r s : Nat} (hx : x ∈ H (tr.time r))
     {C : SA.Blk sp.n (List (FG.Att sp.n))} {CV : Set (Vote sp.n)}
     (hC : SA.ResultAt tr.projAC x r s C CV ∨ SA.OptimisticLockAt tr.projAC x r s C CV)
@@ -41,7 +41,7 @@ theorem clean_source_compatible_high_origin_at
           SA.VoteExtends (tr.HonestBlocksAt H) e.msg C := by
       rcases hC with hC | hC
       · obtain ⟨z, hz, j, hjr, e, hv, _, hes, hCH⟩ :=
-          ProposalImpl.result_supporter_at hp hc hx hC .refl hrb hts
+          ProposalImpl.result_supporter_at hp hx hC .refl hrb hts
         exact ⟨z, j, hz, hjr.le, e, hv, hes, hCH⟩
       · exact (hp.optimistic_supporter_at hx hrb hC).2
     obtain ⟨z, j, hz, hjr, e, hv, hes, hCH⟩ := supporter
@@ -92,9 +92,9 @@ theorem clean_source_compatible_high_origin_at
         obtain ⟨ell, hcast⟩ := hv
         have hjb := hjq.trans hqb
         rcases hC with hC | hC
-        · exact hp.clean_result_prefix_votes_before_at hc hx hC .refl hs hrb j hjb z hzj
+        · exact hp.clean_result_prefix_votes_before_at hx hC .refl hs hrb j hjb z hzj
             ell e hcast (by omega)
-        · exact hp.fast_source_votes_before_at hc hx (Or.inr hC) hclean hrb j hjb z hzj
+        · exact hp.fast_source_votes_before_at hx (Or.inr hC) hclean hrb j hjb z hzj
             ell e hcast (by omega))
     rcases hEC with h | h
     · exact Or.inr (hDE.trans h)

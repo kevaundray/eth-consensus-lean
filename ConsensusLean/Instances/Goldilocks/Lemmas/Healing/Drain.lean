@@ -428,7 +428,8 @@ theorem live_lock_below_proposal (hrun : GoldilocksRun proposer dg H tr)
       fun z hz k' hk' e' ⟨ℓ', hc', he'⟩ hs' =>
         hext k' z hz ℓ' e' ⟨hc', he'⟩ hs' (hk.mono_right hk'.le)))
   · rw [← Compose.projAC_state hrun.toLocalRun hy] at hl₀
-    obtain ⟨r, hrk, CV, ℓ', D, hcw, hfl, hLO⟩ := stored_fast_lock_provenance hr' hy k l₀ hl₀ hf
+    obtain ⟨r, hrk, CV, ℓ', D, hcw, hfl, hLO⟩ :=
+      stored_fast_lock_provenance hr' (fun _ => SA.voteStart_initial _) hy k l₀ hl₀ hf
     have hO : Compose.StoredFastLockAt tr y r l₀.slot (ℓ'.frame.viableAncestor D) CV :=
       ⟨ℓ', D, hcw, hfl, rfl⟩
     have hj := hclean.1 hf

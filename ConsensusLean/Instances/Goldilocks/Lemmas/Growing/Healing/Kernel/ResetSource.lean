@@ -36,7 +36,7 @@ reset at or before `c_z` signs from its own entry of height `H_z + 1`, which it 
 snapshot cut, where its height is at most `H_z`. The growing form of `cutZ_lt_reset_of_snapshot`;
 no fault count. -/
 theorem cutZ_lt_reset_of_snapshot_at
-    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr)
+    {ini} (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr ini)
     (hnc : Compose.NoCollRun dg tr)
     (hsnapshot : ∃ j, FirstCutAfter tr j (cutZ sp.toParams g))
     (hR : IsReset tr H g a) : cutZ sp.toParams g < a := by

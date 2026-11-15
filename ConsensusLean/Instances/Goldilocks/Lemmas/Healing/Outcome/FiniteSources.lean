@@ -325,7 +325,8 @@ theorem ResetPremisesUpTo.fast_source_votes_of_domain_before
         apply Compose.carryAt_of_writer_window_before hr (SA.serviceWindowBefore_of_sync hS.sync)
           hgs hS.catchUp (catch_time_le hgs) hx hy hcast hfirst hib
         intro v hv
-        obtain ⟨hvs, hw, D, hD, hDr, hBD, ha⟩ := fastLock_writer hr hx hfast v hv
+        obtain ⟨hvs, hw, D, hD, hDr, hBD, ha⟩ :=
+          fastLock_writer hr (fun _ => SA.voteStart_initial _) hx hfast v hv
         exact ⟨hvs, hw, D, hD, hDr, hFB.trans hBD, ha⟩
       apply SA.first_transfer_stored sp hS.run _ SA.CommitteeP.full SA.CommitteeT.full
         (SA.size_binding_full hp.stock) hx hfast .refl hy hcast hfirst

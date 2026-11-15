@@ -141,7 +141,8 @@ private theorem rt_step
 
 /-- `restartTime_state` with the unlock given. -/
 theorem restartTime_stateU
-    {u : Nat → Set Lock} (hr : ACLocalRunU wm u H U tr) {y : Fin sp.n}
+    {ini} {u : Nat → Set Lock} (hr : ACLocalRunU wm u H U tr ini)
+    (hini : ∀ y, VoteStart sp.genesisRoot (ini y)) {y : Fin sp.n}
     (hy : y ∈ H) (i : Nat) :
     (tr.state y i).restartTime = ⊥ ∨
       ∃ k < i, tr.RestartAt y k ∧ (tr.state y i).restartTime = (tr.time k : WithBot Time) := by
@@ -149,7 +150,8 @@ theorem restartTime_stateU
   | zero =>
     left
     change (tr.init y).restartTime = ⊥
-    rw [hr.init y hy]; rfl
+    obtain ⟨m, hm⟩ := voteStart_iff.1 (hini y)
+    rw [hr.init y hy, hm]; rfl
   | succ i ih =>
     by_cases hn : tr.node i = y ∧ tr.label i ≠ none
     · obtain ⟨ℓ, hℓ⟩ := Option.ne_none_iff_exists'.1 hn.2
@@ -178,11 +180,12 @@ theorem restartTime_stateU
 
 /-- **The restart time of a state**: the state of an honest node before cut `i` has
 `restart_time = −∞`, or the time of a restart of the node at an earlier cut. -/
-theorem restartTime_state (hr : ACLocalRun (goldilocksSA sp FGP ro) H U tr) {y : Fin sp.n}
+theorem restartTime_state {ini} (hr : ACLocalRun (goldilocksSA sp FGP ro) H U tr ini)
+    (hini : ∀ y, VoteStart sp.genesisRoot (ini y)) {y : Fin sp.n}
     (hy : y ∈ H) (i : Nat) :
     (tr.state y i).restartTime = ⊥ ∨
       ∃ k < i, tr.RestartAt y k ∧ (tr.state y i).restartTime = (tr.time k : WithBot Time) :=
-  restartTime_stateU (hr := hr.toU) (y := y) (hy := hy) (i := i)
+  restartTime_stateU (hr := hr.toU) hini (y := y) (hy := hy) (i := i)
 
 end RestartTime
 
@@ -300,7 +303,8 @@ theorem joined_state {y : Fin sp.n} (hy : y ∈ H) (i : Nat)
     (ht : gbar g ≤ sp.ts ((sp.slot (tr.time i) : Int) - 1)) :
     joined sp (tr.state y i) (tr.time i) := by
   unfold joined
-  rcases restartTime_stateU hS.run.localRun hy i with h | ⟨k, -, hrk, h⟩
+  rcases restartTime_stateU hS.run.localRun (fun _ => voteStart_initial _) hy i with
+    h | ⟨k, -, hrk, h⟩
   · rw [h]; exact bot_le
   · rw [h]; exact WithBot.coe_le_coe.mpr ((hS.restart_le hy hrk).trans ht)
 

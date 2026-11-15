@@ -94,7 +94,7 @@ theorem signAt_entry (hrun : GoldilocksRun proposer dg H tr) {y : Fin sp.n} (hy 
 
 /-- An honest signed attestation comes from an actual earlier report, with its full
 entry/source witnesses. The report and signing have the same time and FG store. -/
-theorem signAt_report_entry (hrun : GoldilocksRun proposer dg H tr) {v : Fin sp.n}
+theorem signAt_report_entry {ini} (hrun : GoldilocksRun proposer dg H tr ini) {v : Fin sp.n}
     (hv : v ∈ H) {k : Nat} {a : FG.Att sp.n} (hs : tr.SignAt v k a) :
     ∃ j, k = j + 1 ∧ tr.time j = tr.time k ∧
       ∃ ℓ C E, SA.ToFGAt tr.projAC v j ℓ C ∧

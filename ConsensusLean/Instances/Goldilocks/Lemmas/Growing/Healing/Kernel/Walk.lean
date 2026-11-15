@@ -25,7 +25,7 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 /-- Stored proposal high locks compare with every high origin in the finite horizon. -/
 theorem proposal_stored_locks_compatible_old_at
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK) (hc : CatchRun tr H g (2 * sp.Δ))
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {p : Fin sp.n} {i u : Nat} (hpH : p ∈ H (tr.time i))
     (hR : drainTime sp a ≤ sp.ts u) {ell : ACLabel (goldilocksNode sp ro)}
     (hci : tr.projAC.CallAt p i ell) (hcall : ell.call = .proposal)
@@ -47,7 +47,7 @@ theorem proposal_stored_locks_compatible_old_at
     have := sp.two_le_k
     rw [Healing.cleanLabel_eq]
     omega
-  rcases WalkInputs.protected_source_compatible_high_origin_at hp hc hpr
+  rcases WalkInputs.protected_source_compatible_high_origin_at hp hpr
       (Or.inl ⟨CV, Or.inr hop⟩) hclean ((hp.run.time_mono hri.le).trans hib) ho hqb with h | h
   · exact Or.inl (hLD.trans h)
   · exact Anc.total hU hLD h

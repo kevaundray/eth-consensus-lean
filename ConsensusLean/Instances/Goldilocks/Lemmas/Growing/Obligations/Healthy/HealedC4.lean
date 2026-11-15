@@ -125,7 +125,6 @@ duty head of every proposal call at `t_{u+1}` of a node honest at that call. -/
 theorem UpTo.operational_proposal_below_next_parent_at
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
-    (hc : Healing.Growing.CatchRun tr H g (2 * sp.Δ))
     {p : Fin sp.n} {k u : Nat} {P : SA.Blk sp.n (List (FG.Att sp.n))}
     (hpH : p ∈ H (sp.ts u + Regimes.Growing.hold sp)) (hdesignated : p = proposer u)
     (hactual : tr.ProposesAt p k P) (hPs : P.slot = u) (hR : Healing.drainTime sp a ≤ sp.ts u)
@@ -174,12 +173,12 @@ theorem UpTo.operational_proposal_below_next_parent_at
     linarith
   have hun : ∀ z q e, z ∈ H (tr.time q) → SA.VoteAt tr.projAC z q e → tr.time q ≤ b →
       e.msg.slot = u → e.msg.head = P.root := fun z q e hz hv hqb hs =>
-    hp.operational_unanimous_at hc hpH hdesignated hactual hPs hR (by linarith)
+    hp.operational_unanimous_at hpH hdesignated hactual hPs hR (by linarith)
       z q e hz hv hs hqb
   have hRnext : Healing.drainTime sp a ≤ sp.ts (u + 1 : Nat) :=
     hR.trans ((SA.ts_le_iff sp).2 (show (u : Int) ≤ (u + 1 : Nat) by omega))
   -- The static AC base on the prefix through the proposal call, over the validators honest there.
-  have hS := Healing.Growing.healthy_base_of_reset_catch_before_at hp hc hi0 hib
+  have hS := Healing.Growing.healthy_base_of_reset_catch_before_at hp hi0 hib
   have hr := hS.run.localRun
   have hU := hr.coherent
   have hsub := RunTrace.honestBlocks_upTo_subset hmono (H := H) hi0
@@ -199,18 +198,18 @@ theorem UpTo.operational_proposal_below_next_parent_at
     · intro hFP
       rw [Compose.frame_of_projAC (hp.run.upTo hi0) hy hci'',
         RunTrace.upTo_state_of_le hmono le_rfl] at hFP
-      exact Healing.Growing.unanimous_head_held_at_call_at hp hc hPU hun hgu hRnext hy hci
+      exact Healing.Growing.unanimous_head_held_at_call_at hp hPU hun hgu hRnext hy hci
         (by rw [hti, hσ]; linarith) hib hFP
     · obtain ⟨x, q, m, S, ho, -, -, hqt⟩ := hp.reset_seed_before_slot_at hR
       exact ⟨x, q, m, S, ho, hqt.trans (by rw [hσ]; linarith),
-        Or.inr (Healing.Growing.old_origin_below_unanimous_at hp hc hPU hun hgu hRnext hσb ho
+        Or.inr (Healing.Growing.old_origin_below_unanimous_at hp hPU hun hgu hRnext hσb ho
           hqt)⟩
     · intro v q m O hqi ho
       have hq : tr.time q ≤ sp.ts u + 6 * sp.Δ := by
         have := hmono hqi.le
         rw [hti, hσ] at this
         linarith
-      exact (Healing.Growing.high_origin_compatible_before_update_at hp hc hPU hPs hu hun hgu
+      exact (Healing.Growing.high_origin_compatible_before_update_at hp hPU hPs hu hun hgu
         hRnext hTb ho hq).symm
   rcases hdom with hBF | hV
   · obtain ⟨_, hhead⟩ := Compose.acProposal_start_anc_head hPhi hd

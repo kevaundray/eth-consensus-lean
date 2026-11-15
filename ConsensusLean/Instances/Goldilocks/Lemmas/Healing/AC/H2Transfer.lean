@@ -59,7 +59,8 @@ theorem h2_carry_fastLock (hI : InclusionRun tr H U proposer g t₀) {x : Fin sp
   refine carryAt_of_writer_catch hr (hI.syncAC le_rfl (sp.ts j + 2 * sp.Δ)) (by
       linarith only [hj, hΔ, hg]) le_rfl
     hx hy hc hs fun v hv => ?_
-  obtain ⟨h₁, h₂, Hv, hHv, hHvr, hBHv, h₃⟩ := Healing.fastLock_writer hr hx hfl v hv
+  obtain ⟨h₁, h₂, Hv, hHv, hHvr, hBHv, h₃⟩ :=
+    Healing.fastLock_writer hr (fun _ => SA.voteStart_initial _) hx hfl v hv
   refine ⟨h₁, h₂, Hv, hHv, hHvr, hFB.trans hBHv, ?_⟩
   rcases h₃ with hgen | ⟨kw, hkw, hkwt⟩
   · exact Or.inl hgen
@@ -462,7 +463,8 @@ theorem raw_first_proposals (hI : InclusionRun tr H U proposer g t₀) {B : Blk 
       fun k CV' O hopt => fastLock_fastLock_compatible hI.toHealthyBase hx (Or.inr hopt) hX hfl
         (by linarith only [hΔ, hg, hjt])
     have hPCV : ∀ v ∈ CV, HeldAtProposal (tr.state x i) ℓ.frame j v := fun v hv => by
-      obtain ⟨h₁, h₂, h₃⟩ := Healing.fastLock_writer hr hX hfl v hv
+      obtain ⟨h₁, h₂, h₃⟩ :=
+        Healing.fastLock_writer hr (fun _ => SA.voteStart_initial _) hX hfl v hv
       exact hP hX Relation.ReflTransGen.refl v h₁ h₂ h₃
     rcases hfl with hfu | hopt
     · exact update_first_proposal hrun hX hfu hx hc hslot hprop hV hPCV

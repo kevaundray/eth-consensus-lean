@@ -74,7 +74,7 @@ theorem proposal_report_follow_at
     have hs := Trace.upTo_state tr.projAC y (d := tr.time (k + 1)) (i := k + 1)
       (fun q hq => hrun.time_mono hq.le)
     unfold SA.joined
-    rcases SA.restartTime_state hr.localRun hyc (k + 1) with h | ⟨q, _, hq, h⟩
+    rcases SA.restartTime_state hr.localRun hrun.vstart hyc (k + 1) with h | ⟨q, _, hq, h⟩
     · rw [hs] at h
       rw [h]; exact bot_le
     · rw [hs] at h

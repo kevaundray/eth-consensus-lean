@@ -205,7 +205,7 @@ theorem healthy_current_record_read_at (Q : HealthyPreparationQueryAt S A V)
   refine read_eq_record_of_current_votes_at hrun hnc C.time_nonneg C.honest C.readPoint C.awake
     C.joined C.sync C.catchup C.latest C.reset_le (fun R hR =>
       ⟨healthy_current_live_candidates_at S A V Q hb hp D C hR, ?_⟩) C.label_le C.fault
-  apply read_source_of_recent_result_at D.reset hc C.time_bound
+  apply read_source_of_recent_result_at D.reset C.time_bound
   by_cases hfc : (Node.frame (Q.trace.state (Q.run.2.ownKey v)
       (cutMap { S with vote := stock } Q.run.2 Q.hn
         (lastOwn { S with vote := stock } Q.run.2 v i)))).Anc R

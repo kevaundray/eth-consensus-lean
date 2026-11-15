@@ -102,7 +102,7 @@ theorem read_source_of_recent_result_at
     {dg : Digest (List (FG.Att sp.n)) (SA.Payload sp.n)} {g ΔF a b t : Time}
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
-    (hc : Healing.Growing.CatchRun tr H g (2 * sp.Δ)) {y : Fin sp.n} {i L : Nat}
+    {y : Fin sp.n} {i L : Nat}
     {R : SA.Blk sp.n (List (FG.Att sp.n))} (htb : t ≤ b)
     (hsource : (Node.frame (tr.state y i)).Anc R
         (SA.getAnchor sp (tr.state y i).ac (Node.frame (tr.state y i)) t) ∨
@@ -129,7 +129,7 @@ theorem read_source_of_recent_result_at
   rcases hsource with h | ⟨hv, x, r, s, C, CV, hx, hres, hRC, hrb, hts, hsL, hd, hl⟩
   · exact Or.inl h
   · exact Or.inr ⟨hv,
-      hp.latest_votes_of_recent_result_at hc hx hres hRC hrb hts hd hl htb hsL⟩
+      hp.latest_votes_of_recent_result_at hx hres hRC hrb hts hd hl htb hsL⟩
 
 variable (S : Setup) (A : ContractAssumptions S) (V : Type)
   [Fintype V] [DecidableEq V]
@@ -242,7 +242,7 @@ theorem healthy_receiver_repair_of_opening_at (Q : HealthyPreparationQueryAt S A
   intro R hlookup
   have hyj : y ∈ Q.keys (Q.trace.time j) := ht ▸ hy.1
   obtain ⟨x, q, s, CV, hx, hqj, hqt, hs, hsource⟩ :=
-    Healing.Growing.operational_update_recent_source_at D.reset hc O.held rfl O.proposes
+    Healing.Growing.operational_update_recent_source_at D.reset O.held rfl O.proposes
       O.label hR hgu hTb hyj hu hlookup
   exact ⟨x, q, s, R, CV, hx, hqj, hqt, O.old_lt.le.trans hs, hsource, .refl⟩
 

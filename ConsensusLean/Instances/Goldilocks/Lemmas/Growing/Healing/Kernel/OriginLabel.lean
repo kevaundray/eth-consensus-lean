@@ -75,7 +75,7 @@ theorem ResetPremisesUpTo.cutZ_le_ts_of_highOrigin_at
     {x : Fin sp.n} {i j : Nat} {B : SA.Blk sp.n (List (FG.Att sp.n))}
     (ho : HighOrigin tr H g x i j B) :
     cutZ sp.toParams g ≤ sp.ts j := by
-  have hac := Compose.Growing.goldilocks_ac_projection sp ro dg H tr proposer hp.run hp.noColl
+  have hac := Compose.Growing.goldilocks_ac_projection_from hp.run hp.noColl
   have hx := hp.run.antitone (le_max_right _ _) ho.1
   have hxZ := hp.run.antitone (le_max_left _ _) ho.1
   obtain ⟨CV, ell, D, hci, hfl, rfl⟩ := ho.2.2.1
@@ -87,7 +87,8 @@ theorem ResetPremisesUpTo.cutZ_le_ts_of_highOrigin_at
       hPhiTree hC⟩ : C ∈ tr.HonestBlocksAt H)
   obtain ⟨v, hv⟩ := Healing.fastLock_counted_nonempty
     (by rw [hp.stock]; exact sp.toParams.hn) hfl
-  obtain ⟨-, -, Hv, hHvU, -, hDHv, hacc⟩ := fastLock_writer_at hac.localRun hx hfl v hv
+  obtain ⟨-, -, Hv, hHvU, -, hDHv, hacc⟩ :=
+    fastLock_writer_at hac.localRun hac.vstart hx hfl v hv
   have hBHv := hBD.trans hDHv
   rcases hacc with hg | ⟨q, hxq, ⟨ellq, hcq, heq⟩, hqt⟩
   · exact (hp.not_genesis_above_at ho hHvU hBHv hg).elim

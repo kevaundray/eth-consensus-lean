@@ -157,7 +157,6 @@ of height above `h` at every holder honest at an observation time after the hold
 theorem crossed_parents_above_upTo_at {g ΔF a b : Time}
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
-    (hc : Healing.Growing.CatchRun tr H g (2 * sp.Δ))
     {z : Fin sp.n} {r : Nat} (hz : z ∈ H (tr.time r)) {ell : ACLabel (goldilocksNode sp ro)}
     {C : SA.Blk sp.n (List (FG.Att sp.n))} (hto : SA.ToFGAt tr.projAC z r ell C)
     (hR : Healing.drainTime sp a ≤ tr.time r) {h : Nat}
@@ -204,7 +203,7 @@ theorem crossed_parents_above_upTo_at {g ΔF a b : Time}
   obtain rfl : C = ell.frame.viableAncestor B :=
     hr.coherent.1 (hPhiU hCf) (hPhiU hvB.1) hlb.symm
   obtain ⟨r', hrk, CV, ℓ', D, hcr, hfl, L, hL, hLr, hLD⟩ :=
-    Healing.stored_fast_lock_provenance hr hz r l₀ hl₀' hlf
+    Healing.stored_fast_lock_provenance hr (fun _ => SA.voteStart_initial _) hz r l₀ hl₀' hlf
   rw [hr.coherent.1 hL (hPhiU hB) (hLr.trans hBr.symm)] at hLD
   obtain ⟨ell', hc', hD⟩ := Healing.fastLock_mem hfl
   obtain rfl : ell' = ℓ' := Option.some.inj (hc'.2.symm.trans hcr.2)
@@ -251,7 +250,7 @@ theorem crossed_parents_above_upTo_at {g ΔF a b : Time}
     exact ⟨dd.head, RunTrace.honestBlocks_upTo_subset hrun.time_mono h0i (hPhiPU hQt), hpar,
       hXD.trans hDQ⟩
   have hclean : l₀.slot + 2 ≤ s → Anc (tr.HonestBlocksAt H) D dd.head := fun h2 =>
-    hp.clean_source_proposal_parent_before_at hc hzr hpi (Or.inl ⟨CV, hflt⟩) hlab h2 hrb hRs
+    hp.clean_source_proposal_parent_before_at hzr hpi (Or.inl ⟨CV, hflt⟩) hlab h2 hrb hRs
       hci hcall hdd hti hib
   rcases hflt with hup | hop
   · obtain ⟨-, -, ⟨-, -, ht, -⟩, -⟩ := hup
@@ -269,7 +268,7 @@ theorem crossed_parents_above_upTo_at {g ΔF a b : Time}
     · have hsl : sp.slot (tr.time r') = l₀.slot := hop.choose_spec.choose_spec.2.1
       have hsm := SA.slot_mono sp (hrun.time_nonneg r') hrt
       obtain rfl : s = l₀.slot + 1 := by omega
-      exact hQ (hp.clean_optimistic_proposal_parent_at hc hzr hpi hop hlab hrb hRs hci hcall hdd
+      exact hQ (hp.clean_optimistic_proposal_parent_at hzr hpi hop hlab hrb hRs hci hcall hdd
         hti hib)
 
 end Consensus.Goldilocks.Obligations.Growing

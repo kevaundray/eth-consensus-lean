@@ -328,7 +328,7 @@ theorem low_seed_held (hrun : Growing.GoldilocksRun proposer dg H tr)
       ∃ c < i, tr.time c = sp.ts (r - sp.k - 3 : Nat) ∧ S ∈ (tr.state y c).fg.tree := by
   obtain ⟨a, hp, hr, hq, hqa, hga, hqd, hdT, -⟩ := hseed.reset_timing
   have hΔ := sp.toParams.hΔ
-  obtain ⟨x, q, l, S, hS, hqa', hqT, hheld⟩ := hp.reset_seed_held_at_call_at hseed.catchRun
+  obtain ⟨x, q, l, S, hS, hqa', hqT, hheld⟩ := hp.reset_seed_held_at_call_at
   have hlr : l < r := by
     obtain ⟨CV, -, D, -, hfl, -⟩ := hS.2.2.1
     have h1 := (fastLockAt_time hrun hfl).1

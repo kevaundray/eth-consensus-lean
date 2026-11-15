@@ -70,7 +70,6 @@ theorem unanimous_pool_core_at
 theorem unanimous_pool_at
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
-    (hc : CatchRun tr H g (2 * sp.Δ))
     {u : Nat} {P : SA.Blk sp.n (List (FG.Att sp.n))}
     (hun : ∀ y j e, y ∈ H (tr.time j) → SA.VoteAt tr.projAC y j e → tr.time j ≤ b →
       e.msg.slot = u → e.msg.head = P.root)
@@ -85,14 +84,14 @@ theorem unanimous_pool_at
       SA.resolutionTime (tr.projAC.state y j) ell.frame v < SA.ETime.of (sp.ts u + 2 * sp.Δ) ∧
       ∀ v' ∈ (tr.projAC.state y j).pool u, v'.val = x → v' = v := by
   apply unanimous_pool_core_at hp.run hun hgu hy hcall ht hjb hPt
-    (healthy_base_of_reset_catch_before_at hp hc (hp.run.time_nonneg j) hjb)
+    (healthy_base_of_reset_catch_before_at hp (hp.run.time_nonneg j) hjb)
   · intro k hkj hr
     exact (restart_before_unanimous_slot_at hp hR
       (hp.run.antitone (hp.run.time_mono hkj) hy) hr
       ((hp.run.time_mono hkj).trans hjb)).trans_lt ((SA.ts_lt_iff sp).2 (by omega))
   · intro x hx
     have hud : sp.ts u + sp.Δ ≤ tr.time j := by linarith [sp.toParams.hΔ]
-    exact honest_votes_in_slot_at hp hc hgu hR (hud.trans hjb) x (hp.run.antitone hud hx)
+    exact honest_votes_in_slot_at hp hgu hR (hud.trans hjb) x (hp.run.antitone hud hx)
 
 end Consensus.Goldilocks.Healing.Growing
 

@@ -24,7 +24,6 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 theorem finalized_below_unanimous_at_update_at
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
-    (hc : CatchRun tr H g (2 * sp.Δ))
     {u : Nat} {P : SA.Blk sp.n (List (FG.Att sp.n))}
     (hPU : P ∈ tr.HonestBlocksAt H) (hPs : P.slot = u) (hu : 0 < u)
     (hun : ∀ y j e, y ∈ H (tr.time j) → SA.VoteAt tr.projAC y j e → tr.time j ≤ b →
@@ -41,7 +40,7 @@ theorem finalized_below_unanimous_at_update_at
   have hle : ∀ k < j, tr.time k ≤ tr.time j := fun k hk => hm hk.le
   have hU := Compose.Growing.honest_blocks_coherent hp.run hp.noColl
   have ht : tr.time j = sp.ts u + 6 * sp.Δ := hup.2.2.1
-  have hFR := finalized_compatible_before_update_at hp hc hPU hPs hu hun hgu hR hTb hy ha ht.le
+  have hFR := finalized_compatible_before_update_at hp hPU hPs hu hun hgu hR hTb hy ha ht.le
   have hreach := fg_reachable_at hp.run hd hle hy
   have hFt := (Store.cache_invariants _ _ _ _ hreach).1
   have hsub : (tr.state y j).fg.tree ⊆ tr.HonestBlocksAt H :=

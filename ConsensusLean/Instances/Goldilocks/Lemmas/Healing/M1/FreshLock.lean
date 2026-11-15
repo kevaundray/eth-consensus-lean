@@ -47,7 +47,7 @@ theorem honest_votes_of_joined_before (hS : HealthyBaseUpTo tr H U proposer g b)
     ⟨4 * u + 1, by simp only [SAParams.ts]; ring⟩ (hS.awake x hx _ (by linarith) hub)
   have hj : joined sp (tr.state x c) (tr.time c) := by
     unfold joined
-    rcases restartTime_state hr hx c with h | ⟨r, hrc, hrs, h⟩
+    rcases restartTime_state hr (fun _ => voteStart_initial _) hx c with h | ⟨r, hrc, hrs, h⟩
     · rw [h]; exact bot_le
     · rw [h]
       apply WithBot.coe_le_coe.mpr

@@ -69,7 +69,7 @@ private theorem row_source_static {H₀ : Set (Fin sp.n)} {tr₀ : GoldilocksTra
   obtain ⟨hCv, l, hl, hlb, hlf, -⟩ := SA.toFG_candidate hC'
   obtain ⟨l₀, hl₀, B₀, hB₀, hB₀r, -, rfl⟩ := hl
   obtain ⟨r, hrd, CV, ℓw, D, hcw, hfl, L, hL, hLr, hLO⟩ :=
-    Healing.stored_fast_lock_provenance hr hv d' l₀ hl₀ hlf
+    Healing.stored_fast_lock_provenance hr hacr.vstart hv d' l₀ hl₀ hlf
   obtain ⟨hΦ, hΦU⟩ := SA.frameIn_of_callAt hr hv hpc
   obtain ⟨hΦw, -⟩ := SA.frameIn_of_callAt hr hv hcw
   have hCt : C ∈ ℓ.frame.tree := hCv.1

@@ -165,8 +165,8 @@ theorem sync_window_before_forward
       (A := goldilocksSA sp FGP ro)).mp hjr).2) hdl hslot hp'
   simpa only [hs] using h
 
-theorem sync_forward
-    (hr : Goldilocks.Growing.ACLocalRun (goldilocksSA sp FGP ro) H U tr)
+theorem sync_forward {ini}
+    (hr : Goldilocks.Growing.ACLocalRun (goldilocksSA sp FGP ro) H U tr ini)
     {a b : Time} (hsync : SyncACAt (goldilocksSA sp FGP ro) H U a b tr)
     {y X : Fin sp.n} {k : Nat} {v : Vote sp.n} (hy : y ∈ H (tr.time k))
     (hsend : tr.SendOrAdmit y k v) (ha : a ≤ tr.time k) (hb : tr.time k ≤ b)

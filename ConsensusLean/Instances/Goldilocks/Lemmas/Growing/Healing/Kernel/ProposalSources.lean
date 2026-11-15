@@ -71,7 +71,7 @@ theorem ResetPremisesUpTo.held_high_origin_viable_at
 /-- Post-drain live high locks are compatible with each bounded high origin. -/
 theorem ResetPremisesUpTo.proposal_stored_locks_compatible_old_at
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK) (hc : CatchRun tr H g (2 * sp.Δ))
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {p : Fin sp.n} {i u : Nat} (hpH : p ∈ H (tr.time i))
     (hR : drainTime sp a ≤ sp.ts u) {ell : ACLabel (goldilocksNode sp ro)}
     (hci : tr.projAC.CallAt p i ell) (hcall : ell.call = .proposal)
@@ -80,7 +80,7 @@ theorem ResetPremisesUpTo.proposal_stored_locks_compatible_old_at
     (ho : HighOrigin tr H g x q j O) (hqb : tr.time q ≤ b) :
     SA.HighLocksCompatible (tr.HonestBlocksAt H) (tr.projAC.state p i)
       (tr.time i) (u - 1) O := by
-  exact ProposalImpl.proposal_stored_locks_compatible_old_at hp hc hpH hR hci hcall hti hib ho hqb
+  exact ProposalImpl.proposal_stored_locks_compatible_old_at hp hpH hR hci hcall hti hib ho hqb
 
 end Consensus.Goldilocks.Healing.Growing
 
