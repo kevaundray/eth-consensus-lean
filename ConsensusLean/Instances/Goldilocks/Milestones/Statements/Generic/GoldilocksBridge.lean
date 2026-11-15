@@ -59,6 +59,8 @@ def goldilocksACHealing (sp : SAParams) (ro : ReplayOrder sp (List (FG.Att sp.n)
 
 /-- INCOMPLETE intended Goldilocks local supplier, not a completed specialisation.
 Local duration, threshold, outage-policy, service and payload equations remain open.
+The margin bound fits the smallest positive recurrence index:
+`18Δ + 2 ≤ (4X + 14)Δ + 2` for every `X ≥ 1`. It supplies no margin equality.
 The healing equation below supplies neither recovery matching nor evidence for
 `OutageReadPoint.protection`. A witness alone does not fix Goldilocks data.
 The original local field equations also remain open; no supplier evidence is inferred.
@@ -66,7 +68,7 @@ The ready-majority counterpattern is not discharged by this skeleton. -/
 def goldilocksACCorrectLocal (sp : SAParams) (ro : ReplayOrder sp (List (FG.Att sp.n)))
     (_hδ : 3 ≤ sp.toParams.δt) : Prop :=
   ∃ C : ACCorrectLocal (goldilocksNode sp ro) (fun v => v.val),
-    GoldilocksHealingData sp ro C.healing
+    GoldilocksHealingData sp ro C.healing ∧ C.margin ≤ 18 * sp.Δ + 2
 
 end Consensus.Goldilocks.Generic
 

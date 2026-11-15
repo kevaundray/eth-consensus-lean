@@ -217,7 +217,7 @@ def HighCanonicalSupply (M : RunMap rho payload) (K : Contract ProgressReq)
 `healthy_preparation_reset_at`. Committee transport and delay fit remain required;
 the final-query deadline supplier is not this full-horizon assembly. -/
 def PreparationPremisesSupply (M : RunMap rho payload) (K : Contract ProgressReq) : Prop :=
-  rho.ExecutionValid → ¬ rho.HashCollision → ∀ cap idx gst,
+  HealthyBetaFit K → rho.ExecutionValid → ¬ rho.HashCollision → ∀ cap idx gst,
   (cap = .available ∨ cap = .stable) →
   (Sys F V).Healthy (shapeProgress F V).toExternal K gst ⟨E, rho⟩ →
   (Sys F V).prog (shapeProgress F V) K cap idx ((Sys F V).ready K gst ⟨E, rho⟩)
