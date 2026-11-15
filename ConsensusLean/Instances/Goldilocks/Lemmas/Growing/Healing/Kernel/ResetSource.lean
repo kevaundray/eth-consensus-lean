@@ -80,7 +80,8 @@ theorem cutZ_lt_reset_of_snapshot_at
 
 /-- Finite reset premises suffice; the snapshot is observed before their horizon. -/
 theorem ResetPremisesUpTo.cutZ_lt_reset_at
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b) : cutZ sp.toParams g < a :=
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK) : cutZ sp.toParams g < a :=
   let ⟨j, hj, _⟩ := hp.snapshot
   cutZ_lt_reset_of_snapshot_at hp.run hp.noColl ⟨j, hj⟩ hp.reset
 

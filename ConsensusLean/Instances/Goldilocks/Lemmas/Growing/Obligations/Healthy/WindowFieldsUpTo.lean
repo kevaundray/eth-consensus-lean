@@ -30,7 +30,8 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 /-- **Window fields from four honest anchors**: proposal cuts with the proposals, the proposer's
 acceptances, the post-store as the proposer's next state, and the chain. -/
 theorem finalWindow_fields_of_honest_anchors_at
-    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : Healing.Growing.CatchRun tr H g (2 * sp.Δ)) {s : Fin 4 → Nat}
     {P : Fin 4 → SA.Blk sp.n (List (FG.Att sp.n))}
     (hP : ∀ i, Healing.Growing.HonestProposalRun tr H proposer (s i) (P i)) (hs : StrictMono s)
@@ -74,7 +75,8 @@ theorem strictMono_cut_of_proposesAt_at
 /-- **Window cut fields from four honest anchors**, with the cut times, `ordered`, `fresh` (from
 `hq`) and `bounded` (from `hD`). -/
 theorem finalWindow_cuts_of_honest_anchors_at
-    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : Healing.Growing.CatchRun tr H g (2 * sp.Δ)) {s : Fin 4 → Nat}
     {P : Fin 4 → SA.Blk sp.n (List (FG.Att sp.n))}
     (hP : ∀ i, Healing.Growing.HonestProposalRun tr H proposer (s i) (P i)) (hs : StrictMono s)
@@ -117,7 +119,8 @@ variable {S : Setup} {A : ContractAssumptions S} {V : Type} [Fintype V] [Decidab
 theorem finalWindow_data_of_honest_anchors_gap_at (Q : FinalQueryAt S A V)
     {proposer : Nat → Fin Q.params.n}
     {dg : Digest (List (FG.Att Q.params.n)) (Payload Q.params.n)} {g ΔF a b : Time}
-    (hp : Healing.Growing.ResetPremisesUpTo Q.trace Q.keys proposer dg g ΔF a b)
+    {cm : Time → Finset (Fin Q.params.n)} {βK : ℚ}
+    (hp : Healing.Growing.ResetPremisesUpTo Q.trace Q.keys proposer dg g ΔF a b cm βK)
     (hc : Healing.Growing.CatchRun Q.trace Q.keys g (2 * Q.params.Δ)) {c : Nat}
     (hc2 : 2 ≤ c) (h3c : 3 * c ≤ S.δt) (start : Nat)
     {P : Fin 4 → SA.Blk Q.params.n (List (FG.Att Q.params.n))}

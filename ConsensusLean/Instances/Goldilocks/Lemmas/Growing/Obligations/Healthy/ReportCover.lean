@@ -83,7 +83,8 @@ private theorem frame_subset_at (hrun : Consensus.Goldilocks.Growing.GoldilocksR
 
 /-- **The unanimous head is held at a later call** of a node honest at it, when the call's finality
 is below the head: the node's own slot-`u` vote names `P`, held from then on. -/
-theorem unanimous_head_held_at_call_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+theorem unanimous_head_held_at_call_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : CatchRun tr H g (2 * sp.Δ)) {u : Nat} {P : SA.Blk sp.n (List (FG.Att sp.n))}
     (hP : P ∈ tr.HonestBlocksAt H)
     (hun : ∀ y j e, y ∈ H (tr.time j) → SA.VoteAt tr.projAC y j e → tr.time j ≤ b →
@@ -126,7 +127,8 @@ theorem unanimous_head_held_at_call_at (hp : ResetPremisesUpTo tr H proposer dg 
 extends it**, at a call of a node honest at it and at `c_z` by the horizon, when the target is
 compatible with every earlier high origin. The reporter is honest at its report and at `c_z`:
 the call is after `c_z`, as the caller holds the target above the seed. -/
-theorem held_target_viable_or_higher_report_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+theorem held_target_viable_or_higher_report_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {y v : Fin sp.n} {i q m : Nat} (hyz : y ∈ H (max (cutZ sp.toParams g) (tr.time i)))
     {ell : ACLabel (goldilocksNode sp ro)} (hcall : tr.projAC.CallAt y i ell)
     (hib : tr.time i ≤ b) {P S : SA.Blk sp.n (List (FG.Att sp.n))}
@@ -196,7 +198,8 @@ theorem held_target_viable_or_higher_report_at (hp : ResetPremisesUpTo tr H prop
 earlier higher report**: the update of a node honest at `t_u + 6Δ` holds `P`, above a reset seed
 and compatible with every earlier high origin. -/
 theorem unanimous_viable_or_higher_report_at
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b) (hc : CatchRun tr H g (2 * sp.Δ))
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK) (hc : CatchRun tr H g (2 * sp.Δ))
     {u : Nat} {P : SA.Blk sp.n (List (FG.Att sp.n))} (hP : P ∈ tr.HonestBlocksAt H)
     (hslot : P.slot = u) (hu : 0 < u)
     (hun : ∀ y j e, y ∈ H (tr.time j) → SA.VoteAt tr.projAC y j e → tr.time j ≤ b →
@@ -240,7 +243,8 @@ theorem unanimous_viable_or_higher_report_at
 /-- **Finite deadline alternative**: finality at a cut after the reset, by the update deadline, is
 below `P`, or an earlier report extends `P` with a strictly greater height. -/
 theorem finality_alternative_before_update_at
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b) (hc : CatchRun tr H g (2 * sp.Δ))
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK) (hc : CatchRun tr H g (2 * sp.Δ))
     {u : Nat} {P : SA.Blk sp.n (List (FG.Att sp.n))} (hP : P ∈ tr.HonestBlocksAt H)
     (hslot : P.slot = u) (hu : 0 < u)
     (hun : ∀ y j e, y ∈ H (tr.time j) → SA.VoteAt tr.projAC y j e → tr.time j ≤ b →
@@ -263,7 +267,8 @@ theorem finality_alternative_before_update_at
 
 /-- **A full viable unanimous pool at an update gives a report** at or before the adjacent
 `ac_to_fg` call, for a node honest at the update. -/
-theorem report_of_viable_unanimous_pool_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+theorem report_of_viable_unanimous_pool_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {y : Fin sp.n} {j u : Nat} (hy : y ∈ H (tr.time j)) (hjb : tr.time j ≤ b)
     {ell ell' : ACLabel (goldilocksNode sp ro)} {P : SA.Blk sp.n (List (FG.Att sp.n))}
     (hu : SA.UpdateAt tr.projAC y j u ell)
@@ -293,7 +298,8 @@ theorem report_of_viable_unanimous_pool_at (hp : ResetPremisesUpTo tr H proposer
 /-- **Reports above a unanimous post-drain proposal `P` of slot `u` by `t_u + 6Δ`** under growing
 faults: every node honest at `t_u + 6Δ` reports a descendant of `P` by then, or a node honest at
 its report and at `c_z` reports a strict height increase above `P`. -/
-theorem report_cover_of_unanimous_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+theorem report_cover_of_unanimous_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : CatchRun tr H g (2 * sp.Δ)) {u : Nat} {P : SA.Blk sp.n (List (FG.Att sp.n))}
     (hP : P ∈ tr.HonestBlocksAt H) (hslot : P.slot = u) (hu : 0 < u)
     (hPg : P.root ≠ sp.genesisRoot)

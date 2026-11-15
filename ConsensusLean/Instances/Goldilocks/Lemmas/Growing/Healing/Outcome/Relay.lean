@@ -18,7 +18,8 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
   {H : Time → Set (Fin sp.n)} {tr : GoldilocksTrace sp ro} {g ΔF a b : Time}
 
 /-- An acceptance is relayed without requiring its sender to remain honest at the read. -/
-theorem accept_mem_frame (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+theorem accept_mem_frame {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : CatchRun tr H g (2 * sp.Δ))
     {x y : Fin sp.n} {q j : Nat} {B : SA.Blk sp.n (List (FG.Att sp.n))}
     (hx : x ∈ H (tr.time q)) (hy : y ∈ H (tr.time j))

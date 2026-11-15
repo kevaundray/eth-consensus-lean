@@ -36,7 +36,8 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 
 /-- A bounded clean source, written by a node honest at its write, is below the head of an actual
 later-label cast of a node honest at it. The cast's head is supplied explicitly. -/
-theorem clean_source_below_cast_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+theorem clean_source_below_cast_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : CatchRun tr H g (2 * sp.Δ))
     {x y : Fin sp.n} {r s i : Nat} (hx : x ∈ H (tr.time r)) (hy : y ∈ H (tr.time i))
     {B P : SA.Blk sp.n (List (FG.Att sp.n))}
@@ -58,7 +59,8 @@ theorem clean_source_below_cast_at (hp : ResetPremisesUpTo tr H proposer dg g Δ
 /-- **Through the update deadline, normalized live locks compare with the unanimous head**, at a
 call of a node honest at it. Older and same-label source ancestry are derived from actual bounded
 votes. -/
-theorem call_locks_compatible_of_unanimous_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+theorem call_locks_compatible_of_unanimous_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : CatchRun tr H g (2 * sp.Δ)) {u : Nat} {P : SA.Blk sp.n (List (FG.Att sp.n))}
     (hPU : P ∈ tr.HonestBlocksAt H) (hts : cutZ sp.toParams g ≤ sp.ts u)
     (hun : ∀ z q e, z ∈ H (tr.time q) → SA.VoteAt tr.projAC z q e → tr.time q ≤ b →

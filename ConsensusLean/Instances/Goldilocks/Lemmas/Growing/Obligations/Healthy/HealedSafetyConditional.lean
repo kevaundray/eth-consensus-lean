@@ -1,4 +1,5 @@
 module
+public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Simulation.RunCommittee
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Obligations.Healthy.RepairDefs
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Healing.Retention.Defs
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Healing.Kernel.ResetSource
@@ -99,7 +100,8 @@ theorem read_source_of_recent_result_at
     {sp : SA.SAParams} {ro : SA.ReplayOrder sp (List (FG.Att sp.n))}
     {tr : GoldilocksTrace sp ro} {H : Time → Set (Fin sp.n)} {proposer : Nat → Fin sp.n}
     {dg : Digest (List (FG.Att sp.n)) (SA.Payload sp.n)} {g ΔF a b t : Time}
-    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : Healing.Growing.CatchRun tr H g (2 * sp.Δ)) {y : Fin sp.n} {i L : Nat}
     {R : SA.Blk sp.n (List (FG.Att sp.n))} (htb : t ≤ b)
     (hsource : (Node.frame (tr.state y i)).Anc R
@@ -171,7 +173,8 @@ theorem healthy_repair_schedule_of_reset_at
     (hreset : Healing.Growing.ResetPremisesUpTo Q.trace Q.keys
       (runProposer { S with vote := stock } Q.run.2 Q.hn)
       (digestOf { S with vote := stock } Q.run.2)
-      Q.gst ΔF a Q.bound)
+      Q.gst ΔF a Q.bound
+        (runCommittee { S with vote := stock } Q.run.2 Q.hn) (K S A).params.βK)
     (hreserve : max Q.ready (Healing.drainTime Q.params a) +
       (4 * (Q.index : Time) + 6) * Q.params.Δ < Q.heal - 1) :
     ∃ D : HealthyRepairScheduleAt S A V Q,

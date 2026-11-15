@@ -68,7 +68,8 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 faults at `t` are fewer than the validators honest at `t` that are awake and joined at `t` in
 the AC projection (the run's joined test is the projection's, `Compose.joined_projection` on the
 prefix through `t`). -/
-theorem fault_bound_late_at {b : Time} (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+theorem fault_bound_late_at {b : Time} {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {t : Time} (ht : cutZ sp.toParams g ≤ t) (htb : t ≤ b) :
     SA.FaultBoundAt tr.projAC H t t := by
   have hΔ : (0 : Int) < sp.Δ := sp.toParams.hΔ
@@ -188,7 +189,8 @@ theorem castAt_facts_at (hrun : Consensus.Goldilocks.Growing.GoldilocksRun propo
 /-- **The reset service gives AC synchrony** on every source window from the GST on, with each
 sender honest at its send or acceptance and each recipient at its call (the growing form of
 `Healing.ResetService.syncAC`). -/
-theorem reset_syncACAt (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b) {lo hi : Time}
+theorem reset_syncACAt {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK) {lo hi : Time}
     (hg : g ≤ lo) :
     SyncACAt (goldilocksNode sp ro) H (tr.HonestBlocksAt H) lo hi tr.projAC := by
   have hrun := hp.run
@@ -273,7 +275,8 @@ its slot-`(s+1)` vote, the slot-`s` votes each sent or admitted at a time in `[t
 a node honest then, with heads above the voter's `Σ.F` that are genesis or accepted while honest
 before `t_s + 2Δ`. Each delivery comes from the reset service, a pre-GST acceptance from the
 catch-up; the voter's side is read on the prefix through its vote. -/
-theorem carry_of_senders (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+theorem carry_of_senders {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hcatch : CatchRun tr H g (2 * sp.Δ)) {s : Nat} (hts : cutZ sp.toParams g ≤ sp.ts s)
     {y : Fin sp.n} {i : Nat} {ℓ : ACLabel (goldilocksNode sp ro)}
     {e : SA.Em sp (List (FG.Att sp.n))} (hy : y ∈ H (tr.time i))
@@ -340,7 +343,8 @@ theorem carry_of_senders (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
 /-- **A result's counted votes reach the next voters after the reset's cut** (`Carry_y`): the
 writer honest at its update, the voter at its slot-`(s+1)` vote, with the voter's `Σ.F` at or
 below the result. -/
-theorem result_carry_reset_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+theorem result_carry_reset_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : CatchRun tr H g (2 * sp.Δ)) {x : Fin sp.n} {r s : Nat}
     {C : SA.Blk sp.n (List (FG.Att sp.n))} {CV : Set (Vote sp.n)} (hx : x ∈ H (tr.time r))
     (hres : SA.ResultAt tr.projAC x r s C CV) (hts : cutZ sp.toParams g ≤ sp.ts s)
@@ -357,7 +361,8 @@ theorem result_carry_reset_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b
 /-- **The label-`m` votes of nodes honest at them, all extending `B`, reach a label-`(m+1)` vote
 above `B`** after the reset's cut (`Carry_y`): each vote is its own voter's, sent at its cast
 within `Δ` of `t_m`, with its head in its frame, accepted by its voter while honest. -/
-theorem honest_votes_carry_reset_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+theorem honest_votes_carry_reset_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : CatchRun tr H g (2 * sp.Δ)) {y : Fin sp.n} {i m : Nat}
     {ℓ : ACLabel (goldilocksNode sp ro)} {e : SA.Em sp (List (FG.Att sp.n))}
     (hy : y ∈ H (tr.time i)) (hcast : SA.CastAt tr.projAC y i ℓ e) (hm : e.msg.slot = m + 1)
@@ -396,7 +401,8 @@ theorem honest_votes_carry_reset_at (hp : ResetPremisesUpTo tr H proposer dg g �
 /-- **The next-label voter's merged view of label `s` is in the writer's pool** or names an
 equivocator of it, after the reset's cut: the writer-pool merge under the AC synchrony from
 `t_s` that the reset service gives. -/
-theorem writer_merged_reset_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+theorem writer_merged_reset_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {x : Fin sp.n} {r s : Nat} {C : SA.Blk sp.n (List (FG.Att sp.n))} {CV : Set (Vote sp.n)}
     (hx : x ∈ H (tr.time r)) (hres : SA.ResultAt tr.projAC x r s C CV)
     (hts : cutZ sp.toParams g ≤ sp.ts s) {y : Fin sp.n} {i : Nat}

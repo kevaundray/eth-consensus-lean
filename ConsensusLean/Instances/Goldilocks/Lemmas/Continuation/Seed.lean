@@ -1,4 +1,5 @@
 module
+public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Simulation.RunCommittee
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Continuation.Defs
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Healing.Retention.Defs
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Obligations.Healthy.HealedSafetyConditional
@@ -52,6 +53,8 @@ open SA (SAParams ReplayOrder Vote Payload)
 
 variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 
+variable {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+
 /-- **The hand-over seed**: the healthy facts up to `T` from the reset `a`, with the lock floor
 `r = cleanLabel a + k + 2`, the origin floor `r + k − 1`, and the split slot `σ`.
 
@@ -69,8 +72,9 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
   is its finalized block or below an origin of label `≥ r + k − 1` written before the read. -/
 structure HandoverSeed (tr : GoldilocksTrace sp ro) (H : Time → Set (Fin sp.n))
     (proposer : Nat → Fin sp.n) (dg : Digest (List (FG.Att sp.n)) (Payload sp.n))
-    (g ΔF T : Time) (r σ : Nat) : Prop where
-  reset : ∃ a, Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a T ∧
+    (g ΔF T : Time) (r σ : Nat)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ} : Prop where
+  reset : ∃ a, Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a T cm βK ∧
     r = Healing.cleanLabel sp a + sp.k + 2
   catchRun : Healing.Growing.CatchRun tr H g (2 * sp.Δ)
   timing : sp.ts σ + 8 * sp.Δ ≤ T ∧ r + sp.k ≤ σ + 1 ∧ SA.gbar g + 20 * sp.Δ ≤ sp.ts r
@@ -120,7 +124,8 @@ private theorem member_below_origin (hrun : Growing.GoldilocksRun proposer dg H 
 /-- A block below an origin of a label after the high-origin cutoff has an honest supporting vote
 of that slot, cast no later than the origin's cut. -/
 private theorem origin_supporter
-    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : Healing.Growing.CatchRun tr H g (2 * sp.Δ)) {x : Fin sp.n} {i s : Nat}
     {O C : SA.Blk sp.n (List (FG.Att sp.n))} {OV : Set (Vote sp.n)} (hx : x ∈ H (tr.time i))
     (hib : tr.time i ≤ b)
@@ -143,7 +148,8 @@ a time `≤ b` of a later slot extends each member. Origins from `cleanLabel + 2
 (`clean_result_prefix_votes_before_at`, `fast_source_votes_before_at`), lock writes from
 `cleanLabel + k + 2` (`fast_source_votes_before_at`, `slow_source_votes_before_at`), high origins
 at every label (`high_origin_votes_before_at`). -/
-private theorem member_votes (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b)
+private theorem member_votes {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : Healing.Growing.CatchRun tr H g (2 * sp.Δ)) {r : Nat}
     (hr : r = Healing.cleanLabel sp a + sp.k + 2) {C : SA.Blk sp.n (List (FG.Att sp.n))}
     {s : Nat} (hC : HealedOrigin tr H g r (r + sp.k - 1) C s b) :
@@ -169,7 +175,8 @@ supporter of the later member's origin extends both (the earlier member by its `
 label the two underlying origins compare (`sources_same_label_compatible_at`) and each member is
 below its origin. -/
 private theorem member_compatible
-    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : Healing.Growing.CatchRun tr H g (2 * sp.Δ)) {r : Nat}
     (hr : r = Healing.cleanLabel sp a + sp.k + 2) {C C' : SA.Blk sp.n (List (FG.Att sp.n))}
     {s s' : Nat} (hC : HealedOrigin tr H g r (r + sp.k - 1) C s b)
@@ -227,14 +234,15 @@ the split-slot timing and the record cover give the seed: the frontier is the re
 `reset_seed_held_at_call_at` (`t_{slot a + 2} ≥ a + Δ`); the count start follows from
 `c_z < a`. -/
 theorem HandoverSeed.of_reset {T : Time} {r σ : Nat}
-    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a T)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a T cm βK)
     (hc : Healing.Growing.CatchRun tr H g (2 * sp.Δ)) (hr : r = Healing.cleanLabel sp a + sp.k + 2)
     (hσ : sp.ts σ + 8 * sp.Δ ≤ T) (hrσ : r + sp.k ≤ σ + 1)
     (hcov : ∃ t₁, t₁ ≤ T ∧ ∀ y n t, t₁ ≤ t → t ≤ T → y ∈ H t → Regimes.ReadPoint tr n t →
       HealedRecordCoverAt tr H (r + sp.k - 1) y n t
         ((SA.lookup (Node.frame (tr.state y n)) (tr.state y n).ac.latestConfirmed).getD
           (tr.state y n).fg.F)) :
-    HandoverSeed tr H proposer dg g ΔF T r σ := by
+    HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK) := by
   have hrun := hp.run
   have hΔ := sp.toParams.hΔ
   have hca := hp.cutZ_lt_reset_at
@@ -281,7 +289,8 @@ theorem HandoverSeed.of_reset {T : Time} {r σ : Nat}
 `drainTime a = t_{r+k}`; the read point's locks expire at most `k` slots after their labels
 (`castAt_readPoint_locksWF`), so `drain_live_locks` applies. -/
 theorem handover_live_lock_label_at {T : Time} {r σ : Nat}
-    (hseed : HandoverSeed tr H proposer dg g ΔF T r σ) {y : Fin sp.n} {i : Nat}
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hseed : HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK)) {y : Fin sp.n} {i : Nat}
     {ℓ : ACLabel (goldilocksNode sp ro)} {e : SA.Em sp (List (FG.Att sp.n))}
     (hy : y ∈ H (tr.time i)) (hc : SA.CastAt tr.projAC y i ℓ e) (hs : σ < e.msg.slot) :
     ∀ l ∈ SA.liveLocks sp e.readPoint.locks ℓ.frame (tr.time i), r ≤ l.slot := by
@@ -328,7 +337,9 @@ theorem handover_seed_cover_at (Q : HealthyPreparationQueryAt S A V) (h0 : 0 ≤
     ∃ r σ, Compose.Growing.HandoverSeed Q.trace Q.keys
         (runProposer { S with vote := stock } Q.run.2 Q.hn)
         (digestOf { S with vote := stock } Q.run.2) Q.gst
-        (protoFGDelay (Model.pubOf Q.run.1)) Q.bound r σ ∧
+        (protoFGDelay (Model.pubOf Q.run.1)) Q.bound r σ
+        (cm := runCommittee { S with vote := stock } Q.run.2 Q.hn)
+        (βK := (K S A).params.βK) ∧
       ∃ t₀, t₀ ≤ Q.bound ∧ Q.params.ts (r + Q.params.k : Nat) ≤ t₀ ∧
         t₀ + 8 * Q.params.Δ + 1 ≤ Q.heal ∧
         ∀ y n t, t₀ ≤ t → t ≤ Q.bound → y ∈ Q.keys t → Regimes.ReadPoint Q.trace n t →
@@ -342,7 +353,8 @@ theorem handover_seed_cover_at (Q : HealthyPreparationQueryAt S A V) (h0 : 0 ≤
       (runProposer { S with vote := stock } Q.run.2 Q.hn)
       (digestOf { S with vote := stock } Q.run.2) Q.gst
         (protoFGDelay (Model.pubOf Q.run.1)) D.resetTime
-          Q.bound :=
+          Q.bound
+        (runCommittee { S with vote := stock } Q.run.2 Q.hn) (K S A).params.βK :=
     { D.reset with sync := healthy_preparation_service_at S A V Q }
   have hΔ := Q.params.toParams.hΔ
   have hX : (1 : Time) ≤ (Q.index : Time) := by exact_mod_cast Q.index.pos
@@ -408,7 +420,9 @@ theorem handover_seed_at (Q : HealthyPreparationQueryAt S A V) (h0 : 0 ≤ Q.hea
     ∃ r σ, Compose.Growing.HandoverSeed Q.trace Q.keys
       (runProposer { S with vote := stock } Q.run.2 Q.hn)
       (digestOf { S with vote := stock } Q.run.2) Q.gst
-      (protoFGDelay (Model.pubOf Q.run.1)) Q.bound r σ :=
+      (protoFGDelay (Model.pubOf Q.run.1)) Q.bound r σ
+        (cm := runCommittee { S with vote := stock } Q.run.2 Q.hn)
+        (βK := (K S A).params.βK) :=
   let ⟨r, σ, h, _⟩ := handover_seed_cover_at S A V Q h0 hb hp
   ⟨r, σ, h⟩
 

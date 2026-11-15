@@ -32,7 +32,8 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 /-- Earlier vote extension compares two bounded origins, including an origin whose
 write is pending but whose label's votes all precede the induction cut. -/
 theorem origins_compatible_before_at
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b) {k : Nat}
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK) {k : Nat}
     (hvote : ∀ x i j B, HighOrigin tr H g x i j B → tr.time i ≤ b →
       ∀ z c e, c < k → z ∈ H (tr.time c) → tr.time c ≤ b →
         SA.VoteAt tr.projAC z c e → j < e.msg.slot →

@@ -41,7 +41,8 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 
 /-- Every vote of slot `u` by a node honest at its cut, by `b`, is for the post-drain operational
 proposal `P` of slot `u`, whose proposer is honest through `t_u + hold`. -/
-theorem operational_unanimous_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+theorem operational_unanimous_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : CatchRun tr H g (2 * sp.Δ))
     {p : Fin sp.n} {k u : Nat} {P : SA.Blk sp.n (List (FG.Att sp.n))}
     (hpH : p ∈ H (sp.ts u + hold sp)) (hdesignated : p = proposer u)

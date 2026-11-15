@@ -33,7 +33,8 @@ set_option linter.unusedVariables false in
 /-- A high origin is in a later honest cast's voter tree whenever its finalized cache
 is below that origin. There is no catch-up premise or retained-vote induction dependency. -/
 theorem high_origin_held_at_vote_at
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {x y : Fin sp.n} {i j k : Nat} {B : SA.Blk sp.n (List (FG.Att sp.n))}
     (ho : HighOrigin tr H g x i j B) (hib : tr.time i ≤ b)
     (hy : y ∈ H (tr.time k))

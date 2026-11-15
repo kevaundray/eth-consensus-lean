@@ -23,7 +23,8 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 
 /-- Every bounded same-label raw source is below the actual unanimous head. -/
 theorem same_slot_source_below_unanimous_at
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : CatchRun tr H g (2 * sp.Δ))
     {x : Fin sp.n} {r u : Nat} (hx : x ∈ H (tr.time r))
     {B P : SA.Blk sp.n (List (FG.Att sp.n))}

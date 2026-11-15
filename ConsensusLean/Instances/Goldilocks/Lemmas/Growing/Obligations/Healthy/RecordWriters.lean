@@ -151,7 +151,8 @@ open Healing.Growing in
 honest at `t ≤ b` is an ancestor candidate at creation and every intervening cut, including the
 terminal cut. -/
 theorem clean_optimistic_writer_candidate_interval_at
-    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : Healing.Growing.CatchRun tr H g (2 * sp.Δ))
     {y : Fin sp.n} {q s n : Nat} {t : Time} {R : SA.Blk sp.n (List (FG.Att sp.n))}
     {CV : Set (SA.Vote sp.n)} (ht0 : 0 ≤ t) (hnt : ∀ j < n, tr.time j ≤ t) (htb : t ≤ b)
@@ -217,7 +218,8 @@ open Healing.Growing in
 its held block extends the operational proposal. A writer after the update satisfies the same
 bound directly by time monotonicity. -/
 theorem retained_writer_slot_after_update_at
-    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : Healing.Growing.CatchRun tr H g (2 * sp.Δ))
     {p : Fin sp.n} {k u : Nat} {P : SA.Blk sp.n (List (FG.Att sp.n))}
     (hhold : p ∈ H (sp.ts u + sp.Δ)) (hdesignated : p = proposer u)
@@ -286,7 +288,8 @@ open Healing.Growing in
 of the actual unlock view held from validators honest at `t` extend a clean optimistic source of
 slot `s` by a writer honest at its write; only validators faulty at `t` can oppose it. -/
 private theorem optimistic_unlock_keeps_at
-    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : Healing.Growing.CatchRun tr H g (2 * sp.Δ))
     {x y : Fin sp.n} {q s j : Nat} {t : Time} {R : SA.Blk sp.n (List (FG.Att sp.n))}
     {CV : Set (Vote sp.n)} (hx : x ∈ H (tr.time q))
@@ -366,7 +369,8 @@ open Healing.Growing in
 /-- The actual slot-`s` fast lock, of expiry at least `s + 2`, survives at a reader honest at
 `t ≤ b` until the next-result deadline, provided the held source remains a candidate. -/
 theorem young_optimistic_lock_persists_at
-    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : Healing.Growing.CatchRun tr H g (2 * sp.Δ))
     {x y : Fin sp.n} {q s i n : Nat} {t : Time}
     {R : SA.Blk sp.n (List (FG.Att sp.n))} {CV : Set (Vote sp.n)} {e : Nat}
@@ -412,7 +416,8 @@ open Healing.Growing in
 /-- The next-result alternative at a specified update, so engine callers may choose the tick
 known to precede their stored-clock observation. -/
 theorem optimistic_result_or_finalized_at_update_at
-    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : Healing.Growing.CatchRun tr H g (2 * sp.Δ))
     {x y : Fin sp.n} {r s j : Nat} {B : SA.Blk sp.n (List (FG.Att sp.n))}
     {CV : Set (Vote sp.n)} {ell : ACLabel (goldilocksNode sp ro)}
@@ -451,10 +456,11 @@ variable {V : Type} [Fintype V] [DecidableEq V] {E : Env V} (S : Setup)
 after the node's last own event. The equality case uses the engine tick's position, not trace-time
 comparison. Honesty is at the stored clock only, which is within the reset premises' bound. -/
 theorem update_before_stored_clock_at (hvalid : rho.ExecutionValid) {g ΔF a b : Time}
+    {cm : Time → Finset (Fin (Fintype.card V))} {βK : ℚ}
     (hp : ResetPremisesUpTo (simTraceAt { S with vote := stock } rho hn)
       (honestKeysAt { S with vote := stock } rho)
       (runProposer { S with vote := stock } rho hn)
-      (digestOf { S with vote := stock } rho) g ΔF a b)
+      (digestOf { S with vote := stock } rho) g ΔF a b cm βK)
     (hbh : b ≤ rho.horizon)
     {v : V} {i u : Nat} (hv : v ∉ rho.faultyAt (stateAt { S with vote := stock } rho hn v i).now)
     (hslot : (({ S with vote := AsChainShape.stock } : Setup).params (Model.pubOf E) hn).ts

@@ -37,7 +37,8 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 
 /-- **The catch-up on the AC projection**: a block that a node accepted while honest before `ḡ`
 is accepted before `ḡ + 2Δ` by a node honest at a later call, by `b`, whose `Σ.F` it extends. -/
-private theorem catch_ac (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+private theorem catch_ac {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : CatchRun tr H g (2 * sp.Δ)) :
     ∀ x i B, x ∈ H (tr.time i) → tr.projAC.AcceptAt x i B → tr.time i < SA.gbar g →
       ∀ y j ell, y ∈ H (tr.time j) → tr.projAC.CallAt y j ell →
@@ -81,7 +82,8 @@ private theorem catch_ac (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
 
 /-- **A clean optimistic source has the vote domain** of every later vote of a node honest at it
 through the horizon, given the earlier votes of nodes honest at them. -/
-theorem optimistic_vote_domain_before_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+theorem optimistic_vote_domain_before_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : CatchRun tr H g (2 * sp.Δ)) {x y : Fin sp.n} {r s i : Nat}
     (hx : x ∈ H (tr.time r)) (hy : y ∈ H (tr.time i))
     {B : SA.Blk sp.n (List (FG.Att sp.n))} {CV : Set (Vote sp.n)}

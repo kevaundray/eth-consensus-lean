@@ -29,7 +29,8 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 
 /-- **No genesis block is above a high origin**: genesis is low at the snapshot cut, read by the
 origin's writer, honest at `c_z`. The growing form of `genesis_not_high`. -/
-theorem ResetPremisesUpTo.not_genesis_above_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+theorem ResetPremisesUpTo.not_genesis_above_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {x : Fin sp.n} {i j : Nat} {B : SA.Blk sp.n (List (FG.Att sp.n))}
     (ho : HighOrigin tr H g x i j B)
     {G : SA.Blk sp.n (List (FG.Att sp.n))} (hGU : G ∈ tr.HonestBlocksAt H)
@@ -69,7 +70,8 @@ theorem ResetPremisesUpTo.not_genesis_above_at (hp : ResetPremisesUpTo tr H prop
 writer before `t_j + 2Δ`; it is above the origin, so not genesis, and its acceptance is after
 `c_z`, the writer being honest at `c_z`. -/
 theorem ResetPremisesUpTo.cutZ_le_ts_of_highOrigin_at
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {x : Fin sp.n} {i j : Nat} {B : SA.Blk sp.n (List (FG.Att sp.n))}
     (ho : HighOrigin tr H g x i j B) :
     cutZ sp.toParams g ≤ sp.ts j := by

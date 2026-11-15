@@ -117,7 +117,8 @@ theorem catch_window_at_reset_at
 /-- The reset's service windows on the prefix through a read time `t ≤ b`, from the finite reset
 premises. -/
 theorem ResetPremisesUpTo.windows_at_reset_at {b : Time}
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b) (hc : CatchRun tr H g (2 * sp.Δ))
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK) (hc : CatchRun tr H g (2 * sp.Δ))
     {t : Time} (ht0 : 0 ≤ t) (htb : t ≤ b) :
     SyncACWindowBefore (H t) ((tr.upTo t).HonestBlocks (H t)) a t (tr.projAC.upTo t) ∧
       CatchACWindowBefore (tr.projAC.upTo t) (H t) ((tr.upTo t).HonestBlocks (H t)) a

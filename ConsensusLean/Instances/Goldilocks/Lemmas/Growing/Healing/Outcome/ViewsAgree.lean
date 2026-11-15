@@ -31,7 +31,8 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 
 /-- The operational proposal's view and a slot-`(s+1)` voter's merged view agree on common held
 targets, for a proposer honest through `t_{s+1} + hold` and a voter honest at its cast. -/
-theorem reset_views_agree_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+theorem reset_views_agree_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : CatchRun tr H g (2 * sp.Δ))
     {p y : Fin sp.n} {k i j s : Nat} {P : SA.Blk sp.n (List (FG.Att sp.n))}
     (hpH : p ∈ H (sp.ts (s + 1 : Nat) + hold sp)) (hdesignated : p = proposer (s + 1))

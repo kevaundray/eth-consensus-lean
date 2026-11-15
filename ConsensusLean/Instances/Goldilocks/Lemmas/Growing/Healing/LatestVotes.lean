@@ -28,7 +28,8 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 domain and whose next-slot casts hold no conflicting stored lock, is extended by every vote of
 label `L > s`, by `t ≤ b`, of a node honest at its vote. -/
 theorem ResetPremisesUpTo.latest_votes_of_recent_result_at {b t : Time}
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : CatchRun tr H g (2 * sp.Δ)) {x : Fin sp.n} {r s L : Nat}
     (hx : x ∈ H (tr.time r))
     {B C : SA.Blk sp.n (List (FG.Att sp.n))} {CV : Set (Vote sp.n)}

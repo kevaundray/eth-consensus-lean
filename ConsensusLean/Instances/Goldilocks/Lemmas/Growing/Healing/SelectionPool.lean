@@ -168,7 +168,8 @@ theorem ready_update_selection_of_pool_core_at
 /-- The finite-reset wrapper supplies execution, no collisions, the cut fault bound and the
 population-sized-committee equality `sp.committeeSize = sp.n` (`hp.stock`). -/
 theorem ResetPremisesUpTo.ready_update_selection_of_pool_at {g ΔF a b : Time}
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {y : Fin sp.n} {j u : Nat} {ell : ACLabel (goldilocksNode sp ro)}
     {P : SA.Blk sp.n (List (FG.Att sp.n))}
     (hy : y ∈ H (tr.time j)) (hjb : tr.time j ≤ b)

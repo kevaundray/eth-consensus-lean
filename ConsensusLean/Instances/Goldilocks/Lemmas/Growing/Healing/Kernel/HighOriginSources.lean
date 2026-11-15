@@ -64,7 +64,8 @@ variable {ΔF a b : Time}
 /-- A high descendant cannot be held before the snapshot by a holder still honest there.
 Honesty only at the earlier read would not suffice: that holder can disappear from HZ. -/
 theorem cutZ_lt_of_anc_at
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {x : Fin sp.n} {i j : Nat} {B : SA.Blk sp.n (List (FG.Att sp.n))}
     (ho : HighOrigin tr H g x i j B) {z : Fin sp.n} {k : Nat}
     (hz : z ∈ H (max (tr.time k) (cutZ sp.toParams g)))

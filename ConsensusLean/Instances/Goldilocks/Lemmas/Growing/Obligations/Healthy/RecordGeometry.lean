@@ -82,7 +82,8 @@ update of label `u`, the record of a node honest at `t` before a later cut `n`, 
 `n` at a time `≤ t`, names a block of its tree with an origin of label at least `u` before `n`,
 even if advancing finalization has removed it from the filtered frame. -/
 theorem archival_record_source_after_operational_update_at {g ΔF a b : Time}
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : CatchRun tr H g (2 * sp.Δ))
     {p : Fin sp.n} {k u : Nat} {P : SA.Blk sp.n (List (FG.Att sp.n))}
     (hhold : p ∈ H (sp.ts u + sp.Δ)) (hdesignated : p = proposer u)
@@ -172,7 +173,8 @@ label `u`, a record looked up by a node honest at `t` before a later cut `n`, ev
 at a time `≤ t`, has a raw or optimistic source of label at least `u` before `n`, of a node honest
 at its own cut. -/
 theorem record_source_after_operational_update_at {g ΔF a b : Time}
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : CatchRun tr H g (2 * sp.Δ))
     {p : Fin sp.n} {k u : Nat} {P : SA.Blk sp.n (List (FG.Att sp.n))}
     (hhold : p ∈ H (sp.ts u + sp.Δ)) (hdesignated : p = proposer u)

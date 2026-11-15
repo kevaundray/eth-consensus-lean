@@ -47,7 +47,8 @@ variable {ΔF a b : Time}
 
 /-- The finalized cache compares with a high origin at independently honest cuts. -/
 theorem finalized_compatible_high_origin_at
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {z : Fin sp.n} {c : Nat} (hz : z ∈ H (tr.time c)) (hcb : tr.time c ≤ b)
     {x : Fin sp.n} {i j : Nat} {O : SA.Blk sp.n (List (FG.Att sp.n))}
     (ho : HighOrigin tr H g x i j O) (hib : tr.time i ≤ b) :
@@ -79,7 +80,8 @@ theorem finalized_compatible_high_origin_at
 
 /-- After the reset, a finalized cache is below an actual high origin written by the horizon. -/
 theorem finalized_below_high_origin_at
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {y : Fin sp.n} {k : Nat} (hy : y ∈ H (tr.time k))
     (ha : a ≤ tr.time k) (hkb : tr.time k ≤ b) :
     ∃ x r l B, HighOrigin tr H g x r l B ∧ tr.time r ≤ tr.time k ∧ tr.time r ≤ b ∧

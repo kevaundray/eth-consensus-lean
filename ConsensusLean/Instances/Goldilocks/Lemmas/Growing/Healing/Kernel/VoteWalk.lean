@@ -25,7 +25,8 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 /-- A noncurrent live voter lock is below the actual parent when the two clean
 source parent contracts hold. No source writer is assumed honest at the proposal. -/
 theorem vote_old_live_lock_below_parent_of_sources_at
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {u : Nat} (hR : drainTime sp a ≤ sp.ts u)
     {d : DutyHead sp.n (List (FG.Att sp.n)) (Payload sp.n)}
     (hparent : ∀ {x r s B}, x ∈ H (tr.time r) →

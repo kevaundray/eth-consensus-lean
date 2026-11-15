@@ -41,7 +41,8 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 
 /-- **An acceptance of a head above a high origin is after GST**, for an acceptor honest
 at the later of its acceptance and `c_z`. -/
-private theorem gst_le_acceptance (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+private theorem gst_le_acceptance {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {x : Fin sp.n} {i j : Nat} {B : SA.Blk sp.n (List (FG.Att sp.n))}
     (ho : HighOrigin tr H g x i j B) {w : Fin sp.n} {c : Nat}
     (hw : w ∈ H (max (tr.time c) (cutZ sp.toParams g)))
@@ -60,7 +61,8 @@ private theorem gst_le_acceptance (hp : ResetPremisesUpTo tr H proposer dg g ΔF
 
 /-- A high origin's counted votes reach a next-slot honest cast without Catch. -/
 theorem first_carry_of_finalized_anc_at
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {x y : Fin sp.n} {i j k : Nat} {B : SA.Blk sp.n (List (FG.Att sp.n))}
     {CV : Set (Vote sp.n)}
     (ho : HighOrigin tr H g x i j B)
@@ -97,7 +99,8 @@ theorem first_carry_of_finalized_anc_at
 
 /-- Earlier honest votes extending a high origin reach a later cast without Catch. -/
 theorem later_carry_of_finalized_anc_at
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {x y : Fin sp.n} {i j k m : Nat} {B : SA.Blk sp.n (List (FG.Att sp.n))}
     (ho : HighOrigin tr H g x i j B)
     (hy : y ∈ H (tr.time k))

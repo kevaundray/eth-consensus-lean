@@ -155,7 +155,8 @@ theorem report_slot_le_time_at
 `P` of a slot `s` with `t_r + Δ ≤ t_s ≤ b`: the parent `Pr` of `P` is an honest block above `C`,
 of height above `h` at every holder honest at an observation time after the holder's cuts. -/
 theorem crossed_parents_above_upTo_at {g ΔF a b : Time}
-    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : Healing.Growing.CatchRun tr H g (2 * sp.Δ))
     {z : Fin sp.n} {r : Nat} (hz : z ∈ H (tr.time r)) {ell : ACLabel (goldilocksNode sp ro)}
     {C : SA.Blk sp.n (List (FG.Att sp.n))} (hto : SA.ToFGAt tr.projAC z r ell C)

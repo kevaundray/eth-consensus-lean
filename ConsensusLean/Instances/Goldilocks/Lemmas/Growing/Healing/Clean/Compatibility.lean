@@ -41,7 +41,8 @@ private theorem faulty_lt_quorum_inter {f i u v w n : Nat} (hf : 3 * f ≤ n - 1
   omega
 
 /-- The static AC run of the prefix through `d` of the nodes honest at `d`. -/
-private theorem acRun_prefix (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b) {d : Time}
+private theorem acRun_prefix {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK) {d : Time}
     (hd : 0 ≤ d) :
     SA.ACRun proposer (tr.projAC.upTo d) (H d) ((tr.upTo d).HonestBlocks (H d)) := by
   have h := Compose.goldilocks_ac_projection sp ro dg (H d) (tr.upTo d) proposer
@@ -50,7 +51,8 @@ private theorem acRun_prefix (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
 
 /-- **Two optimistic sources of one label are compatible**, for writers honest at their writes
 by `b`. The quorum intersection is charged at the later write. -/
-theorem optimistic_sources_compatible_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+theorem optimistic_sources_compatible_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {x y : Fin sp.n} {r q s : Nat} (hx : x ∈ H (tr.time r)) (hy : y ∈ H (tr.time q))
     (hrb : tr.time r ≤ b) (hqb : tr.time q ≤ b)
     {C D : SA.Blk sp.n (List (FG.Att sp.n))} {CV DV : Set (Vote sp.n)}
@@ -114,7 +116,8 @@ theorem optimistic_sources_compatible_at (hp : ResetPremisesUpTo tr H proposer d
 
 /-- **An optimistic source has an honest supporting vote no later than its write**, for a
 writer honest at its write by `b`. The supporter is honest at the write. -/
-theorem optimistic_supporter_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+theorem optimistic_supporter_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {x : Fin sp.n} {r s : Nat} (hx : x ∈ H (tr.time r)) (hrb : tr.time r ≤ b)
     {B : SA.Blk sp.n (List (FG.Att sp.n))} {CV : Set (Vote sp.n)}
     (hop : SA.OptimisticLockAt tr.projAC x r s B CV) :

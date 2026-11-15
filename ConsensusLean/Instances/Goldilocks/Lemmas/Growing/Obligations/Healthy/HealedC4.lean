@@ -123,7 +123,8 @@ private theorem acProposal_start_anchor {A : SA.SAState sp.n}
 proposal `P` of slot `u`, by its proposer honest through `t_u + hold`, is an honest ancestor of the
 duty head of every proposal call at `t_{u+1}` of a node honest at that call. -/
 theorem UpTo.operational_proposal_below_next_parent_at
-    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : Healing.Growing.CatchRun tr H g (2 * sp.Δ))
     {p : Fin sp.n} {k u : Nat} {P : SA.Blk sp.n (List (FG.Att sp.n))}
     (hpH : p ∈ H (sp.ts u + Regimes.Growing.hold sp)) (hdesignated : p = proposer u)
@@ -302,7 +303,8 @@ theorem UpTo.operational_proposal_below_next_parent_at
 
 /-- The honest proposal `P'` of `s'` is the child of the duty head of its proposal call. -/
 theorem honest_proposal_child_at
-    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {s' : Nat} {P P' : SA.Blk sp.n (List (FG.Att sp.n))}
     (hP' : Healing.Growing.HonestProposalRun tr H proposer s' P')
     (hPd : ∀ {i ell} {d : DutyHead sp.n (List (FG.Att sp.n)) (Payload sp.n)} {pay},

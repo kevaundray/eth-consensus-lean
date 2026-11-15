@@ -96,6 +96,7 @@ theorem exists_reset_of_drain_rounds_awake_at
 
 /-- Step 4 packaging: a bounded reset and a snapshot supply the existing finite reset record. -/
 theorem resetPremisesUpTo_of_reset_at
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr)
     (hnc : Compose.NoCollRun dg tr) {g ΔF a b : Time}
     (hsvc : ResetService tr H g ΔF b)
@@ -104,7 +105,7 @@ theorem resetPremisesUpTo_of_reset_at
     (hreset : IsReset tr H g a) (hab : a ≤ b)
     (hsnapshot : ∃ k, FirstCutAfter tr k (cutZ sp.toParams g) ∧ tr.time k ≤ b)
     (hstock : sp.committeeSize = sp.n) :
-    ResetPremisesUpTo tr H proposer dg g ΔF a b := by
+    ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK := by
   exact ⟨hrun, hnc, hsvc, hawake, hf, hreset, hab, hsnapshot, hstock⟩
 
 end Consensus.Goldilocks.Healing.Growing

@@ -1,4 +1,5 @@
 module
+public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Simulation.RunCommittee
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Obligations.Healthy.FinalWindowDefs
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Obligations.Healthy.HSSharedOfQuery
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Healing.Kernel.Boundaries
@@ -65,7 +66,8 @@ theorem final_reset_premises_of_shared_at (Q : FinalQueryAt S A V) {c : Nat} (hc
     ∃ ΔR a : Time,
       Healing.Growing.ResetPremisesUpTo Q.trace Q.keys
         (runProposer { S with vote := stock } Q.run.2 Q.hn)
-        (digestOf { S with vote := stock } Q.run.2) Q.gst ΔR a Q.run.2.horizon ∧
+        (digestOf { S with vote := stock } Q.run.2) Q.gst ΔR a Q.run.2.horizon
+        (runCommittee { S with vote := stock } Q.run.2 Q.hn) (K S A).params.βK ∧
       max (max ((Sys (goldilocks { S with vote := stock }) V).ready (K S A) Q.gst Q.run) 0)
           ((finalGridAt S A V Q).slotTime (finalSeedMinAt S A V Q a) - 1) +
           ((((Q.index : Nat) + S.δt : Nat) : Time)) * (finalGridAt S A V Q).slotLen ≤
@@ -118,7 +120,8 @@ theorem final_reset_premises_at (Q : FinalQueryAt S A V) :
     ∃ ΔR a : Time,
       Healing.Growing.ResetPremisesUpTo Q.trace Q.keys
         (runProposer { S with vote := stock } Q.run.2 Q.hn)
-        (digestOf { S with vote := stock } Q.run.2) Q.gst ΔR a Q.run.2.horizon ∧
+        (digestOf { S with vote := stock } Q.run.2) Q.gst ΔR a Q.run.2.horizon
+        (runCommittee { S with vote := stock } Q.run.2 Q.hn) (K S A).params.βK ∧
       max (max ((Sys (goldilocks { S with vote := stock }) V).ready (K S A) Q.gst Q.run) 0)
           ((finalGridAt S A V Q).slotTime (finalSeedMinAt S A V Q a) - 1) +
           ((((Q.index : Nat) + S.δt : Nat) : Time)) * (finalGridAt S A V Q).slotLen ≤

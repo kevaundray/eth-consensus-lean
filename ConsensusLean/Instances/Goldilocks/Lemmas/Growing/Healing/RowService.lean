@@ -186,7 +186,8 @@ variable {b : Time}
 /-- **The source of a high attestation**, under growing faults. An attestation of height
 `≥ H_z + 1` signed at cut `d` by a node honest at its signing and at `c_z` names the entry `E`
 (at its height) of the chain of a high origin `(O, l)` written by the signer at a cut `r < d`. -/
-theorem high_row_source_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+theorem high_row_source_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {v : Fin sp.n} {d : Nat} (hvz : v ∈ H (max (cutZ sp.toParams g) (tr.time d)))
     {att : FG.Att sp.n}
     (hs : tr.SignAt v d att) (hh : HZ tr H g + 1 ≤ att.h) :
@@ -214,7 +215,8 @@ theorem high_row_source_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
 
 /-- Entries at equal height below one held block agree, at a holder honest at an observation
 time after its cuts. -/
-private theorem entry_root_eq_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+private theorem entry_root_eq_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {z : Fin sp.n} {m : Nat} {t : Time} (ht : 0 ≤ t) (hle : ∀ q < m, tr.time q ≤ t)
     (hz : z ∈ H t) {C Z₁ Z₂ : SA.Blk sp.n (List (FG.Att sp.n))}
     (hC : C ∈ (tr.state z m).fg.tree)
@@ -234,7 +236,8 @@ private theorem entry_root_eq_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF 
 
 /-- **Historical self-entries under bounded high origins agree at equal height**, each read at a
 holder honest at an observation time after its cuts. -/
-theorem high_entry_eq_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b) {x x' : Fin sp.n}
+theorem high_entry_eq_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK) {x x' : Fin sp.n}
     {i j i' j' : Nat} {B B' Z₁ Z₂ : SA.Blk sp.n (List (FG.Att sp.n))}
     (ho : HighOrigin tr H g x i j B) (hib : tr.time i ≤ b)
     (ho' : HighOrigin tr H g x' i' j' B') (hi'b : tr.time i' ≤ b)
@@ -267,7 +270,8 @@ theorem high_entry_eq_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b) {x 
 /-- **A high record entry is the high-chain entry of its height**: a record of a node honest at
 `t ≤ b` after its cuts and at `c_z`, with a target, timeout or lock entry at `h ≥ H_z + 1`, names
 the root of every entry at `h` below a bounded high origin. -/
-theorem record_entry_eq_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+theorem record_entry_eq_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {y : Fin sp.n} {i : Nat} {t : Time} (ht0 : 0 ≤ t) (hle : ∀ q < i, tr.time q ≤ t)
     (hyz : y ∈ H (max (cutZ sp.toParams g) t)) (htb : t ≤ b) {h r : Nat} (hh : HZ tr H g + 1 ≤ h)
     (hr : (tr.state y i).record.target h = some r ∨ r ∈ (tr.state y i).record.timeout h ∨
@@ -323,7 +327,8 @@ theorem record_entry_eq_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
 
 /-- The target and timeout fields of a high entry's attestation, signed by a node honest at its
 signing and at `c_z`, do not require its predecessor to be high. -/
-private theorem sign_target_before_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+private theorem sign_target_before_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {y : Fin sp.n} {k : Nat} (hyz : y ∈ H (max (cutZ sp.toParams g) (tr.time k)))
     {att : FG.Att sp.n}
     (hs : tr.SignAt y k att) (hkb : tr.time k ≤ b) (hh : HZ tr H g + 1 ≤ att.h)
@@ -348,7 +353,8 @@ private theorem sign_target_before_at (hp : ResetPremisesUpTo tr H proposer dg g
 
 /-- A node honest at `t ≤ b`, after its cuts, and at `c_z` has no recorded timeout at a high
 height. -/
-private theorem timeout_empty_before_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+private theorem timeout_empty_before_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {y : Fin sp.n} {t : Time} (ht0 : 0 ≤ t) (hyz : y ∈ H (max (cutZ sp.toParams g) t))
     (htb : t ≤ b) :
     ∀ i, (∀ q < i, tr.time q ≤ t) → ∀ h, HZ tr H g + 1 ≤ h →
@@ -375,7 +381,8 @@ private theorem timeout_empty_before_at (hp : ResetPremisesUpTo tr H proposer dg
 
 /-- Finite normalization of a high signature's target and timeout fields, for a signer honest
 at its signing and at `c_z`. -/
-theorem row_target_of_sign_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+theorem row_target_of_sign_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {z : Fin sp.n} {j : Nat} (hzz : z ∈ H (max (cutZ sp.toParams g) (tr.time j)))
     {att : FG.Att sp.n}
     (hs : tr.SignAt z j att) (hjb : tr.time j ≤ b)
@@ -407,7 +414,8 @@ theorem row_target_of_sign_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b
 
 /-- Historical signatures of a node honest at its signing and at `c_z` carry the exact
 predecessor (of a height whose previous height is justified) when that predecessor is high. -/
-theorem row_of_sign_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+theorem row_of_sign_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {z : Fin sp.n} {j : Nat} (hzz : z ∈ H (max (cutZ sp.toParams g) (tr.time j)))
     {att : FG.Att sp.n}
     (hs : tr.SignAt z j att) (hjb : tr.time j ≤ b)
@@ -459,7 +467,8 @@ theorem row_of_sign_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
 /-- A bounded same-height report of a node honest at the report and at `c_z` supplies a signature
 of it by the report's time, including the case where previously signed content suppresses the
 call. -/
-theorem sign_of_report_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+theorem sign_of_report_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {z : Fin sp.n} {r : Nat} (hzz : z ∈ H (max (cutZ sp.toParams g) (tr.time r)))
     {ell : ACLabel (goldilocksNode sp ro)} {C : SA.Blk sp.n (List (FG.Att sp.n))}
     (hrep : SA.ToFGAt tr.projAC z r ell C) (hrb : tr.time r ≤ b)
@@ -523,7 +532,8 @@ theorem sign_of_report_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
 
 /-- A bounded same-height report of a node honest at the report and at `c_z` supplies the exact
 entry attestation, with historical finality permission checked at the actual signing cut. -/
-theorem row_of_report_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+theorem row_of_report_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {z : Fin sp.n} {r : Nat} (hzz : z ∈ H (max (cutZ sp.toParams g) (tr.time r)))
     {ell : ACLabel (goldilocksNode sp ro)} {C : SA.Blk sp.n (List (FG.Att sp.n))}
     (hrep : SA.ToFGAt tr.projAC z r ell C) (hrb : tr.time r ≤ b)
@@ -549,7 +559,8 @@ theorem row_of_report_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
 /-- Same-height reports, by `d`, from every node honest at `d` and at `c_z` yield a quorum of
 such nodes with exact entry signatures by `d`. Historical reports count without any freshness
 assumption. -/
-theorem row_signers_of_reports_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+theorem row_signers_of_reports_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {T : SA.Blk sp.n (List (FG.Att sp.n))} {y : Fin sp.n} {m : Nat} {t : Time} (ht : 0 ≤ t)
     (hle : ∀ q < m, tr.time q ≤ t) (hy : y ∈ H t) (hT : T ∈ (tr.state y m).fg.tree)
     {σT : FG.ChainState sp.n} (hσ : (tr.state y m).fg.σ T.root = σT) (hTe : σT.Th = T.root)

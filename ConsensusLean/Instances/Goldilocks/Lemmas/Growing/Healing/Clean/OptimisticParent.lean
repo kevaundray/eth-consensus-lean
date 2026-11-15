@@ -45,7 +45,8 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 
 /-- A clean optimistic source, written at a cut of a node honest at it, extends the duty head of
 the next honest proposal call, within the finite horizon. -/
-theorem clean_optimistic_proposal_parent_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+theorem clean_optimistic_proposal_parent_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : CatchRun tr H g (2 * sp.Δ)) {x p : Fin sp.n} {r s i : Nat}
     (hx : x ∈ H (tr.time r)) (hpH : p ∈ H (tr.time i))
     {B : SA.Blk sp.n (List (FG.Att sp.n))} {CV : Set (SA.Vote sp.n)}

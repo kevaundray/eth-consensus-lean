@@ -27,7 +27,8 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 
 /-- An old honest acceptance reaches a bounded honest call above its finalization guard. -/
 theorem reset_accept_frame_at
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b) (hc : CatchRun tr H g (2 * sp.Δ))
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK) (hc : CatchRun tr H g (2 * sp.Δ))
     {x y : Fin sp.n} {q j : Nat} {B : SA.Blk sp.n (List (FG.Att sp.n))}
     (hx : x ∈ H (tr.time q)) (ha : tr.projAC.AcceptAt x q B)
     (hy : y ∈ H (tr.time j)) {ell : ACLabel (goldilocksNode sp ro)}
@@ -92,7 +93,8 @@ theorem reset_accept_frame_at
 
 /-- A historically held frame block reaches a bounded honest recipient above its guard. -/
 theorem reset_frame_relay_at
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b) (hc : CatchRun tr H g (2 * sp.Δ))
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK) (hc : CatchRun tr H g (2 * sp.Δ))
     {x y : Fin sp.n} {q j : Nat} {ellx elly : ACLabel (goldilocksNode sp ro)}
     (hx : x ∈ H (tr.time q)) (hy : y ∈ H (tr.time j))
     (hcx : tr.projAC.CallAt x q ellx) (hcy : tr.projAC.CallAt y j elly)

@@ -38,7 +38,8 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 
 /-- The facts of a post-drain honest anchor that `report_cover_of_unanimous_at` reads. -/
 private theorem anchor_facts_at {g ΔR a b : Time}
-    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔR a b) {s : Nat}
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔR a b cm βK) {s : Nat}
     {A : SA.Blk sp.n (List (FG.Att sp.n))}
     (hA : Healing.Growing.HonestProposalRun tr H proposer s A)
     (hR : Healing.drainTime sp a ≤ sp.ts s) :
@@ -62,7 +63,8 @@ private theorem anchor_facts_at {g ΔR a b : Time}
 and `X` at slot `s + c`, `2 ≤ c`, after the drain and by the horizon, with `H_z + 2 ≤ σ[A].h` at
 a holder honest at its cut: `AnchorStepAt tr H A X`. -/
 theorem anchorStep_gap_at {g ΔR a b gS ΔF : Time}
-    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔR a b)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔR a b cm βK)
     (hc : Healing.Growing.CatchRun tr H g (2 * sp.Δ))
     (hs : Healing.Growing.HSSharedUpTo tr H dg gS ΔF b)
     {s c s' : Nat} (hc2 : 2 ≤ c) (hs' : s' = s + c)
@@ -189,7 +191,8 @@ theorem anchorStep_gap_at {g ΔR a b gS ΔF : Time}
 /-- A height bound at a holder honest at its cut carries to a later honest proposal above it,
 read at its proposer just after the proposal cut. -/
 private theorem height_next_at {g ΔR a b : Time}
-    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔR a b)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔR a b cm βK)
     (hc : Healing.Growing.CatchRun tr H g (2 * sp.Δ)) {s s' : Nat}
     {A X : SA.Blk sp.n (List (FG.Att sp.n))}
     (hA : Healing.Growing.HonestProposalRun tr H proposer s A)
@@ -219,7 +222,8 @@ private theorem height_next_at {g ΔR a b : Time}
 premises with `6Δ + ΔF ≤ 4Δ·c` and `ḡ_S ≤ t_{s₀} + 6Δ`, and `H_z + 2 ≤ σ[P₀].h` at a holder
 honest at its cut: `AnchorStepAt tr H (P i) (P (i+1))` for `i < 3`. -/
 theorem anchorSteps_gap_at {g ΔR a b gS ΔF : Time}
-    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔR a b)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔR a b cm βK)
     (hc : Healing.Growing.CatchRun tr H g (2 * sp.Δ))
     (hs : Healing.Growing.HSSharedUpTo tr H dg gS ΔF b) {c : Nat} (hc2 : 2 ≤ c)
     (hdel : 6 * sp.Δ + ΔF ≤ 4 * sp.Δ * c) {s₀ : Nat}

@@ -21,7 +21,8 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 
 /-- **S3, anchor part, through the horizon**, under growing faults: with `t_{s₁} ≤ b`, and
 `t_{s₀} + 6Δ ≤ b` when `s₁ = s₀ + 1`. -/
-theorem anchors_chain_upTo_at (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b)
+theorem anchors_chain_upTo_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : Healing.Growing.CatchRun tr H g (2 * sp.Δ)) {s₀ s₁ : Nat}
     {P₀ P₁ : SA.Blk sp.n (List (FG.Att sp.n))}
     (hP₀ : Healing.Growing.HonestProposalRun tr H proposer s₀ P₀)
@@ -49,7 +50,8 @@ private theorem fin4_pairs : ∀ i j : Fin 4, i < j →
 /-- **S3, anchor part, for four anchors, through the horizon**, under growing faults: with
 `t_{s 3} ≤ b`, and `t_{s 2} + 6Δ ≤ b` when `s 3 = s 2 + 1`. -/
 theorem window_anchors_chain_upTo_at
-    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : Healing.Growing.CatchRun tr H g (2 * sp.Δ)) {s : Fin 4 → Nat}
     {P : Fin 4 → SA.Blk sp.n (List (FG.Att sp.n))}
     (hP : ∀ i, Healing.Growing.HonestProposalRun tr H proposer (s i) (P i)) (hs : StrictMono s)

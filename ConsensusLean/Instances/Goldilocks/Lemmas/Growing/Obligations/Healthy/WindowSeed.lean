@@ -37,7 +37,8 @@ premises through `b` (`ḡ_S ≤ t_u + 6Δ`), an honest seed proposal `Q` at slo
 `t_{s₀} ≤ b` (`2 ≤ δt`): every holder of `P₀` honest at an observation time `t` after its earlier
 cuts has `H_z + 2 ≤ σ[P₀].h`. -/
 theorem seed_height_at {g ΔR a b gS ΔF : Time}
-    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔR a b)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔR a b cm βK)
     (hc : Healing.Growing.CatchRun tr H g (2 * sp.Δ))
     (hs : Healing.Growing.HSSharedUpTo tr H dg gS ΔF b)
     (hδ : 2 ≤ sp.toParams.fg.δt) {u s₀ : Nat} {Q P₀ : SA.Blk sp.n (List (FG.Att sp.n))}
@@ -242,7 +243,8 @@ theorem seed_height_at {g ΔR a b gS ΔF : Time}
 /-- `seed_height_at` in the form of the height premise of `anchorSteps_gap_at`: the proposer of
 `P₀` holds `P₀` just after its proposal cut, honest at that cut, at height at least `H_z + 2`. -/
 theorem seed_height_held_at {g ΔR a b gS ΔF : Time}
-    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔR a b)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔR a b cm βK)
     (hc : Healing.Growing.CatchRun tr H g (2 * sp.Δ))
     (hs : Healing.Growing.HSSharedUpTo tr H dg gS ΔF b)
     (hδ : 2 ≤ sp.toParams.fg.δt) {u s₀ : Nat} {Q P₀ : SA.Blk sp.n (List (FG.Att sp.n))}

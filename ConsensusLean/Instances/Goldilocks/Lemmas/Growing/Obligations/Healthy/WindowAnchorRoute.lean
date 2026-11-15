@@ -59,7 +59,8 @@ honest anchors `P i` at strictly increasing slots `s i` (guards of
 holder `y` of `P 3` at cut `k`, honest at an observation time `t` after its earlier cuts, the
 block `F` of root `σ[P₃].F` is held by `y` and `P₀ ⪯ F` in the honest blocks. -/
 theorem cacheCoverage_of_anchor_window_upTo_at {g ΔF a b : Time}
-    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b)
+    {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : Healing.Growing.ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : Healing.Growing.CatchRun tr H g (2 * sp.Δ)) {s : Fin 4 → Nat}
     {P : Fin 4 → SA.Blk sp.n (List (FG.Att sp.n))}
     (hP : ∀ i, Healing.Growing.HonestProposalRun tr H proposer (s i) (P i)) (hs : StrictMono s)

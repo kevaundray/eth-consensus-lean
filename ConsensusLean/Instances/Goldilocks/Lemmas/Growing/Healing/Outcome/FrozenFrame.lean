@@ -28,7 +28,8 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 
 /-- A bounded pre-freeze block of a voter honest at its cast, above the `Σ.F` of a proposer
 honest at its proposal call, is in the proposer's frame. -/
-theorem reset_frozen_frame_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+theorem reset_frozen_frame_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : CatchRun tr H g (2 * sp.Δ))
     {p y : Fin sp.n} {i j s : Nat} (hpH : p ∈ H (tr.time i)) (hy : y ∈ H (tr.time j))
     {ellp elly : ACLabel (goldilocksNode sp ro)} {e : SA.Em sp (List (FG.Att sp.n))}

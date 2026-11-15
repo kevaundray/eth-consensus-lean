@@ -36,7 +36,8 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 
 /-- **Finite fast-source transfer**, with its vote domain supplied at each later vote of a node
 honest at it, given the earlier votes of nodes honest at them. -/
-theorem fast_source_votes_of_domain_before_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+theorem fast_source_votes_of_domain_before_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : CatchRun tr H g (2 * sp.Δ)) {x : Fin sp.n} {r s : Nat} (hx : x ∈ H (tr.time r))
     {B : SA.Blk sp.n (List (FG.Att sp.n))} {CV : Set (Vote sp.n)}
     (hfast : SA.FastLockAt tr.projAC x r s B CV) (hts : cutZ sp.toParams g ≤ sp.ts s)
@@ -122,7 +123,8 @@ theorem fast_source_votes_of_domain_before_at (hp : ResetPremisesUpTo tr H propo
 
 /-- **A clean fast source is extended by every later vote** of a node honest at it, through the
 horizon. -/
-theorem fast_source_votes_before_at (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b)
+theorem fast_source_votes_before_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     (hc : CatchRun tr H g (2 * sp.Δ)) {x : Fin sp.n} {r s : Nat} (hx : x ∈ H (tr.time r))
     {B : SA.Blk sp.n (List (FG.Att sp.n))} {CV : Set (Vote sp.n)}
     (hfast : SA.FastLockAt tr.projAC x r s B CV)
