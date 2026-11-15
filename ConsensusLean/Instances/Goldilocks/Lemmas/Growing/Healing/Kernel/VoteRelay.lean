@@ -92,7 +92,7 @@ theorem relay_mem_voterBlockTree_at
     rw [heq] at hkyt'
     linarith only [hkyt', hfz]
   refine ⟨hWt, Or.inl ?_⟩
-  rw [SA.readPoint_blockStamp hr hy hc' hne]
+  rw [SA.readPoint_blockStampU hr.toU hy hc' hne]
   exact hbs
 
 end Consensus.Goldilocks.Healing.Growing.KernelProof
