@@ -46,6 +46,12 @@ leaf 1, or no advance; leaf 3 then gives a frame window of the rise length, the 
 deficit and the rise the reset. The rise's slot length, spacing and timeout premises come from
 the numerical timeout bound on the grid (`slotLen_of_grid`, `spacing_grid_equation`,
 `timeout_grid_equation`).
+
+`exists_reset_of_drain_rounds_awake_at_of` proves the finite-horizon endpoint
+`exists_reset_of_drain_rounds_awake_at`, which bounds restarts only up to `b`: the whole-run
+endpoint runs on the honest sets truncated after `b` (`truncH`), a run by `ACRun.run_truncH`.
+Every premise up to `b` is the premise for `H`, no restart honest there is after `b`, and `H_z`
+and the reset are those for `H`, since `c_z` and the reset bound are `≤ b`.
 -/
 
 namespace Consensus.Goldilocks.Generic
@@ -522,6 +528,87 @@ theorem exists_reset_of_drain_rounds_noRestartAfter_at_of (O : ACHealing A sg ru
     ((timeout_grid_equation ΔF hgrid).mpr hΔF) hgpN hmb hH hb hna rr hu0 hwarm huN
     (by linarith) hz hdes hX hXs hrise
   exact ⟨a, ha, hat.trans (by linarith)⟩
+
+/-! ## Truncation after the horizon -/
+
+private theorem truncH_eq_of_le {H : Time → Set (Fin P.n)} {b t : Time} (ht : t ≤ b) :
+    truncH H b t = H t :=
+  Set.ext fun _ => and_iff_left ht
+
+private theorem honestBlocksAt_truncH_subset {tr : RunTrace A} {H : Time → Set (Fin P.n)}
+    (b : Time) : tr.HonestBlocksAt (truncH H b) ⊆ tr.HonestBlocksAt H :=
+  fun _ ⟨y, i, t, ht, hle, hy, hB⟩ => ⟨y, i, t, ht, hle, hy.1, hB⟩
+
+/-- `H_z` is read at `c_z`, where the truncation is `H` itself. -/
+private theorem HZ_truncH {tr : RunTrace A} {H : Time → Set (Fin P.n)} {g b : Time}
+    (hcz : cutZ P g ≤ b) : HZ tr (truncH H b) g = HZ tr H g := by
+  simp only [HZ, truncH_eq_of_le hcz]
+
+/-- The finite-horizon endpoint over the supplier `O`: the whole-run endpoint
+(`exists_reset_of_drain_rounds_noRestartAfter_at_of`) on the honest sets truncated after `b`,
+which are a run (`ACRun.run_truncH`). Committee faults, faults, service, wakefulness, catch-up,
+the proposal gap and the drain outputs read honesty up to `b`, or only in hypotheses, where the
+truncation is `H` or a subset of it; a restart honest on the truncation is at a time `≤ b`, so
+`NoRestartUpTo` bounds it. `H_z` is read at `c_z ≤ b`, and a reset on the truncation by the
+bound `≤ b` is the reset for `H`: a later signing is after it. -/
+theorem exists_reset_of_drain_rounds_awake_at_of (O : ACHealing A sg runs) :
+    exists_reset_of_drain_rounds_awake_at A sg O := by
+  intro cm proposer dg H tr βK g ΔF b r G Ld hβ hcom hgrid hrun hnc hf hsvc hawake hcatch hnr hH
+    hfol hΔF hr hgr hG hcz hb hgp hdrain
+  have hΔ : 1 ≤ P.Δ := P.hΔ
+  have hmono := P.slotTime_strictMono.monotone
+  have hBlo : r + 4 * P.Δ ≤ resetBoundRounds r P.Δ (2 * P.Δ) P.δt G Ld := by
+    have h1 : (0 : Time) ≤ Ld := Nat.cast_nonneg _
+    have h2 : (0 : Time) ≤ P.δt := Nat.cast_nonneg _
+    have h3 : (1 : Time) ≤ G := by exact_mod_cast hG
+    have hc : (0 : Time) ≤ 20 * (Ld : Time) + 24 * ((P.δt : Time) + G - 1) := by linarith
+    have := mul_nonneg hc (show (0 : Time) ≤ P.Δ by linarith)
+    unfold resetBoundRounds
+    linarith
+  have hczb : cutZ P g ≤ b := by linarith
+  have hsub := honestBlocksAt_truncH_subset (tr := tr) (H := H) b
+  obtain ⟨a, ha, hab⟩ := exists_reset_of_drain_rounds_noRestartAfter_at_of O hβ
+    (fun t d ht htb hd hdb hne => by rw [truncH_eq_of_le hdb]; exact hcom t d ht htb hd hdb hne)
+    hgrid (runs.run_truncH hrun b) hnc
+    (fun t ht htb => by rw [truncH_eq_of_le htb]; exact hf t ht htb)
+    ⟨hsvc.deltaF, fun x i m hx hm y j hy => hsvc.message x i m hx.1 hm y j hy.1,
+      fun x i B hx hB y j hy => hsvc.block x i B hx.1 hB y j hy.1,
+      fun x i B hx hB hg y j hy hj hd hF =>
+        hsvc.relay x i B hx.1 hB hg y j hy.1 hj hd (Anc.mono hsub hF),
+      fun x i att hx hsg y j hy => hsvc.signedRow x i att hx.1 hsg y j hy.1⟩
+    (fun y t hy => hawake y t hy.1)
+    (fun x i B hx hA hlt y j hy hfirst hF =>
+      hcatch x i B hx.1 hA hlt y j hy.1 hfirst (Anc.mono hsub hF))
+    (fun y k hy hk => hnr y k hy.1 hk hy.2)
+    (hH.mono fun _ hy => ⟨hy, le_rfl⟩) hfol hΔF hr hgr hG hcz hb
+    (fun s₀ N hs₀ hN a ha haN => by
+      obtain ⟨x, hax, hxa, hx, hX⟩ := hgp s₀ N hs₀ hN a ha haN
+      exact ⟨x, hax, hxa, ⟨hx, by linarith [hmono (show x ≤ N by omega)]⟩, hX⟩)
+    ⟨by
+      intro s₀ N floor kindJ J hw hm hN hmb hsig hgpT
+      obtain ⟨u, hu, huL, z, kB, X, hz, hdes, hX, hXs, hh⟩ :=
+        hdrain.warm
+          ⟨fun y i hy hl hh => hw.floor_eq y i ⟨hy, hh.trans hmb⟩ hl hh,
+            fun y i hy hl hh => hw.kind_iff y i ⟨hy, hh.trans hmb⟩ hl hh,
+            fun y i hy hl hh => hw.root_eq y i ⟨hy, hh.trans hmb⟩ hl hh⟩ hm hN hmb
+          (fun v k att hv hs hk => by
+            have h := hsig v k att ⟨hv, max_le hczb (hk.trans hmb)⟩ hs hk
+            rwa [HZ_truncH hczb] at h)
+          (fun a ha haN => by
+            obtain ⟨x, hax, hxa, hx, hX⟩ := hgpT a ha haN
+            exact ⟨x, hax, hxa, hx.1, hX⟩)
+      refine ⟨u, hu, huL, z, kB, X, ⟨hz, by linarith [hmono (show u ≤ N by omega)]⟩, hdes, hX,
+        hXs, ?_⟩
+      rwa [HZ_truncH hczb]⟩
+  refine ⟨a, ?_, hab⟩
+  have hab' := hab.trans hb
+  unfold IsReset at ha ⊢
+  rw [HZ_truncH hczb] at ha
+  obtain ⟨⟨y, k, att, hy, hs, hh, hk⟩, hmin⟩ := ha
+  refine ⟨⟨y, k, att, hy.1, hs, hh, hk⟩, fun y' k' att' hy' hs' hh' => ?_⟩
+  by_cases hk' : tr.time k' ≤ b
+  · exact hmin y' k' att' ⟨hy', max_le hczb hk'⟩ hs' hh'
+  · exact hab'.trans (lt_of_not_ge hk').le
 
 end Edges
 
