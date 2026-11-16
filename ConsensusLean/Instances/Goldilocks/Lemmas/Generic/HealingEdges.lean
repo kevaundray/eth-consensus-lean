@@ -585,6 +585,12 @@ theorem premises_truncH {cm : Time → Finset (Fin P.n)} {βK : ℚ} {proposer :
   snapshot := hsnap
   nonempty := hH.mono fun _ hy => ⟨hy, le_rfl⟩
 
+/-- The truncated premises' restart field is exactly the finite no-restart through `b`: a restart
+of a node honest at it is bounded only up to `b`, and nothing is assumed after `b`. -/
+theorem noRestartAfter_truncH_iff {tr : RunTrace A} {H : Time → Set (Fin P.n)} {t b : Time} :
+    Healing.Growing.NoRestartAfter tr (truncH H b) t ↔ NoRestartUpTo A tr H t b :=
+  ⟨fun h y k hy hk hkb => h y k ⟨hy, hkb⟩ hk, fun h y k hy hk => h y k hy.1 hk hy.2⟩
+
 /-- The finite-horizon endpoint over the supplier `O`: the whole-run endpoint
 (`exists_reset_of_drain_rounds_noRestartAfter_at_of`) on the honest sets truncated after `b`,
 which are a run (`ACRun.run_truncH`). Committee faults, faults, service, wakefulness, catch-up,
