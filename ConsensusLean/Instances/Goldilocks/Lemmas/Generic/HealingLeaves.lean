@@ -1362,6 +1362,17 @@ theorem honestBlocksAt_truncH_subset (b : Time) :
     tr.HonestBlocksAt (truncH H b) ⊆ tr.HonestBlocksAt H :=
   fun _ ⟨y, i, t, ht, hle, hy, hB⟩ => ⟨y, i, t, ht, hle, hy.1, hB⟩
 
+/-- Ancestry over the truncated honest blocks is ancestry over `H`'s: an output of a proof on the
+truncation transports back to the original honest sets. -/
+theorem anc_truncH {b : Time} {X Y : A.Blk} (h : Anc (tr.HonestBlocksAt (truncH H b)) X Y) :
+    Anc (tr.HonestBlocksAt H) X Y :=
+  h.mono (honestBlocksAt_truncH_subset b)
+
+/-- Nobody is honest on the truncation strictly after `b`: a later reader's honesty is read on
+`H`, never on the truncation. -/
+theorem truncH_eq_empty_of_lt {b t : Time} (ht : b < t) : truncH H b t = ∅ :=
+  Set.eq_empty_of_forall_notMem fun _ hy => absurd hy.2 (not_le.mpr ht)
+
 theorem catchRun_truncH {g κ : Time} (hc : CatchRun tr H g κ) (b : Time) :
     CatchRun tr (truncH H b) g κ :=
   fun x i B hx hA hlt y j hy hfirst hF =>
