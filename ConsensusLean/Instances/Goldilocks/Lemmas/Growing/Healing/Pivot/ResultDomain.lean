@@ -58,7 +58,7 @@ theorem result_prefix_vote_domain_before_of_domain_at
       s < e'.msg.slot → SA.VoteExtends (tr.HonestBlocksAt H) e'.msg B) :
     Anc (tr.HonestBlocksAt H) B ell.frame.fcRoot ∨
       B ∈ ell.frame.viableTree (SA.voterBlockTree sp e.readPoint ell.frame e.msg.slot) := by
-  have hac := Compose.Growing.goldilocks_ac_projection sp ro dg H tr proposer hp.run hp.noColl
+  have hac := Compose.Growing.goldilocks_ac_projection_from hp.run hp.noColl
   have hcoh := hac.localRun.coherent
   obtain ⟨v, d, m, S, hseed, hda, hm⟩ := hp.reset_seed_at
   have hdb := hda.trans hp.reset_le
@@ -115,7 +115,10 @@ theorem result_prefix_vote_domain_before_of_domain_at
         · exact SA.Growing.result_optimistic_compatible_window_before_at hac hsvc hgs hx hw
             ⟨ellX, hupd, hconf, hCV⟩ hop hrb hcb
             (fun k hk hrest => hreset x k (hp.run.antitone (hp.run.time_mono hk) hx)
-              ((hp.run.time_mono hk).trans hrb) hrest) hp.stock
+              ((hp.run.time_mono hk).trans hrb) hrest)
+            (fun v hv => hp.committeeFacts.hP.1 _ x hx r
+              (fun _ hk => hp.run.time_mono hk.le) _ v hv)
+            (hp.committeeFacts.hsize _)
       rcases hcomp with h | h
       · exact SA.anc_total hcoh (hBC.trans h) hOD
       · exact SA.anc_total hcoh hBC (hOD.trans h)

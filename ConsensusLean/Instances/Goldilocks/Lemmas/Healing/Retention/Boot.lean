@@ -923,7 +923,8 @@ theorem high_origin_low_J_root_before
     obtain ⟨CV, hst⟩ := ho.2.2.1
     obtain ⟨_, C, hfl, hBC⟩ := storedFastLock_mem hp.run hp.noColl ho.1 hst
     obtain ⟨v, _, D, hDU, _, hBD, hacc⟩ := raw_writer_relay_source
-      (by rw [hp.stock]; exact sp.toParams.hn) hr ho.1 (Or.inr hfl) hBC
+      (by rw [hp.stock]; exact sp.toParams.hn) hr (fun _ => SA.voteStart_initial _)
+      ho.1 (Or.inr hfl) hBC
     rcases hacc with hg | ⟨q, hq, hqt⟩
     · obtain ⟨z, hz, m, hDm⟩ := hDU
       exact False.elim ((cutZ_lt_of_anc hp ho hz hDm hBD).2 hg)

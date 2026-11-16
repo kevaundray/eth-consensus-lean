@@ -6,6 +6,7 @@ public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Healing.Kernel.B
 import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Obligations.Healthy.FinalDutyProposal
 import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Obligations.Network.PSync
 import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Simulation.Run
+import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Simulation.RunTransport
 import ConsensusLean.Instances.Goldilocks.Lemmas.Obligations.FinalQueryTiming
 import ConsensusLean.Instances.Goldilocks.Lemmas.Obligations.HonestNonempty
 import ConsensusLean.Instances.Goldilocks.Lemmas.Simulation.RunSchedule
@@ -107,8 +108,12 @@ theorem final_reset_premises_of_shared_at (Q : FinalQueryAt S A V) {c : Nat} (hc
   obtain ⟨j, hj, hjt⟩ := Healing.snapshot_of_awake (hrun.upTo hb0).toLocalRun
     (fun y hy t ht htb => ⟨hs.awake y t (hrun.antitone htb hy) ht htb, htb⟩) hH
     (b := Q.run.2.horizon) (by linarith only [hcz, h4B, hBh])
-  refine ⟨ΔF, a, ⟨hrun, hs.noColl, hs.sync, hs.awake, hs.faults, ha, hab.trans hBh,
-    ⟨j, hj, hjt⟩, rfl⟩, ?_⟩
+  refine ⟨ΔF, a, Healing.Growing.resetPremisesUpTo_of_reset_at
+    (simIni_eq_runStart { S with vote := stock } Q.run.2 Q.hn Q.valid ▸ hrun) hs.noColl hs.sync
+    hs.awake hs.faults ha (hab.trans hBh) ⟨j, hj, hjt⟩ hcatch
+    (Healing.Growing.noRestartUpTo_iff.mpr hs.noRestart) (by rw [hδeq]; exact hs.timeoutDelay) hH
+    (runCommittee_facts { S with vote := stock } Q.run.2 Q.hn Q.valid hs.noColl)
+    (runCommittee_card { S with vote := stock } Q.run.2 Q.hn Q.valid) rfl, ?_⟩
   -- the placement (H3)
   have ha0 : 0 ≤ a := by
     obtain ⟨⟨_, k, _, _, _, _, hka⟩, _⟩ := ha

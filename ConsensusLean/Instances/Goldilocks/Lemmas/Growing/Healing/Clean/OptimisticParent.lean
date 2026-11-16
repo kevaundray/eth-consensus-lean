@@ -64,16 +64,12 @@ theorem clean_optimistic_proposal_parent_at {cm : Time → Finset (Fin sp.n)} {�
   have hS := healthy_base_of_reset_catch_before_at hp ht0 hib
   have hr := hS.run.localRun
   have hΔ := sp.toParams.hΔ
-  have hac := Compose.Growing.goldilocks_ac_projection sp ro dg H tr proposer hp.run hp.noColl
+  have hac := Compose.Growing.goldilocks_ac_projection_from hp.run hp.noColl
   have hU := hac.localRun.coherent
   have subU := RunTrace.honestBlocks_upTo_subset hm (H := H) ht0
   have hcp := (Trace.upTo_callAt tr.projAC).mpr ⟨le_rfl, hci⟩
   have hst : (tr.projAC.upTo (tr.time i)).state p i = tr.projAC.state p i :=
     Trace.upTo_state tr.projAC p fun _ hk => hm hk.le
-  have hf : 2 * (H (tr.time i))ᶜ.ncard < sp.n := by
-    have := hp.faults _ ht0 hib
-    have := Fin.pos p
-    omega
   have hts : sp.ts (s + 1 : Nat) = sp.ts s + 4 * sp.Δ := SA.ts_succ s
   have hcut := hp.clean_window_timing_at hs s (by have := sp.two_le_k; clear * - this; omega)
   have hsg : SA.gbar g + 4 * sp.Δ ≤ sp.ts s := by
@@ -96,13 +92,16 @@ theorem clean_optimistic_proposal_parent_at {cm : Time → Finset (Fin sp.n)} {�
     exact hBF.trans (Anc.mono hPhiU ((SA.fcRoot_anc_getAnchor hPhi A₁ (tr.time i)).trans hhead))
   have hFB := (hPhi.rooted.2 B hV.1).mono hPhiU
   -- the proposer's locks of a label `≥ s` are optimistic of label `s`, so compatible with `B`
-  have hnoopt := Healing.proposal_no_optimistic_of_run (hp.run.upTo ht0) (hp.noColl.upTo _) hf
-    hpH (by rw [RunTrace.upTo_projAC]; exact hcp) hcall hti hp.stock
+  have hnoopt := Compose.proposal_no_optimistic_of (hp.run.upTo ht0) (hp.noColl.upTo _)
+    (by rw [RunTrace.upTo_projAC]; exact hS.hP)
+    (hS.cs2 (s + 1) (by linarith only [hsg, hts, hΔ]) hti.ge) hpH
+    (by rw [RunTrace.upTo_projAC]; exact hcp) hcall hti
   have hhigh : SA.HighLocksCompatible (tr.HonestBlocksAt H) (tr.projAC.state p i)
       (tr.time i) s B := by
     refine SA.highLocksCompatible_iff.2 fun l hl _ hls X hX hXr => ?_
     rw [← hst] at hl
-    obtain ⟨q, hqi, D, hw, L, hL, hLr, hLD⟩ := SA.lock_provenance hr hpH i l hl
+    obtain ⟨q, hqi, D, hw, L, hL, hLr, hLD⟩ := SA.lock_provenanceU (hr := hr.toU) hS.run.vstart
+      hpH i l hl
     obtain rfl : L = X := hU.1 (subU hL) hX (hLr.trans hXr.symm)
     have hLD' := hLD.mono subU
     have hqt : tr.time q ≤ sp.ts (s + 1 : Nat) := hti ▸ hm hqi.le
@@ -119,7 +118,7 @@ theorem clean_optimistic_proposal_parent_at {cm : Time → Finset (Fin sp.n)} {�
       rw [he] at hop'
       obtain ⟨-, hop''⟩ := (SA.upTo_optimisticLockAt hm).mp hop'
       rcases hp.optimistic_sources_compatible_at (hp.run.antitone (hm hqi.le) hpH) hx
-          ((hm hqi.le).trans hib) hrb hop'' hop with h | h
+          ((hm hqi.le).trans hib) hrb (hp.gbar_le_ts_of_clean_at (by omega)) hop'' hop with h | h
       · exact Or.inl (hLD'.trans h)
       · exact SA.anc_total hU hLD' h
     · have ht : tr.time q = sp.ts l.slot + 6 * sp.Δ := hupd.2.2.1
@@ -127,13 +126,15 @@ theorem clean_optimistic_proposal_parent_at {cm : Time → Finset (Fin sp.n)} {�
       rw [hts] at hqt
       exfalso
       linarith only [hqt, ht, hle, hΔ]
-  refine SA.Growing.ProposalSources.optimistic_first_proposal_anc_at hac hf hx hop .refl hpH hci
-    (SA.proposal_slot hti) hd ⟨hV.1, Or.inl hV⟩ ?_ hhigh hp.stock
+  refine SA.Growing.ProposalSources.optimistic_first_proposal_anc_at hac hp.committeeFacts.hP
+    (hp.committeeFacts.hsize s) (hp.committee_cs2_at (by linarith only [hsg, hΔ])
+      (by linarith only [hti, hts, hib, hΔ]) ht0 hib) hx hop .refl hpH hci
+    (SA.proposal_slot hti) hd ⟨hV.1, Or.inl hV⟩ ?_ hhigh
   intro v hv
   obtain ⟨hvs, hsend, D, hD, hDr, hBD, hacc⟩ := fastLock_writer_at hac.localRun hac.vstart hx
     (Or.inr hop) v hv
   have hFD := hFB.trans hBD
-  refine SA.Growing.heldAtProposal_of_writer_at hac.localRun
+  refine SA.Growing.heldAtProposal_of_writer_at hac.localRun hac.vstart
     (hp.sync.ac_service_at hp.run (SA.le_gbar g))
     (by linarith) (b := b) (by rw [hti, hts] at hib; linarith) hpH hci hti hrs hvs hsend
     ⟨D, hD, hDr, hFD, ?_⟩

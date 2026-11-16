@@ -29,7 +29,8 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 `σ[P₀].h + 3 ≤ σ[P₃].h` at every store holding the four anchors of a node honest at an
 observation time `t` after the store's cuts. -/
 theorem anchor_window_advance_at
-    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr)
+    {ini : Fin sp.n → (goldilocksNode sp ro).State}
+    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr ini)
     (hnc : Compose.NoCollRun dg tr) {y : Fin sp.n} {k : Nat} {t : Time} (ht : 0 ≤ t)
     (hle : ∀ q < k, tr.time q ≤ t) (hy : y ∈ H t)
     {P : Fin 4 → SA.Blk sp.n (List (FG.Att sp.n))}

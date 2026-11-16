@@ -42,11 +42,11 @@ theorem carry_of_post_gst_senders_at {cm : Time → Finset (Fin sp.n)} {βK : �
     SA.CarryAt tr.projAC (tr.HonestBlocksAt H) y i e s CV := by
   have hm := hp.run.time_mono
   have hd := hp.run.time_nonneg i
-  have hac := Compose.Growing.goldilocks_ac_projection sp ro dg H tr proposer hp.run hp.noColl
+  have hac := Compose.Growing.goldilocks_ac_projection_from hp.run hp.noColl
   have hr := hac.localRun.upTo hd
   have hc' := (SA.upTo_castAt).mpr ⟨le_rfl, hc⟩
   have hsync := reset_syncACAt hp (lo := g) (hi := sp.ts s + 2 * sp.Δ) le_rfl
-  have hcarry := Compose.Growing.carryAt_of_delivered hr (fun _ => SA.voteStart_initial _) hy hc'
+  have hcarry := Compose.Growing.carryAt_of_delivered hr hp.run.vstart hy hc'
       hs (CV := CV) fun v hv => by
     obtain ⟨hvs, ⟨w, k, hw, hsend, hk1, hk2⟩, Hv, hHvr, hFHv,
       w', kw, hw', hacc, hgk, hkwt⟩ := hW v hv

@@ -36,7 +36,8 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 
 /-- **An honest proposal run is made operationally**: its proposer proposes it at some cut. -/
 theorem proposesAt_of_honestProposalRun_at
-    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr) {s : Nat}
+    {ini : Fin sp.n → (goldilocksNode sp ro).State}
+    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr ini) {s : Nat}
     {P : SA.Blk sp.n (List (FG.Att sp.n))}
     (hP : Healing.Growing.HonestProposalRun tr H proposer s P) :
     ∃ k, tr.ProposesAt (proposer s) k P := by
@@ -68,7 +69,8 @@ theorem honestProposalRun_slot_at {s : Nat} {P : SA.Blk sp.n (List (FG.Att sp.n)
 /-- **A proposal of a node honest at its proposal cut is accepted there**, with the block in its
 tree after the cut (the static `accept_of_proposesAt` on the prefix through the cut's time). -/
 theorem accept_of_proposesAt_at
-    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr)
+    {ini : Fin sp.n → (goldilocksNode sp ro).State}
+    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr ini)
     (hnc : Compose.NoCollRun dg tr) {p : Fin sp.n} {k : Nat}
     {W : SA.Blk sp.n (List (FG.Att sp.n))} (hp : p ∈ H (tr.time k)) (hW : tr.ProposesAt p k W) :
     tr.AcceptAt p k W ∧ W ∈ (tr.state p (k + 1)).fg.tree ∧ tr.post k = tr.state p (k + 1) := by
@@ -83,7 +85,8 @@ theorem accept_of_proposesAt_at
 
 /-- The proposer of an honest anchor is honest at its proposal cut. -/
 theorem proposer_mem_of_proposesAt_at
-    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr) {s : Nat}
+    {ini : Fin sp.n → (goldilocksNode sp ro).State}
+    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr ini) {s : Nat}
     {P : SA.Blk sp.n (List (FG.Att sp.n))}
     (hP : Healing.Growing.HonestProposalRun tr H proposer s P) {k : Nat}
     (hk : tr.ProposesAt (proposer s) k P) : proposer s ∈ H (tr.time k) := by
@@ -96,7 +99,8 @@ theorem proposer_mem_of_proposesAt_at
 
 /-- **An honest proposal is held by its proposer**: proposed at a cut `k` where the proposer is
 honest, and held after it, at cut `k + 1`, which is at the same time. -/
-theorem proposal_held_at (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr)
+theorem proposal_held_at {ini : Fin sp.n → (goldilocksNode sp ro).State}
+    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr ini)
     (hnc : Compose.NoCollRun dg tr) {s : Nat} {P : SA.Blk sp.n (List (FG.Att sp.n))}
     (hP : Healing.Growing.HonestProposalRun tr H proposer s P) :
     ∃ k, tr.ProposesAt (proposer s) k P ∧ proposer s ∈ H (tr.time k) ∧
@@ -182,8 +186,6 @@ theorem UpTo.operational_proposal_below_next_parent_at
   have hr := hS.run.localRun
   have hU := hr.coherent
   have hsub := RunTrace.honestBlocks_upTo_subset hmono (H := H) hi0
-  have hf : 2 * (H (tr.time i))ᶜ.ncard < sp.n := by
-    have := hp.faults _ hi0 hib; have := Fin.pos y; omega
   have hci' : (tr.projAC.upTo (tr.time i)).CallAt y i ell :=
     (Trace.upTo_callAt_of_le _ le_rfl).mpr hci
   have hci'' : (tr.upTo (tr.time i)).projAC.CallAt y i ell := by
@@ -238,7 +240,7 @@ theorem UpTo.operational_proposal_below_next_parent_at
   have hhalf := SA.honest_voters_half_before hS hgu hσi fun z hz q _ hrest => by
     obtain ⟨hqt, hrest'⟩ := ACTrace.upTo_restartAt.mp hrest
     exact hrestart z hz q hqt (Compose.projAC_restartAt.mp hrest')
-  have hhalf' : sp.n ≤ 2 * {z | z ∈ H (tr.time i) ∧ ∃ q e,
+  have hhalf' : sp.committeeSize ≤ 2 * {z | z ∈ H (tr.time i) ∧ ∃ q e,
       SA.VoteAt (tr.projAC.upTo (tr.time i)) z q e ∧ e.msg.slot = u}.ncard := by
     have hle := Set.ncard_le_ncard (s := {z | z ∈ H (tr.time i) ∧ ∃ q e,
       SA.VoteAt (tr.projAC.upTo (tr.time i)) z q e ∧ e.msg.slot = u ∧
@@ -250,7 +252,8 @@ theorem UpTo.operational_proposal_below_next_parent_at
   have hhigh : SA.HighLocksCompatible ((tr.upTo (tr.time i)).HonestBlocks (H (tr.time i)))
       ((tr.projAC.upTo (tr.time i)).state y i) (tr.time i) u P := by
     refine SA.highLocksCompatible_iff.2 fun l hl _ hlσ X hX hXr => ?_
-    obtain ⟨L, hL, hLr, O, hLO, q, hqi, CV, hO⟩ := SA.lock_below_origin hr hy i l hl
+    obtain ⟨L, hL, hLr, O, hLO, q, hqi, CV, hO⟩ := SA.lock_below_origin_from hr hS.run.vstart hy i
+      l hl
     obtain rfl : X = L := hU.1 hX hL (hXr.trans hLr.symm)
     have hcomp : Compatible ((tr.upTo (tr.time i)).HonestBlocks (H (tr.time i))) O P := by
       rcases hO with ⟨ell', ⟨_, _, ht, _⟩, _⟩ | ⟨ellO, A, hpt, hsl, hsel, hCV⟩
@@ -262,8 +265,9 @@ theorem UpTo.operational_proposal_below_next_parent_at
         linarith
       · have hle : l.slot ≤ u := by
           have htime := hmono hqi.le
-          have hno := Healing.proposal_no_optimistic_of_run (hp.run.upTo hi0)
-            (hp.noColl.upTo _) hf hy hci'' hcall hti hp.stock
+          have hno := Compose.proposal_no_optimistic_of (hp.run.upTo hi0) (hp.noColl.upTo _)
+            (by rw [RunTrace.upTo_projAC]; exact hS.hP)
+            (hS.cs2 (u + 1) (by rw [hσ]; linarith) hti.ge) hy hci'' hcall hti
           rw [RunTrace.upTo_projAC] at hno
           have hne : l.slot ≠ u + 1 := fun he =>
             hno y hy q hqi O CV (he ▸ ⟨ellO, A, hpt, hsl, hsel, hCV⟩)
@@ -278,16 +282,19 @@ theorem UpTo.operational_proposal_below_next_parent_at
         split_ifs at hsel
         have h34 := (SA.deepest_mem hsel).1.2.1
         rw [hsl] at h34
-        refine SA.origin_compatible hU hΦU (SA.CommitteeDict.full sp.n) h34
-          (fun _ _ => SA.mem_full _ _) (by simpa only [SA.ncard_inter_full, hp.stock] using hf)
-          fun v hv hvH => ?_
+        have hgl := (SA.ts_le_iff sp).mpr (show (u : Int) ≤ l.slot by omega)
+        have hli := (SA.ts_le_iff sp).mpr (show (l.slot : Int) ≤ u by omega)
+        refine SA.origin_compatible hU hΦU _ h34
+          (by rintro w ⟨v, hv, rfl, -⟩; exact hS.hP.2 y hy q ellO A hpt l.slot v hv)
+          (hS.cs2 l.slot (by linarith) (by linarith)) fun v hv hvH => ?_
         obtain ⟨hvs, q', _, e', hv', rfl⟩ := SA.optimisticPoint_pool_vote hS.run hy hpt hv hvH
         exact votes _ hvH q' e' hv' (by rw [hvs]; omega)
     rcases hcomp with h | h
     · exact Or.inl (hLO.trans h)
     · exact SA.anc_total hU hLO h
-  refine Anc.mono hsub (SA.batch_proposal hS.run hf hhalf' votes hy hci'
-    (SA.proposal_slot hti) (by rw [hst]; exact hd) ⟨hV.1, Or.inl hV⟩ ?_ hhigh hp.stock)
+  refine Anc.mono hsub (SA.batch_proposal hS.run (hS.cs2 u (by linarith) (by linarith))
+    hhalf' votes hy hci' (fun v hv => hS.hP.1 y hy i u v hv) (SA.proposal_slot hti)
+    (by rw [hst]; exact hd) ⟨hV.1, Or.inl hV⟩ ?_ hhigh)
   intro z hz q e hv he
   obtain ⟨H', hH', hHr', hBH⟩ := votes z hz q e hv he
   obtain ⟨Hd, hHd, hHdr, _, hmem, _, hbs⟩ := SA.late_vote_held_of_frame_before hS hy hci' hgu
@@ -320,8 +327,7 @@ theorem honest_proposal_child_at
   have h0 := hp.run.time_nonneg i
   have hyi : proposer s' ∈ H (tr.time i) := hp.run.antitone (by
     rw [hti]; exact le_add_of_nonneg_right sp.toParams.hΔ.le) hy
-  have hr := (Compose.goldilocks_ac_projection sp ro dg (H (tr.time i)) (tr.upTo (tr.time i))
-    proposer (hp.run.upTo h0) (hp.noColl.upTo _)).localRun
+  have hr := (Compose.goldilocks_ac_projection_from (hp.run.upTo h0) (hp.noColl.upTo _)).localRun
   have hci' : (tr.upTo (tr.time i)).projAC.CallAt (proposer s') i ell := by
     rw [RunTrace.upTo_projAC]
     exact (Trace.upTo_callAt_of_le _ le_rfl).mpr hci

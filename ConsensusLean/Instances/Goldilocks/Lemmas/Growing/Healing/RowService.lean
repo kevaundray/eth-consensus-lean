@@ -48,7 +48,8 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 entry `E` of the chain of the stored block `O` of a fast-lock write of the signer at an earlier
 cut `r`, joined at the write. The entry's height is the row's, so `O` is at least that high. -/
 private theorem row_source_static {H₀ : Set (Fin sp.n)} {tr₀ : GoldilocksTrace sp ro}
-    (hrun : Consensus.Goldilocks.GoldilocksRun proposer dg H₀ tr₀)
+    {ini : Fin sp.n → (goldilocksNode sp ro).State}
+    (hrun : Consensus.Goldilocks.GoldilocksRun proposer dg H₀ tr₀ ini)
     (hnc : Compose.NoCollRun dg tr₀) {v : Fin sp.n} (hv : v ∈ H₀)
     {d : Nat} {att : FG.Att sp.n} (hs : tr₀.SignAt v d att) :
     ∃ r < d, ∃ l O CV ℓw D, tr₀.projAC.CallAt v r ℓw ∧ SA.FastLockAt tr₀.projAC v r l D CV ∧
@@ -56,7 +57,7 @@ private theorem row_source_static {H₀ : Set (Fin sp.n)} {tr₀ : GoldilocksTra
       O ∈ (tr₀.state v r).fg.tree ∧ att.h ≤ ((tr₀.state v r).fg.σ O.root).h ∧
       ∃ E ∈ (tr₀.state v r).fg.tree, (tr₀.state v r).fg.Anc E O ∧ E.root = att.T ∧
         ((tr₀.state v r).fg.σ E.root).h = att.h ∧ ((tr₀.state v r).fg.σ E.root).Th = E.root := by
-  have hacr := Compose.goldilocks_ac_projection sp ro dg H₀ tr₀ proposer hrun hnc
+  have hacr := Compose.goldilocks_ac_projection_from hrun hnc
   have hr := hacr.localRun
   have hU := hr.coherent
   obtain ⟨C, hcall⟩ := hs
@@ -118,7 +119,8 @@ private theorem row_source_static {H₀ : Set (Fin sp.n)} {tr₀ : GoldilocksTra
 /-- The record origin of a node honest at `t`, after every earlier cut
 (`client_record_origin_of_run` on the prefix through `t`). -/
 private theorem client_record_origin_at
-    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr)
+    {ini : Fin sp.n → (goldilocksNode sp ro).State}
+    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr ini)
     {y : Fin sp.n} {i : Nat} {t : Time} (ht0 : 0 ≤ t) (hle : ∀ q < i, tr.time q ≤ t)
     (hy : y ∈ H t) (h r : Nat) :
     ((tr.state y i).record.target h = some r ∨ r ∈ (tr.state y i).record.timeout h →
@@ -135,7 +137,8 @@ private theorem client_record_origin_at
     exact ⟨k, hk, att, ((RunTrace.upTo_signAt _).mp hs).2, hh⟩
 
 /-- One record step of a node honest at the step. -/
-private theorem record_step_at (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr)
+private theorem record_step_at {ini : Fin sp.n → (goldilocksNode sp ro).State}
+    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr ini)
     {y : Fin sp.n} {i : Nat} (hy : y ∈ H (tr.time i)) :
     (tr.state y (i + 1)).record = (tr.state y i).record ∨
       ∃ att, tr.SignAt y i att ∧
@@ -149,7 +152,8 @@ private theorem record_step_at (hrun : Consensus.Goldilocks.Growing.GoldilocksRu
   · exact Or.inr ⟨att, ((RunTrace.upTo_signAt _).mp hs).2, h⟩
 
 /-- A sent content of a node honest at `t`, after every earlier cut, was signed earlier. -/
-private theorem sent_origin_at (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr)
+private theorem sent_origin_at {ini : Fin sp.n → (goldilocksNode sp ro).State}
+    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr ini)
     {y : Fin sp.n} {i : Nat} {t : Time} (ht0 : 0 ≤ t) (hle : ∀ q < i, tr.time q ≤ t)
     (hy : y ∈ H t) {b : FG.Content} (hb : b ∈ (tr.state y i).record.sent) :
     ∃ k < i, ∃ att, tr.SignAt y k att ∧ att.content = b := by
@@ -158,7 +162,8 @@ private theorem sent_origin_at (hrun : Consensus.Goldilocks.Growing.GoldilocksRu
   exact ⟨k, hk, att, ((RunTrace.upTo_signAt _).mp hs).2, he⟩
 
 /-- The entry of a signature of a node honest at its signing. -/
-private theorem signAt_entry_at (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr)
+private theorem signAt_entry_at {ini : Fin sp.n → (goldilocksNode sp ro).State}
+    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr ini)
     {y : Fin sp.n} {k : Nat} (hy : y ∈ H (tr.time k)) {att : FG.Att sp.n}
     (hs : tr.SignAt y k att) :
     ∃ E ∈ (tr.state y k).fg.tree, E.root = att.T ∧ ((tr.state y k).fg.σ E.root).h = att.h := by
@@ -169,7 +174,8 @@ private theorem signAt_entry_at (hrun : Consensus.Goldilocks.Growing.GoldilocksR
 /-- The finality pair of a signature of a node honest at its signing names a held entry below the
 signed entry. -/
 private theorem signed_fin_pair_entry_at
-    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr)
+    {ini : Fin sp.n → (goldilocksNode sp ro).State}
+    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr ini)
     {y : Fin sp.n} {k : Nat} (hy : y ∈ H (tr.time k)) {att : FG.Att sp.n}
     (hs : tr.SignAt y k att) {h r : Nat} (hfin : att.fin = some (h, r)) :
     ∃ J ∈ (tr.state y k).fg.tree, ∃ E ∈ (tr.state y k).fg.tree, E.root = att.T ∧

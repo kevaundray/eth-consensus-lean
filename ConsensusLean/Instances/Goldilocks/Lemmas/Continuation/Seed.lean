@@ -16,6 +16,7 @@ import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Sleepy.Node.Family
 import ConsensusLean.Instances.Goldilocks.Lemmas.Healing.Outcome.Foundation
 import ConsensusLean.Instances.Goldilocks.Lemmas.AC.Steps.ExpiryFloor
 import ConsensusLean.Instances.Goldilocks.Lemmas.AC.Basic
+import ConsensusLean.Instances.Goldilocks.Lemmas.Obligations.HSSharedRun
 import ConsensusLean.Lemmas.Tactic.Linarith
 
 public section
@@ -111,7 +112,8 @@ private theorem healedOrigin_cases {rL rO : Nat} {C : SA.Blk sp.n (List (FG.Att 
 
 /-- Every member of the healed family is below an origin of its label, written by a node honest
 at its cut, at a time `≤ b` (`HealedOrigin.below_origin`). -/
-private theorem member_below_origin (hrun : Growing.GoldilocksRun proposer dg H tr)
+private theorem member_below_origin {ini : Fin sp.n → (goldilocksNode sp ro).State}
+    (hrun : Growing.GoldilocksRun proposer dg H tr ini)
     (hnc : NoCollRun dg tr) {rL rO : Nat} {C : SA.Blk sp.n (List (FG.Att sp.n))} {s : Nat}
     (hC : HealedOrigin tr H g rL rO C s b) :
     ∃ x i O OV, x ∈ H (tr.time i) ∧ tr.time i ≤ b ∧
@@ -139,7 +141,7 @@ private theorem origin_supporter
       Healing.Growing.ProposalImpl.result_supporter_at hp hx hO hCO hib hts
     exact ⟨z, j, e, hp.run.antitone (hm hji.le) hz, (hm hji.le).trans hib, hv, hes, hCH⟩
   · obtain ⟨-, z, j, hz, hji, e, hv, hes, Hd, hHd, he, hOH⟩ :=
-      hp.optimistic_supporter_at hx hib hO
+      hp.optimistic_supporter_at hx hib (Healing.gbar_le_of_cutZ_le sp hts) hO
     exact ⟨z, j, e, hp.run.antitone (hm hji) hz, (hm hji).trans hib, hv, hes,
       Hd, hHd, he, hCO.trans hOH⟩
 
@@ -290,8 +292,9 @@ theorem HandoverSeed.of_reset {T : Time} {r σ : Nat}
 (`castAt_readPoint_locksWF`), so `drain_live_locks` applies. -/
 theorem handover_live_lock_label_at {T : Time} {r σ : Nat}
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
-    (hseed : HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK)) {y : Fin sp.n} {i : Nat}
-    {ℓ : ACLabel (goldilocksNode sp ro)} {e : SA.Em sp (List (FG.Att sp.n))}
+    (hseed : HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK))
+    {y : Fin sp.n} {i : Nat} {ℓ : ACLabel (goldilocksNode sp ro)}
+    {e : SA.Em sp (List (FG.Att sp.n))}
     (hy : y ∈ H (tr.time i)) (hc : SA.CastAt tr.projAC y i ℓ e) (hs : σ < e.msg.slot) :
     ∀ l ∈ SA.liveLocks sp e.readPoint.locks ℓ.frame (tr.time i), r ≤ l.slot := by
   obtain ⟨a, hp, hr⟩ := hseed.reset
@@ -306,8 +309,8 @@ theorem handover_live_lock_label_at {T : Time} {r σ : Nat}
     rw [hr, Healing.cleanLabel_eq] at hrσ
     push_cast
     omega
-  have hwf := SA.castAt_readPoint_locksWF (acRun_upTo hrun hnc hd).localRun hy
-    (sa_castAt_upTo.mpr ⟨le_rfl, hc⟩)
+  have hwf := SA.castAt_readPoint_locksWFU (hr := (acRun_upTo hrun hnc hd).localRun.toU)
+    hrun.vstart hy (sa_castAt_upTo.mpr ⟨le_rfl, hc⟩)
   intro l hl
   rw [hr]
   exact Healing.drain_live_locks (a := a) hwf hdrain l hl
@@ -355,7 +358,15 @@ theorem handover_seed_cover_at (Q : HealthyPreparationQueryAt S A V) (h0 : 0 ≤
         (protoFGDelay (Model.pubOf Q.run.1)) D.resetTime
           Q.bound
         (runCommittee { S with vote := stock } Q.run.2 Q.hn) (K S A).params.βK :=
-    { D.reset with sync := healthy_preparation_service_at S A V Q }
+    { D.reset with
+      sync := healthy_preparation_service_at S A V Q
+      timeoutDelay := fun s => by
+        have h := protoFGDelay_timeout_of_fgDelay S A V Q.run Q.hn Q.healthy.2.2
+        have hδ : (Q.params.toParams.δt : Time) = S.δt := rfl
+        rw [Q.params.slotTime_eq, Q.params.slotTime_eq]
+        push_cast
+        rw [hδ, mul_add]
+        linarith }
   have hΔ := Q.params.toParams.hΔ
   have hX : (1 : Time) ≤ (Q.index : Time) := by exact_mod_cast Q.index.pos
   have hdrain : Healing.drainTime Q.params D.resetTime ≤ D.query :=

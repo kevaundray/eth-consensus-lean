@@ -31,7 +31,7 @@ theorem held_high_origin_viable_at
   have ht := hp.run.time_nonneg c
   have hle : ∀ q < c, tr.time q ≤ tr.time c := fun _ hq => hp.run.time_mono hq.le
   have hreach := fg_reachable_at hp.run ht hle hpH
-  have hac := Compose.Growing.goldilocks_ac_projection sp ro dg H tr proposer hp.run hp.noColl
+  have hac := Compose.Growing.goldilocks_ac_projection_from hp.run hp.noColl
   have hr := hac.localRun.upTo ht
   have hc' := (Trace.upTo_callAt tr.projAC).mpr (And.intro le_rfl hc)
   have hU := hac.localRun.coherent

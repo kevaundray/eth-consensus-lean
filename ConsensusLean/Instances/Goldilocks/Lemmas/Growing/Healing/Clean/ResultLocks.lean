@@ -34,8 +34,8 @@ theorem result_prefix_stored_locks_at
       ∀ Y ∈ tr.HonestBlocksAt H, Y.root = l.block → Compatible (tr.HonestBlocksAt H) Y B := by
   have hm := hp.run.time_mono
   have hU := Compose.Growing.honest_blocks_coherent hp.run hp.noColl
-  have hac := Compose.goldilocks_ac_projection sp ro dg (H (tr.time i))
-    (tr.upTo (tr.time i)) proposer (hp.run.upTo (hp.run.time_nonneg i)) (hp.noColl.upTo _)
+  have hac := Compose.goldilocks_ac_projection_from (hp.run.upTo (hp.run.time_nonneg i))
+    (hp.noColl.upTo _)
   rw [RunTrace.upTo_projAC] at hac
   have sub := RunTrace.honestBlocks_upTo_subset hm (H := H) (hp.run.time_nonneg i)
   have hclean : cleanLabel sp a + sp.k + 2 ≤ s := by
@@ -73,7 +73,7 @@ theorem result_prefix_stored_locks_at
       exact SA.anc_total hU hCH hDH
     cases hf : l.fast
     · obtain ⟨q, hqi, D, hsl, L, hL, hLr, hLD⟩ :=
-        SA.slow_lock_provenance hac.localRun hy i l hl hf
+        SA.slow_lock_provenance_from hac.localRun hp.run.vstart hy i l hl hf
       obtain rfl : Y = L := hU.1 hY (sub hL) (hYr.trans hLr.symm)
       obtain ⟨ell, R, hu, hconf, hdeep⟩ := hsl
       obtain ⟨hqd, hu⟩ := (SA.upTo_updateAt hm).mp hu
@@ -86,12 +86,12 @@ theorem result_prefix_stored_locks_at
       exact down (hLD.mono sub) (compare (hp.run.antitone (hm hqi.le) hy)
         ((hm hqi.le).trans hib) (Or.inr hsl'))
     · obtain ⟨q, hqi, D, CV', hfl, L, hL, hLr, hLD⟩ :=
-        SA.fast_lock_provenance hac.localRun hy i l hl hf
+        SA.fast_lock_provenance_from hac.localRun hp.run.vstart hy i l hl hf
       obtain rfl : Y = L := hU.1 hY (sub hL) (hYr.trans hLr.symm)
       exact down (hLD.mono sub) (compare (hp.run.antitone (hm hqi.le) hy)
         ((hm hqi.le).trans hib) (Or.inl ⟨CV', ((SA.upTo_fastLockAt hm).mp hfl).2⟩))
   · obtain ⟨L, hL, hLr, D, hLD, q, hqi, CV', hD⟩ :=
-      SA.lock_below_origin hac.localRun hy i l hl
+      SA.lock_below_origin_from hac.localRun hp.run.vstart hy i l hl
     obtain rfl : Y = L := hU.1 hY (sub hL) (hYr.trans hLr.symm)
     rw [hls] at hD
     have hD' := hD.imp (fun h => ((SA.upTo_resultAt hm).mp h).2)

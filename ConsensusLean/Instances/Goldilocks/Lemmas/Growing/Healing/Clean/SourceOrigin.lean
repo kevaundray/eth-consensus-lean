@@ -5,6 +5,11 @@ import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Obligations.Healthy.Hig
 import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Compose.Trees
 import ConsensusLean.Instances.Goldilocks.Lemmas.Healing.Retention.High
 import ConsensusLean.Instances.Goldilocks.Lemmas.AC.Steps.Compatible.Later
+import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Healing.Clean.HalfCommittee
+import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Healing.Kernel.OriginLabel
+import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Healing.Kernel.HighOriginSources
+import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.AC.Committee
+import ConsensusLean.Instances.Goldilocks.Lemmas.Healing.Arith
 
 public section
 
@@ -31,7 +36,7 @@ theorem clean_source_compatible_high_origin_at
     Compatible (tr.HonestBlocksAt H) C D := by
   have hyo := hp.run.antitone (le_max_right _ _) ho.1
   have hm := hp.run.time_mono
-  have hac := Compose.Growing.goldilocks_ac_projection sp ro dg H tr proposer hp.run hp.noColl
+  have hac := Compose.Growing.goldilocks_ac_projection_from hp.run hp.noColl
   have hU := hac.localRun.coherent
   have hclean : cleanLabel sp a + sp.k + 2 ≤ s := by have := sp.two_le_k; omega
   have hts := hp.clean_window_timing_at hclean s (by have := sp.two_le_k; omega)
@@ -43,7 +48,7 @@ theorem clean_source_compatible_high_origin_at
       · obtain ⟨z, hz, j, hjr, e, hv, _, hes, hCH⟩ :=
           ProposalImpl.result_supporter_at hp hx hC .refl hrb hts
         exact ⟨z, j, hz, hjr.le, e, hv, hes, hCH⟩
-      · exact (hp.optimistic_supporter_at hx hrb hC).2
+      · exact (hp.optimistic_supporter_at hx hrb (Healing.gbar_le_of_cutZ_le sp hts) hC).2
     obtain ⟨z, j, hz, hjr, e, hv, hes, hCH⟩ := supporter
     exact hp.target_compatible_older_origin_at ho hqb (hp.run.antitone (hm hjr) hz)
       hv ((hm hjr).trans hrb) hes h hCH
@@ -79,13 +84,13 @@ theorem clean_source_compatible_high_origin_at
     have hDE : Anc (tr.HonestBlocksAt H) D E := by
       rw [hD]
       exact (SA.anc_viableAncestor ell.frame E).mono sub
-    have hf : 2 * (H (tr.time q))ᶜ.ncard < sp.n := by
-      have := hp.faults _ (hp.run.time_nonneg q) hqb
-      have := Fin.pos x
-      omega
     have hEC := SA.fastLock_compatible_of_votes (hac.upTo (hp.run.time_nonneg q)) _
-      SA.CommitteeP.full hyo (Nat.lt_succ_self q) ((SA.upTo_fastLockAt hm).mpr ⟨le_rfl, hfl⟩)
-      (SA.cs2_full hp.stock hf) (B := C) (by
+      (SA.CommitteePAt.upTo hm hp.run.antitone hp.committeeFacts.hP _) hyo (Nat.lt_succ_self q)
+      ((SA.upTo_fastLockAt hm).mpr ⟨le_rfl, hfl⟩)
+      (hp.committee_cs2_at
+        (Healing.gbar_le_of_cutZ_le sp (hp.cutZ_le_ts_of_highOrigin_at ho))
+        ((ProposalImpl.ts_le_of_fastLock_at hp.run hfl).trans hqb) (hp.run.time_nonneg q) hqb)
+      (B := C) (by
         intro z hz j hj e hv hes
         obtain ⟨hjq, hv⟩ := SA.upTo_voteAt.mp hv
         have hzj := hp.run.antitone hjq hz

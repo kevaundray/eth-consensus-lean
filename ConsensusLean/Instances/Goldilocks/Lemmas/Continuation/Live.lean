@@ -113,7 +113,8 @@ extends to the read (`seeded_effective_record_mono_at`), and the read is the eff
 (`seeded_ready_read_record_at`). -/
 theorem continued_include_at (hrun : Growing.GoldilocksRun proposer dg H tr)
     (hnc : NoCollRun dg tr) (hcv : ChainConvictedBelow tr H) {T : Time} {r σ : Nat}
-    (hseed : HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK)) {t₁ b : Time} (hTb : T ≤ b)
+    (hseed : HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK)) {t₁ b : Time}
+      (hTb : T ≤ b)
     (hsvc : Healing.Growing.ResetService tr H g ΔF b) (hB : SleepyBoundsFrom tr H r b)
     (hinv : SeededInvariant tr H g r (r + sp.k - 1) t₁ b)
     (hdt₁ : sp.ts (r + sp.k : Nat) ≤ t₁) {τ : Time}
@@ -121,10 +122,11 @@ theorem continued_include_at (hrun : Growing.GoldilocksRun proposer dg H tr)
     (hP : Regimes.Growing.ReadyProposalAt tr H (Regimes.catchUp sp) τ (Regimes.Growing.hold sp) P)
     (ht₁ : t₁ + 8 * sp.Δ ≤ τ) (hrτ : sp.ts (r + sp.k + 1 : Nat) ≤ τ) {y : Fin sp.n} {t : Time}
     {j : Nat} (hmargin : τ + 6 * sp.Δ ≤ t) (htb : t ≤ b)
-    (hy : Regimes.Growing.ReadyAt tr H (Regimes.catchUp sp) y t) (hj : Regimes.CutAfter tr j t) :
+    (hy : Regimes.Growing.ReadyAt tr H (Regimes.catchUp sp) y t) (hj : Regimes.CutAfter tr j t)
+    (hstock : sp.committeeSize = sp.n) :
     Anc (tr.HonestBlocksAt H) P (Regimes.readAfter tr y j t) := by
   have hS : SeededRun tr H proposer dg g ΔF T r σ t₁ b (cm := cm) (βK := βK) :=
-    ⟨hrun, hnc, hseed, hsvc, hB, hinv, hcv, hTb, hdt₁, hseed.reset.elim fun _ h => h.1.stock⟩
+    ⟨hrun, hnc, hseed, hsvc, hB, hinv, hcv, hTb, hdt₁, hstock⟩
   have hΔ := sp.toParams.hΔ
   have hk := sp.two_le_k
   obtain ⟨pp, kP, -, hph, hPa, hkP⟩ := hP
@@ -337,7 +339,7 @@ theorem continued_proposal_live_at
       rfl⟩
     (ht₁.trans P.fresh.le) hslot hm le_rfl
     (confirmed_ready_mono_at { S with vote := stock }
-      ⟨A.fgSlots, A.two_le_fgSlots, A.timeout⟩ V Q hd hy) hj
+      ⟨A.fgSlots, A.two_le_fgSlots, A.timeout⟩ V Q hd hy) hj rfl
 
 end Consensus.Goldilocks.Obligations.Growing
 

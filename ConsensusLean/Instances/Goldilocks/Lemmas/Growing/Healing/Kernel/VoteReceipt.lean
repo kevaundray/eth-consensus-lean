@@ -9,6 +9,9 @@ import ConsensusLean.Instances.Goldilocks.Lemmas.Compose.Sleepy.Timing
 import ConsensusLean.Instances.Goldilocks.Lemmas.Compose.Sleepy.Transport
 import ConsensusLean.Lemmas.Tactic.Linarith
 
+import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Healing.Clean.HalfCommittee
+import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.AC.Committee
+import ConsensusLean.Instances.Goldilocks.Lemmas.Healing.Arith
 public section
 
 /-! # A counted high-origin head reaches the vote freeze
@@ -39,24 +42,24 @@ theorem high_origin_frozen_head_at
     ∃ D ∈ SA.voterBlockTree sp e.readPoint ell.frame e.msg.slot,
       Anc (tr.HonestBlocksAt H) O D := by
   have hm := hp.run.time_mono
-  have hac := Compose.Growing.goldilocks_ac_projection sp ro dg H tr proposer hp.run hp.noColl
+  have hac := Compose.Growing.goldilocks_ac_projection_from hp.run hp.noColl
   obtain ⟨ellX, D, CV, hcx, hfl, hOD⟩ := highOrigin_raw_head_at hp.run hp.noColl ho
   have hr := hac.upTo (hp.run.time_nonneg r)
   have hlab := hp.cutZ_le_ts_of_highOrigin_at ho
-  have hf : 2 * (H (tr.time r))ᶜ.ncard < sp.n := by
-    have := hp.faults (tr.time r) (hp.run.time_nonneg r) hrb
-    have hn := sp.toParams.hn
-    change 0 < sp.n at hn
-    omega
+  have hf := hp.committee_cs2_at (s := l) (Healing.gbar_le_of_cutZ_le sp hlab)
+    ((ProposalImpl.ts_le_of_fastLock_at hp.run hfl).trans hrb) (hp.run.time_nonneg r) hrb
   obtain ⟨z, hz, j, ev, hv, hes, W, hW, hWr, hDW⟩ :=
-    SA.fastLock_honest_vote hr hf (hp.run.antitone (le_max_right _ _) ho.1)
-      ((SA.upTo_fastLockAt hm).mpr ⟨le_rfl, hfl⟩) hp.stock
+    SA.fastLock_honest_vote hr _
+      (SA.CommitteePAt.upTo hm hp.run.antitone hp.committeeFacts.hP _)
+      (hp.run.antitone (le_max_right _ _) ho.1)
+      ((SA.upTo_fastLockAt hm).mpr ⟨le_rfl, hfl⟩) hf
   obtain ⟨hjr, hv₀⟩ := SA.upTo_voteAt.mp hv
   have hzj := hp.run.antitone hjr hz
   obtain ⟨ellZ, hcz, he⟩ := hv₀
   have hrj := (hac.upTo (hp.run.time_nonneg j)).localRun
   have hcz' := Trace.upTo_callAt tr.projAC |>.mpr (And.intro le_rfl hcz)
-  obtain ⟨⟨W', hW't, hW'r, _⟩, hjt⟩ := Compose.cast_head_fcRoot hrj hzj ⟨hcz', he⟩
+  obtain ⟨⟨W', hW't, hW'r, _⟩, hjt⟩ :=
+    Compose.cast_head_fcRoot_from hrj hp.run.vstart hzj ⟨hcz', he⟩
   have heq : W' = W := hac.localRun.coherent.1
     ((SA.frameIn_of_callAt hrj hzj hcz').2 hW't) hW (hW'r.trans hWr.symm)
   subst W'

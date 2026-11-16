@@ -180,7 +180,7 @@ private theorem finalized_compatible_source (Q : HealthyPreparationQueryAt S A V
     exact Or.inl (Compose.Growing.honestAt_genesis_anc
       (simTraceAt_goldilocksRun { S with vote := stock } Q.run.2 Q.hn Q.valid)
       (source_mem S A V Q hx hC)).2
-  exact D.reset.finalized_compatible_clean_source_at (healthy_schedule_catch_at S A V Q D) hx hC
+  exact D.reset.finalized_compatible_clean_source_at hx hC
     (by simpa only [D.cleanLabel_eq] using hs) hrb ht hrp.1 hy htb
 
 /-- **Two record covers compare**: the records of two readers, each honest at its read point,
@@ -204,7 +204,7 @@ theorem healthy_current_sources_compatible_at (Q : HealthyPreparationQueryAt S A
     · exact (tips_comparable_of_origin_witnesses_at S A V Q .refl hRB
         (finalized_compatible_source S A V Q D hrp' ht'b hz hx hB hs (hrt.trans htb))).symm
     · exact tips_comparable_of_origin_witnesses_at S A V Q hRB hRE
-        (D.reset.clean_sources_compatible_at (healthy_schedule_catch_at S A V Q D) hx hx' hB hE
+        (D.reset.clean_sources_compatible_at hx hx' hB hE
           (by simpa only [D.cleanLabel_eq] using hs)
           (by simpa only [D.cleanLabel_eq] using hs') (hrt.trans htb) (hqt.trans ht'b))
 

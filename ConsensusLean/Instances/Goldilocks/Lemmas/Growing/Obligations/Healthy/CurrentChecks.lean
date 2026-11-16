@@ -241,7 +241,6 @@ fork-choice root or in the viable voter tree of every later cast of a node hones
 earlier later-label votes extend it. -/
 theorem healthy_current_vote_domain_at (Q : HealthyPreparationQueryAt S A V)
     (D : HealthyRepairScheduleAt S A V Q)
-    (hc : Healing.Growing.CatchRun Q.trace Q.keys Q.gst (2 * Q.params.Δ))
     {R B : SA.Blk Q.params.n (List (FG.Att Q.params.n))} {x : Fin Q.params.n} {r s : Nat}
     {CV : Set (SA.Vote Q.params.n)}
     (hx : x ∈ Q.keys (Q.trace.time r)) (hr : SA.ResultAt Q.trace.projAC x r s B CV)
@@ -283,7 +282,7 @@ theorem healthy_current_stored_locks_at (Q : HealthyPreparationQueryAt S A V)
   have he' : SA.CastAt (Q.trace.projAC.upTo (Q.trace.time q)) z q ell e :=
     SA.upTo_castAt.mpr ⟨le_rfl, he⟩
   have hslot := (SA.castAt_spec hac hz he').2.1
-  exact D.reset.result_prefix_stored_locks_at (healthy_schedule_catch_at S A V Q D) hx hz hr hRB
+  exact D.reset.result_prefix_stored_locks_at hx hz hr hRB
     (by simpa only [D.cleanLabel_eq] using hs) hrb hqb (by
       change e.msg.slot = Q.params.slot (Q.trace.time q) at hslot
       exact (hes.symm.trans hslot).le)
@@ -314,7 +313,7 @@ theorem healthy_current_live_chain_at (Q : HealthyPreparationQueryAt S A V)
   obtain ⟨l, hl, B, hB, hBr, hlive, rfl⟩ := SA.mem_liveLockBlocks_of_wf hPhi hwf hX
   obtain ⟨m, hm, E, hE, hEr, hmive, rfl⟩ := SA.mem_liveLockBlocks_of_wf hPhi hwf hY
   rw [← hst] at hl hm
-  have hBE := D.reset.clean_stored_locks_compatible_at (healthy_schedule_catch_at S A V Q D)
+  have hBE := D.reset.clean_stored_locks_compatible_at
     C.time_nonneg C.readPoint.1 C.honest C.time_bound hl hm
     (Healing.drain_stored_lock_label hdrain hlive) (Healing.drain_stored_lock_label hdrain hmive)
     (hsub hB) hBr (hsub hE) hEr

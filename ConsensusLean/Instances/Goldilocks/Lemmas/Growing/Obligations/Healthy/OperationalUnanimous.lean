@@ -61,8 +61,7 @@ theorem operational_unanimous_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     hp.reset_pivot_at hpH hactual hPs hR hci hcall hd hti hib hPQ
   have hi0 := hp.run.time_nonneg i
   have hpi : p ∈ H (tr.time i) := hp.run.antitone (by rw [hti, hold]; linarith) hpH
-  have hrp := (Compose.goldilocks_ac_projection sp ro dg (H (tr.time i)) (tr.upTo (tr.time i))
-    proposer (hp.run.upTo hi0) (hp.noColl.upTo _)).localRun
+  have hrp := (Compose.goldilocks_ac_projection_from (hp.run.upTo hi0) (hp.noColl.upTo _)).localRun
   have hci' : (tr.upTo (tr.time i)).projAC.CallAt p i ellp := by
     rw [RunTrace.upTo_projAC]
     exact (Trace.upTo_callAt_of_le _ le_rfl).mpr hci
@@ -87,8 +86,8 @@ theorem operational_unanimous_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
       fun x j' e' hx hj' hv' hs' => ih j' hj' x e' hx hv' hs'
         ((hp.run.time_mono hj'.le).trans hjb)
     have hj0 := hp.run.time_nonneg j
-    have hry := (Compose.goldilocks_ac_projection sp ro dg (H (tr.time j))
-      (tr.upTo (tr.time j)) proposer (hp.run.upTo hj0) (hp.noColl.upTo _)).localRun
+    have hry :=
+      (Compose.goldilocks_ac_projection_from (hp.run.upTo hj0) (hp.noColl.upTo _)).localRun
     have hcy' : SA.CastAt (tr.upTo (tr.time j)).projAC y j elly e := by
       rw [RunTrace.upTo_projAC]
       exact SA.upTo_castAt.mpr ⟨le_rfl, hcy⟩

@@ -49,7 +49,7 @@ open Regimes.Growing (hold)
 /-- View agreement preserves an old child's lack of a strict majority. -/
 theorem reset_old_child_ineligible_at
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
-    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK) (hc : CatchRun tr H g (2 * sp.Δ))
+    (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
     {p y : Fin sp.n} {k i j s : Nat} {P : SA.Blk sp.n (List (FG.Att sp.n))}
     (hpH : p ∈ H (sp.ts (s + 1 : Nat) + hold sp)) (hdesignated : p = proposer (s + 1))
     (hactual : tr.ProposesAt p k P) (hPs : P.slot = s + 1)
@@ -76,14 +76,14 @@ theorem reset_old_child_ineligible_at
     (by rw [hti]; exact le_add_of_nonneg_right sp.toParams.hΔ.le) hpH
   have hPhi := Outcome.frame_realized hp.run hpI hci
   have hBP : B ≠ P := by rintro rfl; omega
-  have hBv := hp.reset_competitor_reflect_at hc hpH hdesignated hactual hPs hci hti hy hcy
+  have hBv := hp.reset_competitor_reflect_at hpH hdesignated hactual hPs hci hti hy hcy
     hes hib hgi hjoi hQt hPQ .refl hBP hQv hBQ hB
   have hslot : sp.slot (tr.time i) = s + 1 := by
     rw [hti]
     simpa using (SA.slot_arithmetic sp (s + 1)).1 0 (by omega)
-  obtain ⟨heq, hvot, hsup⟩ := hp.reset_views_agree_at hc hpH hdesignated hactual hPs
+  obtain ⟨heq, hvot, hsup⟩ := hp.reset_views_agree_at hpH hdesignated hactual hPs
     hci hcall hd hti hpay hy hcy hes hib hjb hPy hg hgi hgj hjoi hjoj
-  have hac := Compose.Growing.goldilocks_ac_projection sp ro dg H tr proposer hp.run hp.noColl
+  have hac := Compose.Growing.goldilocks_ac_projection_from hp.run hp.noColl
   have hr := hac.localRun.upTo (hp.run.time_nonneg j)
   have hcy' := SA.upTo_castAt.mpr (And.intro le_rfl hcy)
   have hsj : sp.slot (tr.time j) = s + 1 :=
@@ -94,7 +94,7 @@ theorem reset_old_child_ineligible_at
 eligible child itself. Each reader is honest only at its own observation. -/
 theorem reset_stop_at_parent_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
-    (hc : CatchRun tr H g (2 * sp.Δ)) {p y : Fin sp.n} {k i j s : Nat}
+    {p y : Fin sp.n} {k i j s : Nat}
     {P : SA.Blk sp.n (List (FG.Att sp.n))} (hpH : p ∈ H (sp.ts (s + 1 : Nat) + hold sp))
     (hdesignated : p = proposer (s + 1)) (hactual : tr.ProposesAt p k P)
     (hPs : P.slot = s + 1) (hR : drainTime sp a ≤ sp.ts (s + 1 : Nat))
@@ -128,7 +128,7 @@ theorem reset_stop_at_parent_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
           (SA.mergedVoteView sp e.readPoint elly.frame (s + 1)) s B} C := by
   have hpI : p ∈ H (tr.time i) := hp.run.antitone
     (by rw [hti]; exact le_add_of_nonneg_right sp.toParams.hΔ.le) hpH
-  have hac := Compose.Growing.goldilocks_ac_projection sp ro dg H tr proposer hp.run hp.noColl
+  have hac := Compose.Growing.goldilocks_ac_projection_from hp.run hp.noColl
   have hr := hac.localRun.upTo (hp.run.time_nonneg j)
   have hcy' := SA.upTo_castAt.mpr (And.intro le_rfl hcy)
   have hsj : sp.slot (tr.time j) = s + 1 :=
@@ -146,9 +146,9 @@ theorem reset_stop_at_parent_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     intro B hB hBQ hBs
     have hBP : B ≠ P := by rintro rfl; omega
     have hQvy := hp.reset_parent_viable_of_children_at hy hR hcy hes hjb (hPhiU hQt) hPQ hBQ
-      hBP hPv hB (fun x r l O ho ht _ => hp.reset_proposal_passes_at hc hpI hR hci hcall hd
+      hBP hPv hB (fun x r l O ho ht _ => hp.reset_proposal_passes_at hpI hR hci hcall hd
         hti hib O ⟨x, r, l, ho, ht⟩)
-    exact hp.reset_old_child_ineligible_at hc hpH hdesignated hactual hPs hci hcall hd hti
+    exact hp.reset_old_child_ineligible_at hpH hdesignated hactual hPs hci hcall hd hti
       hpay hPQ hy hcy hes hib hjb hPv.1.1 hg hgi hgj hjoi hjoj hQt hQv hQvy hB hBQ hBs
   refine ⟨⟨⟨hPv, hPQ, Or.inr (Or.inl (hPs.trans hsj.symm))⟩, ?_⟩, ?_⟩
   · intro B hB

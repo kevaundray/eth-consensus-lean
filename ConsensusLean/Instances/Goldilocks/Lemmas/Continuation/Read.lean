@@ -232,7 +232,8 @@ and held, so an ancestor candidate (`seeded_chain_candidate_at`), the reader hav
 `t_{r−k−3}` on before the read (`seeded_reader_called_at`). It is used for a record the reader
 wrote with a label `< rO`, not a member of the family. -/
 theorem seeded_stale_record_viable_at (hrun : Growing.GoldilocksRun proposer dg H tr)
-    {T : Time} {r σ : Nat} (hseed : HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK)) {t₁ b : Time}
+    {T : Time} {r σ : Nat} (hseed : HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK))
+      {t₁ b : Time}
     (hinv : SeededInvariant tr H g r (r + sp.k - 1) t₁ b)
     {y : Fin sp.n} {j : Nat} {t : Time} (hrp : Regimes.ReadPoint tr j t) (ht₁ : t₁ ≤ t)
     (htb : t ≤ b) (hdt : sp.ts (r + sp.k : Nat) ≤ t) (hy : y ∈ H t)

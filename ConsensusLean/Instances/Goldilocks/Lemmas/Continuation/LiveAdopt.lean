@@ -41,7 +41,8 @@ variable {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
 `b ≥ t_s + Δ`: a member of a label `< s` is extended by the vote of a slot-`s` voter awake and
 joined at `t_s + Δ` (S2); a member of label `s` is below its origin of label `s`, whose honest
 supporter votes `P`. -/
-theorem seeded_member_anc_proposal (hS : SeededRun tr H proposer dg g ΔF T r σ t₁ b (cm := cm) (βK := βK))
+theorem seeded_member_anc_proposal
+    (hS : SeededRun tr H proposer dg g ΔF T r σ t₁ b (cm := cm) (βK := βK))
     (hrs : r ≤ s) (hPU : P ∈ tr.HonestBlocksAt H) (hsb : sp.ts s + sp.Δ ≤ b)
     (hall : ∀ x j e, HVoteAt tr H x j e → e.msg.slot = s → e.msg.head = P.root)
     {C : SA.Blk sp.n (List (FG.Att sp.n))} {l : Nat}
@@ -69,7 +70,8 @@ vote is `P`, through `b ≥ t_s + Δ`: by induction on the vote's cut, `later_tr
 the block `P`, compatible with every member of a label `≤ s` (`seeded_member_anc_proposal`), with
 the live locks of the vote of labels `≥ r` (`handover_live_lock_label_at`) and the frozen witness
 `seeded_vote_frame_of`. -/
-theorem seeded_votes_succ_extend (hS : SeededRun tr H proposer dg g ΔF T r σ t₁ b (cm := cm) (βK := βK))
+theorem seeded_votes_succ_extend
+    (hS : SeededRun tr H proposer dg g ΔF T r σ t₁ b (cm := cm) (βK := βK))
     (hs : σ + 1 ≤ s) (hPU : P ∈ tr.HonestBlocksAt H) (hsb : sp.ts s + sp.Δ ≤ b)
     (hall : ∀ x j e, HVoteAt tr H x j e → e.msg.slot = s → e.msg.head = P.root) :
     ∀ x j e, HVoteAt tr H x j e → e.msg.slot = s + 1 → tr.time j ≤ b →
@@ -200,7 +202,8 @@ theorem seeded_updater_F_anc (hS : SeededRun tr H proposer dg g ΔF T r σ t₁ 
 /-- **A result of an update at a time in `[t₁, b]` that is a member of the healed family is not
 vetoed**: every live lock block of the updater is on the healed chain (`seeded_locks_at`), so
 compatible with the member. -/
-theorem seeded_result_not_vetoed (hS : SeededRun tr H proposer dg g ΔF T r σ t₁ b (cm := cm) (βK := βK))
+theorem seeded_result_not_vetoed
+    (hS : SeededRun tr H proposer dg g ΔF T r σ t₁ b (cm := cm) (βK := βK))
     {y : Fin sp.n} {k₀ m : Nat} (hy : y ∈ H (tr.time k₀)) {ℓ : ACLabel (goldilocksNode sp ro)}
     (hu : SA.UpdateAt tr.projAC y k₀ m ℓ) (ht₁ : t₁ ≤ tr.time k₀) (hb : tr.time k₀ ≤ b)
     {C : SA.Blk sp.n (List (FG.Att sp.n))} {l : Nat}

@@ -254,7 +254,8 @@ theorem descendant_source_parent (hrun : GoldilocksRun proposer dg H tr)
   dsimp only at hlC hlf
   obtain ⟨hvat, hva⟩ := SA.viableAncestor_anc hΦ hB₀
   obtain rfl : C = ℓ.frame.viableAncestor B₀ := hΦ.coherent.1 hCv.1 hvat hlC.symm
-  have hclean := (live_lock_clean (hr.trans hk) (SA.locksWF_state hr' hy k)
+  have hclean :=
+    (live_lock_clean (hr.trans hk) (SA.locksWF_state hr' (fun _ => SA.voteStart_initial _) hy k)
     ⟨l₀, hl₀, B₀, hB₀, hB₀r, hlive, rfl⟩).1 hlf
   dsimp only at hclean
   obtain ⟨r, hrk, CV, ℓw, D, hcw, hfl, L₁, hL₁, hL₁r, hL₁O⟩ :=
@@ -298,7 +299,8 @@ theorem descendant_source_parent (hrun : GoldilocksRun proposer dg H tr)
         obtain rfl : Hd = P := hU.1 hHd hPU (hHdr.trans (hvotes y hy iv ℓv ev hcv' hevs).1)
         exact hOHd
       · obtain ⟨z, hz, j', e, ⟨ℓe, hce, hee⟩, hes, Hd, hHd, hHdr, hDHd⟩ :=
-          SA.fastLock_honest_vote hS.run hS.two_faulty_lt hy hfl hs.stock
+          SA.fastLock_honest_vote hS.run _ SA.CommitteeP.full hy hfl
+            (SA.cs2_full hs.stock hS.two_faulty_lt)
         obtain rfl : Hd = P :=
           hU.1 hHd hPU (hHdr.trans (hvotes z hz j' ℓe e ⟨hce, hee⟩ (by omega)).1)
         exact hOD.trans hDHd

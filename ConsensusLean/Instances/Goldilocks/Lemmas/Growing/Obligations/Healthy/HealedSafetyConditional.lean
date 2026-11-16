@@ -229,8 +229,7 @@ theorem healthy_repair_schedule_at (Q : HealthyPreparationQueryAt S A V)
 faults. No current-read geometry or prior repair invariant is used. -/
 theorem healthy_receiver_repair_of_opening_at (Q : HealthyPreparationQueryAt S A V)
     (hb : Q.heal ≤ Q.bound) (D : HealthyRepairScheduleAt S A V Q)
-    (O : HealthyRepairOpeningAt S A V Q D)
-    (hc : Healing.Growing.CatchRun Q.trace Q.keys Q.gst (2 * Q.params.Δ)) :
+    (O : HealthyRepairOpeningAt S A V Q D) :
     HealthyReceiverRepairAt S A V Q D O := by
   rw [healthyReceiverRepairAt_iff]
   obtain ⟨hTb, hR, hgu, hjoin⟩ :=

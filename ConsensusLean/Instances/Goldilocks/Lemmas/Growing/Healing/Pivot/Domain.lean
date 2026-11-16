@@ -47,7 +47,7 @@ theorem held_target_proposal_domain_before_of_sources_at
     hheld hseed hcompare
   by_cases hcovered : Anc (tr.HonestBlocksAt H) B ell.frame.fcRoot
   · exact Or.inl hcovered
-  have hac := Compose.Growing.goldilocks_ac_projection sp ro dg H tr proposer hp.run hp.noColl
+  have hac := Compose.Growing.goldilocks_ac_projection_from hp.run hp.noColl
   have hr := hac.localRun.upTo (hp.run.time_nonneg i)
   have hci' := (Trace.upTo_callAt tr.projAC).mpr (And.intro le_rfl hci)
   obtain ⟨hPhi, hPhiU⟩ := SA.frameIn_of_callAt hr hpH hci'

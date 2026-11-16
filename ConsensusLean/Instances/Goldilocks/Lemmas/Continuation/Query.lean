@@ -148,8 +148,9 @@ theorem handover_invariant_at (Q : HealthyPreparationQueryAt S A V) (h0 : 0 ≤ 
   have hΔ := Q.params.toParams.hΔ
   refine ⟨r, σ, hseed, max t₀ (Q.params.ts (r + Q.params.k : Nat)), max_le ht₀T (hdt₀.trans ht₀T),
     le_max_right _ _, ?_, fun b hTb hsvc hB hcv =>
-      Compose.Growing.seeded_invariant_of_cover_at hpr.run hpr.noColl hseed hTb hsvc hB hcv hcov
-        rfl⟩
+      Compose.Growing.seeded_invariant_of_cover_at
+        (simTraceAt_goldilocksRun { S with vote := stock } Q.run.2 Q.hn Q.valid) hpr.noColl hseed
+        hTb hsvc hB hcv hcov rfl⟩
   rw [max_eq_left hdt₀]
   exact hlate
 

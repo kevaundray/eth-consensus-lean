@@ -9,6 +9,7 @@ public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Healing.Restart
 import ConsensusLean.Instances.Goldilocks.Lemmas.Healing.AC.Confirmed
 import ConsensusLean.Instances.Goldilocks.Lemmas.Healing.AC.Trivial
 import ConsensusLean.Lemmas.Tactic.Linarith
+import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Healing.Clean.HalfCommittee
 
 public section
 
@@ -45,7 +46,7 @@ theorem ResetPremisesUpTo.reset_proposal_passes_at {b : Time}
   have hS := healthy_base_of_reset_catch_before_at hp ht0 hib
   have hr := hS.run.localRun
   have hΔ := sp.toParams.hΔ
-  have hac := Compose.Growing.goldilocks_ac_projection sp ro dg H tr proposer hp.run hp.noColl
+  have hac := Compose.Growing.goldilocks_ac_projection_from hp.run hp.noColl
   have hU := hac.localRun.coherent
   have subU := RunTrace.honestBlocks_upTo_subset hm (H := H) ht0
   have narrow : ∀ {A B : SA.Blk sp.n (List (FG.Att sp.n))},
@@ -60,10 +61,6 @@ theorem ResetPremisesUpTo.reset_proposal_passes_at {b : Time}
       ell.frame ((tr.projAC.upTo (tr.time i)).time i)).2 = some (d, pay) := by
     rw [hs]
     exact hd
-  have hf : 2 * (H (tr.time i))ᶜ.ncard < sp.n := by
-    have := hp.faults _ ht0 hib
-    have := Fin.pos p
-    omega
   have hri : r < i := by
     by_contra hn
     have ht := hm (Nat.le_of_not_gt hn)
@@ -134,7 +131,7 @@ theorem ResetPremisesUpTo.reset_proposal_passes_at {b : Time}
     have hhalf := SA.honest_voters_half_before hS hsg hsb
       (fun z hz q hqt hrest => hrestart z hz q (hqt.trans hsb)
         (ACTrace.upTo_restartAt.mp hrest).2)
-    have hhalf' : sp.n ≤ 2 * {z | z ∈ H (tr.time i) ∧ ∃ q e,
+    have hhalf' : sp.committeeSize ≤ 2 * {z | z ∈ H (tr.time i) ∧ ∃ q e,
         SA.VoteAt (tr.projAC.upTo (tr.time i)) z q e ∧ e.msg.slot = s}.ncard := by
       have hle := Set.ncard_le_ncard (s := {z | z ∈ H (tr.time i) ∧ ∃ q e,
         SA.VoteAt (tr.projAC.upTo (tr.time i)) z q e ∧ e.msg.slot = s ∧
@@ -142,11 +139,12 @@ theorem ResetPremisesUpTo.reset_proposal_passes_at {b : Time}
         (t := {z | z ∈ H (tr.time i) ∧ ∃ q e,
           SA.VoteAt (tr.projAC.upTo (tr.time i)) z q e ∧ e.msg.slot = s})
         (by rintro z ⟨hz, q, e, hv, hs, _⟩; exact ⟨hz, q, e, hv, hs⟩)
-      change sp.n ≤ 2 * _ at hhalf
+      change sp.committeeSize ≤ 2 * _ at hhalf
       omega
     apply Anc.mono subU
-    refine SA.batch_proposal hS.run hf hhalf' votes hpH hcp
-      (SA.proposal_slot hti) hdp ⟨hOt, Or.inl hV⟩ ?_ ?_ hp.stock
+    refine SA.batch_proposal hS.run (hS.cs2 s (by linarith only [hsg, hΔ])
+      (by linarith only [hsb, hΔ])) hhalf' votes hpH hcp (fun v hv => hS.hP.1 p hpH i s v hv)
+      (SA.proposal_slot hti) hdp ⟨hOt, Or.inl hV⟩ ?_ ?_
     · intro z hz q e hv hes
       obtain ⟨R, hRV, hRroot, hOR⟩ := votes z hz q e hv hes
       obtain ⟨Hd, hHd, hHdr, _, hmem, _, hbs⟩ := SA.late_vote_held_of_frame_before hS hpH hcp hsg
@@ -182,13 +180,15 @@ theorem ResetPremisesUpTo.reset_proposal_passes_at {b : Time}
     · have ht' : tr.time r = sp.ts s + 6 * sp.Δ := ht
       rw [hsucc] at hrt
       linarith
-    refine SA.Growing.optimistic_first_proposal_anc_at hac hf hx hop hOD hpH hci
-      (SA.proposal_slot hti) hd ⟨hOt, Or.inl hV⟩ ?_ hhigh' hp.stock
+    refine SA.Growing.optimistic_first_proposal_anc_at hac hp.committeeFacts.hP
+      (hp.committeeFacts.hsize s) (hp.committee_cs2_at (by linarith only [hsg, hΔ])
+        (by linarith only [hsb, hib, hΔ]) ht0 hib) hx hop hOD hpH hci
+      (SA.proposal_slot hti) hd ⟨hOt, Or.inl hV⟩ ?_ hhigh'
     intro v hv
     obtain ⟨hvs, hsend, B, hB, hBr, hDB, hacc⟩ := fastLock_writer_at hac.localRun hac.vstart hx
       (Or.inr hop) v hv
     have hFB := hFO.trans (hOD.trans hDB)
-    refine SA.Growing.heldAtProposal_of_writer_at hac.localRun
+    refine SA.Growing.heldAtProposal_of_writer_at hac.localRun hac.vstart
       (hp.sync.ac_service_at hp.run (SA.le_gbar g))
       (by linarith) (b := b) (by rw [hti, hsucc] at hib; linarith) hpH hci hti hrs hvs hsend
       ⟨B, hB, hBr, hFB, ?_⟩

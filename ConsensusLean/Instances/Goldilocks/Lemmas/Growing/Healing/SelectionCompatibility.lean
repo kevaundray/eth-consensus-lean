@@ -36,7 +36,7 @@ theorem high_origin_compatible_before_update_at
   have hx := hp.run.antitone (le_max_right _ _) ho.1
   obtain ⟨ell', hc', hD⟩ := Healing.fastLock_mem hfl
   obtain rfl : ell = ell' := Option.some.inj (hcall.2.symm.trans hc'.2)
-  have hac := Compose.Growing.goldilocks_ac_projection sp ro dg H tr proposer hp.run hp.noColl
+  have hac := Compose.Growing.goldilocks_ac_projection_from hp.run hp.noColl
   obtain ⟨hPhi, hsub⟩ : FrameOK ell.frame ∧ ell.frame.tree ⊆ tr.HonestBlocksAt H := by
     rcases hac.localRun.frameLaw x r ell hx hcall with
       ⟨_, _, _, _, h⟩ | ⟨_, _, _, _, _, h⟩ <;> exact h.1

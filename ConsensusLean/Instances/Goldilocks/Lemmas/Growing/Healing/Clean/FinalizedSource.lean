@@ -42,7 +42,7 @@ theorem finalized_compatible_clean_source_at
     · have hCx : C ∈ (tr.state x r).fg.tree := by
         rcases hC with ⟨ell, hu, hconf, _⟩ | hop
         · exact (frame_tree_subset_at hp.run hp.noColl hx hu.1).2 (SA.deepest_mem hconf).1.1
-        · exact (hp.optimistic_supporter_at hx hrb hop).1
+        · exact (hp.optimistic_supporter_at hx hrb (hp.gbar_le_ts_of_clean_at (by omega)) hop).1
       have hrx := fg_reachable_at hp.run (hp.run.time_nonneg r)
         (fun _ hq => hp.run.time_mono hq.le) hx
       have subx : (tr.state x r).fg.tree ⊆ tr.HonestBlocksAt H := fun _ h =>

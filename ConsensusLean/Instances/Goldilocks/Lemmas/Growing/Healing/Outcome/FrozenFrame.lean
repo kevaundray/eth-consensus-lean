@@ -30,7 +30,6 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 honest at its proposal call, is in the proposer's frame. -/
 theorem reset_frozen_frame_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     (hp : ResetPremisesUpTo tr H proposer dg g ΔF a b cm βK)
-    (hc : CatchRun tr H g (2 * sp.Δ))
     {p y : Fin sp.n} {i j s : Nat} (hpH : p ∈ H (tr.time i)) (hy : y ∈ H (tr.time j))
     {ellp elly : ACLabel (goldilocksNode sp ro)} {e : SA.Em sp (List (FG.Att sp.n))}
     (hci : tr.projAC.CallAt p i ellp) (hti : tr.time i = sp.ts (s + 1 : Nat))
@@ -40,7 +39,8 @@ theorem reset_frozen_frame_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     {B : SA.Blk sp.n (List (FG.Att sp.n))} (hB : B ∈ elly.frame.tree)
     (hst : e.readPoint.blockStamp B.root < SA.ETime.of (SA.freeze sp (s + 1)))
     (hF : Anc (tr.HonestBlocksAt H) ellp.frame.F B) : B ∈ ellp.frame.tree := by
-  have hac := Compose.Growing.goldilocks_ac_projection sp ro dg H tr proposer hp.run hp.noColl
+  have hc := hp.catchUp
+  have hac := Compose.Growing.goldilocks_ac_projection_from hp.run hp.noColl
   have hr := (hac.upTo (hp.run.time_nonneg j)).localRun
   have hcy' := SA.upTo_castAt.mpr ⟨le_rfl, hcy⟩
   rw [SA.readPoint_blockStamp_eq hr hy hcy'] at hst
@@ -77,7 +77,7 @@ theorem reset_frozen_frame_at {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
       have hyk := hp.run.antitone hkt hy
       obtain ⟨k', rfl, ha, htime⟩ := Obligations.Growing.acBlock_prev_at hp.run hyk
         (Compose.projAC_callAt.mp hck) hb
-      exact Outcome.accept_mem_frame hp hc (hp.run.antitone htime.le hyk) hpH ha hci
+      exact Outcome.accept_mem_frame hp (hp.run.antitone htime.le hyk) hpH ha hci
         hib hg hjoin (by
           rw [htime]
           linarith only [hp.run.time_mono hkq, hqi]) hF

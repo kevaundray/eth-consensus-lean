@@ -71,7 +71,8 @@ private theorem slow_live_locks_anc {FGP : Type} {ro' : ReplayOrder sp FGP}
     · exact SA.anc_total hU hXY h
   rintro L ⟨hL, l, ⟨l₀, hl₀, B₀, hB₀, hB₀r, hlive₀, rfl⟩, hlL⟩
   have hlive : sp.slot (T.time i) ≤ l₀.slot + sp.k :=
-    le_trans hlive₀ ((SA.castAt_readPoint_locksWF hr hy hc).cap hl₀)
+    le_trans hlive₀
+      ((SA.castAt_readPoint_locksWF hr (fun _ => SA.voteStart_initial _) hy hc).cap hl₀)
   have hLe : L = ℓ.frame.viableAncestor B₀ :=
     hU.1 (hΦU hL) (hΦU (SA.viableAncestor_anc hΦ hB₀).1) hlL.symm
   subst hLe

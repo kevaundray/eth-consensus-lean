@@ -71,13 +71,15 @@ theorem SeededRun.sync (hS : SeededRun tr H proposer dg g ΔF T r σ t₁ b (cm 
   sleepyServiceFrom_of_reset hS.run hS.service hS.seed.catchRun (by linarith [sp.toParams.hΔ])
 
 /-- `ḡ + 20Δ ≤ t_l` for every label `l ≥ r`. -/
-theorem SeededRun.gbar_le (hS : SeededRun tr H proposer dg g ΔF T r σ t₁ b (cm := cm) (βK := βK)) {l : Nat}
+theorem SeededRun.gbar_le (hS : SeededRun tr H proposer dg g ΔF T r σ t₁ b (cm := cm) (βK := βK))
+    {l : Nat}
     (hl : r ≤ l) : SA.gbar g + 20 * sp.Δ ≤ sp.ts l :=
   hS.seed.timing.2.2.trans (ts_le_ts hl)
 
 /-- A node honest at a time `t ≥ t_{r+k}`, read at or before cut `i` with `t ≤ time i`, has an AC
 call before `i` from `t_{r−k−3}` on. -/
-theorem SeededRun.called (hS : SeededRun tr H proposer dg g ΔF T r σ t₁ b (cm := cm) (βK := βK)) {y : Fin sp.n}
+theorem SeededRun.called (hS : SeededRun tr H proposer dg g ΔF T r σ t₁ b (cm := cm) (βK := βK))
+    {y : Fin sp.n}
     {i : Nat} {t : Time} (hy : y ∈ H t) (ht : sp.ts (r + sp.k : Nat) ≤ t)
     (hti : t ≤ tr.time i) :
     ∃ c < i, ∃ ell : ACLabel (goldilocksNode sp ro), tr.projAC.CallAt y c ell ∧
@@ -86,7 +88,8 @@ theorem SeededRun.called (hS : SeededRun tr H proposer dg g ΔF T r σ t₁ b (c
 
 /-- **A live lock of a node honest at a cut at a time `≥ t_{r+k}` has label at least `r`**: its
 expiry is at most `k` slots after its label (`LocksWF`). -/
-theorem SeededRun.live_label (hS : SeededRun tr H proposer dg g ΔF T r σ t₁ b (cm := cm) (βK := βK)) {y : Fin sp.n}
+theorem SeededRun.live_label
+    (hS : SeededRun tr H proposer dg g ΔF T r σ t₁ b (cm := cm) (βK := βK)) {y : Fin sp.n}
     {i : Nat} (hy : y ∈ H (tr.time i)) (hdt : sp.ts (r + sp.k : Nat) ≤ tr.time i)
     {l : SA.Lock} (hl : l ∈ (tr.state y i).ac.locks) (hlive : l.LiveAt sp (tr.time i)) :
     r ≤ l.slot := by
@@ -147,7 +150,8 @@ theorem ts_pred {s : Nat} (hs : 0 < s) : sp.ts ((s : Int) - 1) = sp.ts (s - 1 : 
 
 /-- The timing of the slot `s` of a proposal after the split slot: the catch-up from `ḡ` is over
 by `t_{s−1}`. -/
-theorem SeededRun.slot_timing (hS : SeededRun tr H proposer dg g ΔF T r σ t₁ b (cm := cm) (βK := βK)) {s : Nat}
+theorem SeededRun.slot_timing
+    (hS : SeededRun tr H proposer dg g ΔF T r σ t₁ b (cm := cm) (βK := βK)) {s : Nat}
     (hs : σ + 1 ≤ s) :
     0 < s ∧ r + sp.k ≤ s ∧ SA.gbar g + 2 * sp.Δ ≤ sp.ts ((s : Int) - 1) ∧
       SA.gbar g + 2 * sp.Δ ≤ max (sp.ts ((s : Int) - 1) + 3 * sp.Δ) 0 := by
@@ -178,7 +182,8 @@ theorem SeededRun.proposer_F (hS : SeededRun tr H proposer dg g ΔF T r σ t₁ 
 member; a member of label `≤ s − 2` is extended by every honest slot-`(s−1)` vote (S2), whose head
 reaches the proposer (`proposer_accepts_head_from`); an optimistic origin of label `s − 1` by
 `proposal_holds_old_from` at the floor `r + k − 1`. -/
-theorem seeded_proposer_holds (hS : SeededRun tr H proposer dg g ΔF T r σ t₁ b (cm := cm) (βK := βK))
+theorem seeded_proposer_holds
+    (hS : SeededRun tr H proposer dg g ΔF T r σ t₁ b (cm := cm) (βK := βK))
     (hs : σ + 1 ≤ s) (hp : p ∈ H (tr.time i)) (hc : tr.projAC.CallAt p i ℓp)
     (hcall : ℓp.call = .proposal)
     (hd : (SA.acProposal sp (tr.projAC.state p i) ℓp.frame (tr.time i)).2 = some (d, pay))

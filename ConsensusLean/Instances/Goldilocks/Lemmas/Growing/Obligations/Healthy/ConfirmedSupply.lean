@@ -38,7 +38,8 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 
 /-- The frame of a node honest at a cut is well formed. -/
 private theorem frameOK_state_at
-    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr) {y : Fin sp.n}
+    {ini : Fin sp.n → (goldilocksNode sp ro).State}
+    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr ini) {y : Fin sp.n}
     {i : Nat} (hy : y ∈ H (tr.time i)) : FrameOK (Node.frame (tr.state y i)) := by
   have h := Compose.frameOK_state (hrun.upTo (hrun.time_nonneg i)).toLocalRun hy i
   rwa [RunTrace.upTo_state_of_le hrun.time_mono le_rfl] at h

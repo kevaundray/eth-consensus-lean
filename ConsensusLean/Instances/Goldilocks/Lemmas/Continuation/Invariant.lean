@@ -220,7 +220,8 @@ theorem seeded_record_at (hrun : Growing.GoldilocksRun proposer dg H tr) (hnc : 
 private theorem seeded_members_compatible (hrun : Growing.GoldilocksRun proposer dg H tr)
     (hnc : NoCollRun dg tr) {T : Time} {r σ : Nat}
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
-    (hseed : HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK)) {b : Time} (hTb : T ≤ b)
+    (hseed : HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK)) {b : Time}
+      (hTb : T ≤ b)
     (hsvc : Healing.Growing.ResetService tr H g ΔF b) (hB : SleepyBoundsFrom tr H r b)
     (hcv : ChainConvictedBelow tr H) (hstock : sp.committeeSize = sp.n) :
     ∀ C s C' s', HealedOrigin tr H g r (r + sp.k - 1) C s b →
@@ -295,7 +296,8 @@ holder's lock write (`seeded_locks_at`, `seeded_sources_at`). -/
 theorem seeded_invariant_of_cover_at (hrun : Growing.GoldilocksRun proposer dg H tr)
     (hnc : NoCollRun dg tr) {T : Time} {r σ : Nat}
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
-    (hseed : HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK)) {b : Time} (hTb : T ≤ b)
+    (hseed : HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK)) {b : Time}
+      (hTb : T ≤ b)
     (hsvc : Healing.Growing.ResetService tr H g ΔF b) (hB : SleepyBoundsFrom tr H r b)
     (hcv : ChainConvictedBelow tr H) {tc : Time}
     (hcov : ∀ y n t, tc ≤ t → t ≤ T → y ∈ H t → Regimes.ReadPoint tr n t →
@@ -325,7 +327,8 @@ the drain `t_{r+k}` (`seeded_invariant_of_cover_at`). -/
 theorem seeded_invariant_at (hrun : Growing.GoldilocksRun proposer dg H tr)
     (hnc : NoCollRun dg tr) {T : Time} {r σ : Nat}
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
-    (hseed : HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK)) {b : Time} (hTb : T ≤ b)
+    (hseed : HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK)) {b : Time}
+      (hTb : T ≤ b)
     (hsvc : Healing.Growing.ResetService tr H g ΔF b) (hB : SleepyBoundsFrom tr H r b)
     (hcv : ChainConvictedBelow tr H) (hstock : sp.committeeSize = sp.n) :
     ∃ t₁, t₁ ≤ T ∧ sp.ts (r + sp.k : Nat) ≤ t₁ ∧ SeededInvariant tr H g r (r + sp.k - 1) t₁ b := by

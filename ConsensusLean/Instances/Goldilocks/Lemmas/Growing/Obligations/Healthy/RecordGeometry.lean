@@ -28,7 +28,8 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 every cut before `j` at a time `≤ t`, a record looked up before `j` and unchanged since `i ≤ j` is
 already looked up before `i` (advancing finalization cannot bring it back into the frame). -/
 theorem record_lookup_of_later_at
-    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr)
+    {ini : Fin sp.n → (goldilocksNode sp ro).State}
+    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr ini)
     (hnc : Compose.NoCollRun dg tr) {y : Fin sp.n} {i j : Nat} {t : Time} (ht : 0 ≤ t)
     (hjt : ∀ k < j, tr.time k ≤ t) (hy : y ∈ H t) (hij : i ≤ j)
     (heq : (tr.state y j).ac.latestConfirmed = (tr.state y i).ac.latestConfirmed)
@@ -44,7 +45,8 @@ theorem record_lookup_of_later_at
 /-- **One step of a node's record**, for a node honest at the step: the record is unchanged, or
 it names a block of its tree with a result or optimistic-lock source of its own at the step. -/
 theorem record_step_origin_at
-    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr)
+    {ini : Fin sp.n → (goldilocksNode sp ro).State}
+    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr ini)
     {y : Fin sp.n} {i : Nat} (hy : y ∈ H (tr.time i)) :
     (tr.state y (i + 1)).ac.latestConfirmed = (tr.state y i).ac.latestConfirmed ∨
       ∃ C ∈ (tr.state y i).fg.tree, C.root = (tr.state y (i + 1)).ac.latestConfirmed ∧
@@ -67,7 +69,8 @@ theorem record_step_origin_at
     · exact Or.inr ((Compose.Growing.sa_optimisticLockAt_upTo hrun.time_mono).mp hs).2
 
 /-- A node's tree only grows over a step at which it is honest. -/
-theorem tree_succ_at (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr)
+theorem tree_succ_at {ini : Fin sp.n → (goldilocksNode sp ro).State}
+    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr ini)
     {y : Fin sp.n} {i : Nat} (hy : y ∈ H (tr.time i)) :
     (tr.state y i).fg.tree ⊆ (tr.state y (i + 1)).fg.tree := by
   have hle : ∀ k < i + 1, tr.time k ≤ tr.time i :=

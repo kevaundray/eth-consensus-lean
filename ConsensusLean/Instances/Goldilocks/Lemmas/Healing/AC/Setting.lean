@@ -47,18 +47,31 @@ structure HealthyBase (tr : SATrace sp FGP ro) (H : Set (Fin sp.n)) (U : Set (Bl
   /-- The committee is population-sized (`committeeSize = n`). -/
   stock : sp.committeeSize = sp.n
 
-/-- Finite health with deadline-bounded service. Driven duties remain conditional
-on actual awake witnesses, so they assert no activity beyond the horizon. -/
-structure HealthyBaseUpTo (tr : SATrace sp FGP ro) (H : Set (Fin sp.n)) (U : Set (Blk sp.n FGP))
-    (proposer : Nat → Fin sp.n) (g b : Time) : Prop where
-  run : ACRun proposer tr H U
+/-- Finite health with deadline-bounded service, for the slot committees `K`. Driven duties
+remain conditional on actual awake witnesses, so they assert no activity beyond the horizon. The
+run starts at `K`'s committee start (a node may vote exactly in its committees' slots), its pools
+and merged views hold committee votes (P, T), and fewer than half of each slot committee from `ḡ`
+through `b` is faulty. The stock committee is `CommitteeDict.full`. -/
+structure HealthyBaseUpTo (K : CommitteeDict sp.n) (tr : SATrace sp FGP ro) (H : Set (Fin sp.n))
+    (U : Set (Blk sp.n FGP)) (proposer : Nat → Fin sp.n) (g b : Time) : Prop where
+  run : ACRun proposer tr H U (committeeStart sp.genesisRoot K)
   driven : Driven proposer tr H
   sync : SyncACWindowBefore H U (gbar g) b tr
   catchUp : CatchACWindowBefore tr H U (gbar g) (2 * sp.Δ) b
   awake : ∀ y ∈ H, ∀ t, gbar g ≤ t → t ≤ b → tr.awake y t
   faults : 3 * Hᶜ.ncard ≤ sp.n - 1
-  /-- The committee is population-sized (`committeeSize = n`). -/
-  stock : sp.committeeSize = sp.n
+  hsize : ∀ s, (K.committee s).ncard = sp.committeeSize
+  hP : CommitteeP K tr H
+  hT : CommitteeT K tr H
+  cs2 : ∀ s : Nat, gbar g ≤ sp.ts s → sp.ts s ≤ b →
+    2 * (K.committee s ∩ Hᶜ).ncard < sp.committeeSize
+
+/-- The run of a stock-committee base, at the initial starts (`committeeStart_full`). -/
+theorem HealthyBaseUpTo.stockRun {b : Time}
+    (hS : HealthyBaseUpTo (CommitteeDict.full sp.n) tr H U proposer g b) :
+    ACRun proposer tr H U := by
+  have h := hS.run
+  rwa [committeeStart_full] at h
 
 /-- **H.1's premises** over an AC trace of the SA: the healthy premises (`HealthyBase`) and
 trivial frames. -/

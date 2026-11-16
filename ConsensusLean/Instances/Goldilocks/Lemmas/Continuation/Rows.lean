@@ -240,7 +240,8 @@ cut before `i`. This covers a read point at `t ≥ t₁` and a vote cut of a slo
 slot. -/
 theorem seeded_reader_called_at (hrun : Growing.GoldilocksRun proposer dg H tr) {T : Time}
     {r σ : Nat} {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
-    (hseed : HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK)) {y : Fin sp.n} {i : Nat}
+    (hseed : HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK)) {y : Fin sp.n}
+      {i : Nat}
     {t : Time} (hy : y ∈ H t) (ht : sp.ts (r + sp.k : Nat) ≤ t) (hti : t ≤ tr.time i) :
     ∃ c < i, ∃ ell : ACLabel (goldilocksNode sp ro), tr.projAC.CallAt y c ell ∧
       sp.ts (r - sp.k - 3 : Nat) ≤ tr.time c := by
@@ -318,7 +319,8 @@ calls puts `S` in the frame there; the tree only grows. -/
 theorem low_seed_held (hrun : Growing.GoldilocksRun proposer dg H tr)
     (hnc : NoCollRun dg tr) (hcv : ChainConvictedBelow tr H) {T : Time} {r σ : Nat}
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
-    (hseed : HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK)) {y : Fin sp.n} {i : Nat} {t : Time}
+    (hseed : HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK)) {y : Fin sp.n}
+      {i : Nat} {t : Time}
     (ht0 : 0 ≤ t) (hi : ∀ k < i, tr.time k ≤ t) (hy : y ∈ H t)
     (hcall : ∃ c < i, ∃ ell : ACLabel (goldilocksNode sp ro), tr.projAC.CallAt y c ell ∧
       sp.ts (r - sp.k - 3 : Nat) ≤ tr.time c)
@@ -398,7 +400,8 @@ stored lock sits below the signer's fast lock write of its slot at an earlier cu
 private theorem signed_source_lock (hrun : Growing.GoldilocksRun proposer dg H tr)
     (hnc : NoCollRun dg tr) {T : Time} {r σ : Nat}
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
-    (hseed : HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK)) {v : Fin sp.n} {k : Nat}
+    (hseed : HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK)) {v : Fin sp.n}
+      {k : Nat}
     {a : FG.Att sp.n} (hv : v ∈ H (tr.time k)) (hs : tr.SignAt v k a)
     (hk : sp.ts (r + sp.k : Nat) ≤ tr.time k) :
     ∃ D, D ∈ (tr.state v k).fg.tree ∧ ((tr.state v k).fg.σ D.root).Th = a.T ∧
@@ -596,7 +599,8 @@ family within `t` held in the prefix (`RowsAbove` at height `H_z + 1`). -/
 theorem seeded_rows_above_at (hrun : Growing.GoldilocksRun proposer dg H tr)
     (hnc : NoCollRun dg tr) {T : Time} {r σ : Nat}
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
-    (hseed : HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK)) {y : Fin sp.n} {i : Nat} {t : Time}
+    (hseed : HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK)) {y : Fin sp.n}
+      {i : Nat} {t : Time}
     (ht0 : 0 ≤ t) (hzt : Healing.cutZ sp.toParams g ≤ t) (hi : ∀ k < i, tr.time k ≤ t)
     (hy : y ∈ H t) :
     Compose.RowsAbove (tr.upTo t) (H t)
@@ -612,7 +616,8 @@ below the held reset seed. High: `Σ.J` is the entry of an honest member of its 
 theorem seeded_reader_on_chain_at (hrun : Growing.GoldilocksRun proposer dg H tr)
     (hnc : NoCollRun dg tr) (hcv : ChainConvictedBelow tr H) {T : Time} {r σ : Nat}
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
-    (hseed : HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK)) {b : Time} (hTb : T ≤ b) {y : Fin sp.n}
+    (hseed : HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK)) {b : Time}
+      (hTb : T ≤ b) {y : Fin sp.n}
     {i : Nat} {t : Time} (ht0 : 0 ≤ t) (hi : ∀ k < i, tr.time k ≤ t) (htb : t ≤ b)
     (hy : y ∈ H t) (hf : 2 * (H t)ᶜ.ncard < sp.n)
     (hcall : ∃ c < i, ∃ ell : ACLabel (goldilocksNode sp ro), tr.projAC.CallAt y c ell ∧
@@ -663,7 +668,8 @@ frame (both are below members, which are pairwise compatible). -/
 theorem seeded_caches_of (hrun : Growing.GoldilocksRun proposer dg H tr) (hnc : NoCollRun dg tr)
     (hcv : ChainConvictedBelow tr H) {T : Time} {r σ : Nat}
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
-    (hseed : HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK)) {b : Time} (hTb : T ≤ b)
+    (hseed : HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK)) {b : Time}
+      (hTb : T ≤ b)
     (hP : ∀ C s C' s', HealedOrigin tr H g r (r + sp.k - 1) C s b →
       HealedOrigin tr H g r (r + sp.k - 1) C' s' b → Compatible (tr.HonestBlocksAt H) C C')
     {y : Fin sp.n} {i : Nat} {t : Time} (ht0 : 0 ≤ t) (hi : ∀ k < i, tr.time k ≤ t)
@@ -689,7 +695,8 @@ floor `h_max − 1 ≥ H_z + 1` is a high row whose entry is above the block. -/
 theorem seeded_viable_of (hrun : Growing.GoldilocksRun proposer dg H tr) (hnc : NoCollRun dg tr)
     (hcv : ChainConvictedBelow tr H) {T : Time} {r σ : Nat}
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
-    (hseed : HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK)) {b : Time} (hTb : T ≤ b)
+    (hseed : HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK)) {b : Time}
+      (hTb : T ≤ b)
     (hP : ∀ C s C' s', HealedOrigin tr H g r (r + sp.k - 1) C s b →
       HealedOrigin tr H g r (r + sp.k - 1) C' s' b → Compatible (tr.HonestBlocksAt H) C C')
     {y : Fin sp.n} {i : Nat} {t : Time} (ht0 : 0 ≤ t) (hi : ∀ k < i, tr.time k ≤ t)
@@ -949,7 +956,8 @@ written by `t_l + 6Δ ≤ T`, extended by every honest vote up to `T` of a slot 
 private theorem member_supported (hrun : Growing.GoldilocksRun proposer dg H tr)
     (hnc : NoCollRun dg tr) {T : Time} {r σ : Nat}
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
-    (hseed : HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK)) {b : Time} (hTb : T ≤ b)
+    (hseed : HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK)) {b : Time}
+      (hTb : T ≤ b)
     (hsync : SleepyServiceFrom tr H ΔF (SA.gbar g) (2 * sp.Δ) b) (hB : SleepyBoundsFrom tr H r b)
     {C : SA.Blk sp.n (List (FG.Att sp.n))} {l : Nat}
     (hC : HealedOrigin tr H g r (r + sp.k - 1) C l b) (hstock : sp.committeeSize = sp.n) :
@@ -1049,7 +1057,8 @@ frozen head above the crossing of the floor, which is a high row (the floor is a
 theorem seeded_vote_frame_of (hrun : Growing.GoldilocksRun proposer dg H tr)
     (hnc : NoCollRun dg tr) {T : Time} {r σ : Nat}
     {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
-    (hseed : HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK)) {b : Time} (hTb : T ≤ b)
+    (hseed : HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK)) {b : Time}
+      (hTb : T ≤ b)
     (hsvc : Healing.Growing.ResetService tr H g ΔF b) (hB : SleepyBoundsFrom tr H r b)
     (hcv : ChainConvictedBelow tr H) {s : Nat} (hs : σ + 1 ≤ s)
     (hP : HealedOriginsBelow tr H g r (r + sp.k - 1) (s + 1) b) {y : Fin sp.n} {i : Nat}

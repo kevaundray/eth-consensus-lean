@@ -86,7 +86,7 @@ theorem ResetPremisesUpTo.cutZ_le_ts_of_highOrigin_at
     (⟨x, i, tr.time i, hp.run.time_nonneg i, fun _ hq => hp.run.time_mono hq.le, hx,
       hPhiTree hC⟩ : C ∈ tr.HonestBlocksAt H)
   obtain ⟨v, hv⟩ := Healing.fastLock_counted_nonempty
-    (by rw [hp.stock]; exact sp.toParams.hn) hfl
+    hp.committee_pos hfl
   obtain ⟨-, -, Hv, hHvU, -, hDHv, hacc⟩ :=
     fastLock_writer_at hac.localRun hac.vstart hx hfl v hv
   have hBHv := hBD.trans hDHv

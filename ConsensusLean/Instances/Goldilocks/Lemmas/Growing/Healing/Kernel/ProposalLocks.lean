@@ -1,7 +1,9 @@
 module
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Healing.Kernel.Seed
 import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.AC.UpTo
-import ConsensusLean.Instances.Goldilocks.Lemmas.Healing.Outcome.PivotRun
+import ConsensusLean.Instances.Goldilocks.Lemmas.Compose.Service.PivotBase
+import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.AC.Committee
+import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Healing.Clean.HalfCommittee
 import ConsensusLean.Instances.Goldilocks.Lemmas.AC.Steps.Provenance
 import ConsensusLean.Lemmas.Tactic.Linarith
 
@@ -29,7 +31,7 @@ theorem proposal_high_lock_source_at
     {p : Fin sp.n} {i u : Nat} (hpH : p ∈ H (tr.time i))
     {ell : ACLabel (goldilocksNode sp ro)}
     (hci : tr.projAC.CallAt p i ell) (hcall : ell.call = .proposal)
-    (hti : tr.time i = sp.ts u) (hib : tr.time i ≤ b)
+    (hti : tr.time i = sp.ts u) (hgu : SA.gbar g ≤ sp.ts u) (hib : tr.time i ≤ b)
     {l : SA.Lock} (hl : l ∈ (tr.projAC.state p i).locks) (hlabel : u - 1 ≤ l.slot) :
     ∃ r D CV, r < i ∧ l.slot = u - 1 ∧ p ∈ H (tr.time r) ∧
       SA.OptimisticLockAt tr.projAC p r l.slot D CV ∧
@@ -53,16 +55,15 @@ theorem proposal_high_lock_source_at
       change sp.slot (tr.time r) = l.slot at hsl
       have hts := (SA.ts_le_iff_le_slot sp (hp.run.time_nonneg r) l.slot).mpr (by omega)
       exact_mod_cast (SA.ts_le_iff sp).mp (hts.trans hrt)
-    have hf : 2 * (H (tr.time i))ᶜ.ncard < sp.n := by
-      have := hp.faults _ ht0 hib
-      have hn : 0 < sp.n := sp.toParams.hn
-      omega
+    have hf := hp.committee_cs2_at (s := u) hgu (hti ▸ hib) ht0 hib
     have hcp : (tr.upTo (tr.time i)).projAC.CallAt p i ell := by
       rw [RunTrace.upTo_projAC]
       exact (Trace.upTo_callAt tr.projAC).mpr ⟨le_rfl, hci⟩
     have hne : l.slot ≠ u := fun he =>
-      Healing.proposal_no_optimistic_of_run hr (hp.noColl.upTo _) hf hpH hcp hcall hti
-        hp.stock p hpH r hri D CV (he ▸ hop)
+      Compose.proposal_no_optimistic_of hr (hp.noColl.upTo _)
+        (by rw [RunTrace.upTo_projAC]
+            exact SA.CommitteePAt.upTo hm hp.run.antitone hp.committeeFacts.hP _)
+        hf hpH hcp hcall hti p hpH r hri D CV (he ▸ hop)
     exact ⟨r, D, CV, hri, by omega, hp.run.antitone (hm hri.le) hpH, hop₀,
       L, RunTrace.honestBlocks_upTo_subset hm ht0 hL, hLr,
       hLD.mono (RunTrace.honestBlocks_upTo_subset hm ht0)⟩

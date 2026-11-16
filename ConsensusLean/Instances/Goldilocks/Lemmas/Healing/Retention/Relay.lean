@@ -26,7 +26,7 @@ message and relay service are used; signed-attestation processing times play no 
 theorem ResetService.syncAC {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
     {tr : GoldilocksTrace sp ro} {H : Set (Fin sp.n)} {proposer : Nat → Fin sp.n}
     {dg : Digest (List (FG.Att sp.n)) (Payload sp.n)} {g ΔF b lo hi : Time}
-    (hs : ResetService tr H g ΔF b) (hrun : GoldilocksRun proposer dg H tr)
+    (hs : ResetService tr H g ΔF b) {ini} (hrun : GoldilocksRun proposer dg H tr ini)
     (hg : g ≤ lo) : SyncAC (goldilocksNode sp ro) H (tr.HonestBlocks H) lo hi tr.projAC := by
   have h := hrun.toLocalRun
   constructor
@@ -411,8 +411,9 @@ theorem fastLock_counted_nonempty (hcommittee : 0 < sp.committeeSize)
 
 /-- A raw writer supplies a counted head above the target, accepted before the slot freeze. -/
 theorem raw_writer_relay_source
-    (hcommittee : 0 < sp.committeeSize)
-    (hr : ACLocalRun (SA.goldilocksSA sp FGP ro) H U T)
+    (hcommittee : 0 < sp.committeeSize) {ini}
+    (hr : ACLocalRun (SA.goldilocksSA sp FGP ro) H U T ini)
+    (hini : ∀ y, SA.VoteStart sp.genesisRoot (ini y))
     {x : Fin sp.n} (hx : x ∈ H) {i s : Nat}
     {B C : SA.Blk sp.n FGP} {CV : Set (Vote sp.n)}
     (hwriter : SA.ResultAt T x i s C CV ∨ SA.FastLockAt T x i s C CV)
@@ -428,8 +429,8 @@ theorem raw_writer_relay_source
       exact ⟨v, hv⟩
     · exact fastLock_counted_nonempty hcommittee hF
   obtain ⟨v, hv⟩ := hne
-  have hw := hwriter.elim (fun hR => result_writer hr (fun _ => SA.voteStart_initial _) hx hR v hv)
-    (fun hF => fastLock_writer hr (fun _ => SA.voteStart_initial _) hx hF v hv)
+  have hw := hwriter.elim (fun hR => result_writer hr hini hx hR v hv)
+    (fun hF => fastLock_writer hr hini hx hF v hv)
   obtain ⟨D, hD, hDr, hCD, hacc⟩ := hw.2.2
   exact ⟨v, hv, D, hD, hDr, hBC.trans hCD, hacc⟩
 
@@ -498,7 +499,8 @@ theorem raw_writer_voterBlockTree_window_before
     (hc : SA.CastAt T y i ℓ e) (hs : s + 1 ≤ e.msg.slot) (hi : T.time i ≤ b)
     (hcatchTime : a + κ ≤ sp.ts ((e.msg.slot : Int) - 1) + 3 * sp.Δ)
     (hF : Anc U ℓ.frame.F B) : B ∈ SA.voterBlockTree sp e.readPoint ℓ.frame e.msg.slot := by
-  obtain ⟨v, _, D, hDU, _, hBD, hsource⟩ := raw_writer_relay_source hcommittee hr hx hwriter hBC
+  obtain ⟨v, _, D, hDU, _, hBD, hsource⟩ :=
+    raw_writer_relay_source hcommittee hr (fun _ => SA.voteStart_initial _) hx hwriter hBC
   exact voterBlockTree_of_relay_source hr hsync hcatch hx hy hDU hBD hsource
     hc hs hi hcatchTime hF
 

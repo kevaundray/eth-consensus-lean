@@ -49,7 +49,7 @@ private theorem gst_le_acceptance {cm : Time → Finset (Fin sp.n)} {βK : ℚ}
     {W : SA.Blk sp.n (List (FG.Att sp.n))} (hacc : tr.projAC.AcceptAt w c W)
     (hBW : Anc (tr.HonestBlocksAt H) B W) : g ≤ tr.time c := by
   have hwc := hp.run.antitone (le_max_left _ _) hw
-  have hac := Compose.Growing.goldilocks_ac_projection sp ro dg H tr proposer hp.run hp.noColl
+  have hac := Compose.Growing.goldilocks_ac_projection_from hp.run hp.noColl
   obtain ⟨ellC, hcC, heC⟩ := hacc
   have hrC := hac.localRun.upTo (hp.run.time_nonneg c)
   have hcC' := (Trace.upTo_callAt tr.projAC).mpr (And.intro le_rfl hcC)
@@ -73,7 +73,7 @@ theorem first_carry_of_finalized_anc_at
     (hs : e.msg.slot = j + 1) (hF : Anc (tr.HonestBlocksAt H) ell.frame.F B) :
     SA.CarryAt tr.projAC (tr.HonestBlocksAt H) y k e j CV := by
   have hm := hp.run.time_mono
-  have hac := Compose.Growing.goldilocks_ac_projection sp ro dg H tr proposer hp.run hp.noColl
+  have hac := Compose.Growing.goldilocks_ac_projection_from hp.run hp.noColl
   have hx := hp.run.antitone (le_max_right _ _) ho.1
   have hxU : (tr.state x i).fg.tree ⊆ tr.HonestBlocksAt H :=
     fun _ h => ⟨x, i, tr.time i, hp.run.time_nonneg i, fun _ hq => hm hq.le, hx, h⟩
@@ -114,7 +114,7 @@ theorem later_carry_of_finalized_anc_at
       {v | ∃ z q e', Compose.Growing.HVoteAt tr H z q e' ∧ e'.msg = v ∧ v.slot = m} := by
   have hm := hp.run.time_mono
   have hΔ : (0 : Int) < sp.Δ := sp.toParams.hΔ
-  have hac := Compose.Growing.goldilocks_ac_projection sp ro dg H tr proposer hp.run hp.noColl
+  have hac := Compose.Growing.goldilocks_ac_projection_from hp.run hp.noColl
   have hU := hac.localRun.coherent
   have hZj := hp.cutZ_le_ts_of_highOrigin_at ho
   have hjm' := (SA.ts_le_iff sp).mpr (show (j : Int) ≤ m by clear * - hjm; omega)
@@ -139,7 +139,7 @@ theorem later_carry_of_finalized_anc_at
     have := SA.slot_mono sp (hp.run.time_nonneg k) (hm (not_lt.mp hn))
     clear * - this hyk hzs hvs hs; omega
   obtain ⟨Hv, hHvU, hHvr, hBHv⟩ := hprior z q e' hqk hzv hvs
-  obtain ⟨⟨Hd, hHd, hHdr, -⟩, hqt⟩ := Compose.cast_head_fcRoot hrq hzq hcq'
+  obtain ⟨⟨Hd, hHd, hHdr, -⟩, hqt⟩ := Compose.cast_head_fcRoot_from hrq hp.run.vstart hzq hcq'
   have hHdU := (SA.frameIn_of_callAt hrq hzq hcq'.1).2 hHd
   obtain rfl : Hd = Hv := hU.1 hHdU hHvU (hHdr.trans hHvr.symm)
   change tr.time q ≤ sp.ts e'.msg.slot + sp.Δ at hqt

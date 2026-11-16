@@ -7,6 +7,11 @@ import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.AC.Compatible
 import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.AC.Run
 import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Compose.GoldilocksAC
 import ConsensusLean.Instances.Goldilocks.Lemmas.Healing.Retention.High
+import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Healing.Clean.HalfCommittee
+import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Healing.Kernel.OriginLabel
+import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Healing.Kernel.HighOriginSources
+import ConsensusLean.Instances.Goldilocks.Lemmas.Healing.Arith
+import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.AC.Committee
 
 public section
 
@@ -45,7 +50,7 @@ theorem protected_source_compatible_high_origin_of_sources_at
     (ho : HighOrigin tr H g y q t D) (hqb : tr.time q ≤ b) :
     Compatible (tr.HonestBlocksAt H) B D := by
   have hyo := hp.run.antitone (le_max_right _ _) ho.1
-  have hac := Compose.Growing.goldilocks_ac_projection sp ro dg H tr proposer hp.run hp.noColl
+  have hac := Compose.Growing.goldilocks_ac_projection_from hp.run hp.noColl
   have hcoh := hac.localRun.coherent
   have hframe : ∀ z k ell, z ∈ H (tr.time k) → tr.projAC.CallAt z k ell →
       ell.frame.tree ⊆ tr.HonestBlocksAt H := by
@@ -72,7 +77,8 @@ theorem protected_source_compatible_high_origin_of_sources_at
       · obtain ⟨z, hz, j, hj, e, hv, _, hes, hCH⟩ :=
           result_supporter_at hp hx hC (.refl : Anc (tr.HonestBlocksAt H) C C) hrb hts
         exact ⟨z, j, e, hp.run.antitone (hp.run.time_mono hj.le) hz, hj.le, hv, hes, hCH⟩
-      · obtain ⟨_, z, j, hz, hj, e, hv, hes, hCH⟩ := hp.optimistic_supporter_at hx hrb hC
+      · obtain ⟨_, z, j, hz, hj, e, hv, hes, hCH⟩ :=
+          hp.optimistic_supporter_at hx hrb (Healing.gbar_le_of_cutZ_le sp hts) hC
         exact ⟨z, j, e, hp.run.antitone (hp.run.time_mono hj) hz, hj, hv, hes, hCH⟩
     obtain ⟨z, j, e, hz, hj, hv, hes, W, hW, hWr, hCW⟩ := supporter
     exact target_compatible_older_origin_at hp ho hqb hz hv
@@ -90,13 +96,12 @@ theorem protected_source_compatible_high_origin_of_sources_at
     · exact SA.anc_total hcoh (hBC.trans h) hDE
     · exact SA.anc_total hcoh hBC (hDE.trans h)
   · obtain ⟨_, E, EV, _, hfl, hDE⟩ := highOrigin_raw_head_at hp.run hp.noColl ho
-    have hf : 2 * (H (tr.time q))ᶜ.ncard < sp.n := by
-      have hf := hp.faults (tr.time q) (hp.run.time_nonneg q) hqb
-      have hn : 0 < sp.n := sp.toParams.hn
-      omega
     have hEB := SA.fastLock_compatible_of_votes (hac.upTo (hp.run.time_nonneg q)) _
-      SA.CommitteeP.full hyo (Nat.lt_succ_self q)
-      ((SA.upTo_fastLockAt hp.run.time_mono).mpr ⟨le_rfl, hfl⟩) (SA.cs2_full hp.stock hf)
+      (SA.CommitteePAt.upTo hp.run.time_mono hp.run.antitone hp.committeeFacts.hP _) hyo
+      (Nat.lt_succ_self q) ((SA.upTo_fastLockAt hp.run.time_mono).mpr ⟨le_rfl, hfl⟩)
+      (hp.committee_cs2_at
+        (Healing.gbar_le_of_cutZ_le sp (hp.cutZ_le_ts_of_highOrigin_at ho))
+        ((ProposalImpl.ts_le_of_fastLock_at hp.run hfl).trans hqb) (hp.run.time_nonneg q) hqb)
       (by
         intro z hz j _ e hv hes
         obtain ⟨hjt, hv⟩ := SA.upTo_voteAt.mp hv

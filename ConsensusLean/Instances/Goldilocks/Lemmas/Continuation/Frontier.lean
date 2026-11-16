@@ -128,7 +128,8 @@ with the seed's catch-up (`sleepyServiceFrom_of_reset`, `ḡ + 2Δ ≤ t_r ≤ t
 at the votes after `σ` have labels `≥ r` (`handover_live_lock_label_at`); the frozen witness is
 `seeded_vote_frame_at`. -/
 theorem healed_frontier_at (hrun : Growing.GoldilocksRun proposer dg H tr) (hnc : NoCollRun dg tr)
-    {T : Time} {r σ : Nat} (hseed : HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK)) {b : Time}
+    {T : Time} {r σ : Nat} (hseed : HandoverSeed tr H proposer dg g ΔF T r σ (cm := cm) (βK := βK))
+      {b : Time}
     (hTb : T ≤ b) (hsvc : Healing.Growing.ResetService tr H g ΔF b)
     (hB : SleepyBoundsFrom tr H r b) (hcv : ChainConvictedBelow tr H)
     (hstock : sp.committeeSize = sp.n) :

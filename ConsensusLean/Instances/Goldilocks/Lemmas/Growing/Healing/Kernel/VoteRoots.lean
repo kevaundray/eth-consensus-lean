@@ -70,7 +70,7 @@ theorem vote_viable_of_root_at
       Anc (tr.HonestBlocksAt H) B ell.frame.fcRoot) :
     B ∈ ell.frame.viableTree (SA.voterBlockTree sp e.readPoint ell.frame e.msg.slot) ∨
       Anc (tr.HonestBlocksAt H) B ell.frame.fcRoot := by
-  have hac := Compose.Growing.goldilocks_ac_projection sp ro dg H tr proposer hp.run hp.noColl
+  have hac := Compose.Growing.goldilocks_ac_projection_from hp.run hp.noColl
   have hr := (hac.upTo (hp.run.time_nonneg k)).localRun
   have hc' := SA.upTo_castAt.mpr (And.intro le_rfl hc)
   obtain ⟨hPhi, hPhiTree⟩ := frame_tree_subset_at hp.run hp.noColl hy hc.1
@@ -83,7 +83,7 @@ theorem vote_viable_of_root_at
       have hBt := SA.frame_mem_of_between sp hr.coherent hPhi hPhiU hDt hBD hFB
       have hPhiBD := SA.anc_tree_of_anc_U hr.coherent hPhi hPhiU hBt hBD hDt
       have hPhifB := SA.anc_tree_of_anc_U hr.coherent hPhi hPhiU hPhi.fcRoot_mem hfB hBt
-      refine Or.inl ⟨SA.voterBlockTree_anc hr hy hc' D hD B hPhiBD,
+      refine Or.inl ⟨SA.voterBlockTree_anc_from hr hp.run.vstart hy hc' D hD B hPhiBD,
         hPhifB, D, hD, ?_, hPhiBD⟩
       have hfD := hPhifB.trans hPhiBD
       rw [hfr] at hDt hfD ⊢

@@ -69,7 +69,8 @@ structure ResetPremisesUpTo (proposer : Nat → Fin sp.n)
   reset_le : a ≤ b
   snapshot : ∃ k, FirstCutAfter tr k (cutZ sp.toParams g) ∧ tr.time k ≤ b
   catchUp : CatchRun tr H g (2 * sp.Δ)
-  noRestart : NoRestartAfter tr H (gbar g)
+  noRestart : ∀ y k, y ∈ H (tr.time k) → tr.RestartAt y k →
+    tr.time k ≤ b → tr.time k ≤ gbar g
   timeoutDelay : ∀ s, sp.toParams.slotTime s + 6 * sp.Δ + ΔF ≤
     sp.toParams.slotTime (s + sp.toParams.δt)
   nonempty : (H b).Nonempty

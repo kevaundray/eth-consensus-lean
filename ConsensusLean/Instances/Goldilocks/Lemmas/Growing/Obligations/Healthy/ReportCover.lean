@@ -28,6 +28,8 @@ import ConsensusLean.Instances.Goldilocks.Lemmas.Compose.Sleepy.Served
 import ConsensusLean.Instances.Goldilocks.Lemmas.Compose.Persist.Vote
 import ConsensusLean.Instances.Goldilocks.Lemmas.Healing.Arith
 import ConsensusLean.Lemmas.Tactic.Linarith
+import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Healing.Clean.HalfCommittee
+import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Healing.Report.FreshVotesRelay
 
 public section
 
@@ -58,7 +60,8 @@ variable {sp : SAParams} {ro : ReplayOrder sp (List (FG.Att sp.n))}
 /-! ### Calls of a node honest at them -/
 
 /-- The frame of an AC call of a node honest at it is its store's frame. -/
-private theorem frame_eq_at (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr)
+private theorem frame_eq_at {ini : Fin sp.n → (goldilocksNode sp ro).State}
+    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr ini)
     {y : Fin sp.n} {k : Nat} (hy : y ∈ H (tr.time k)) {ℓ : ACLabel (goldilocksNode sp ro)}
     (hc : tr.projAC.CallAt y k ℓ) : ℓ.frame = Node.frame (tr.state y k) := by
   have hc' : (tr.upTo (tr.time k)).projAC.CallAt y k ℓ := by
@@ -68,11 +71,13 @@ private theorem frame_eq_at (hrun : Consensus.Goldilocks.Growing.GoldilocksRun p
     RunTrace.upTo_state_of_le hrun.time_mono le_rfl]
 
 /-- The cuts before `k` are at or before `tr.time k`. -/
-private theorem before_cut (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr)
+private theorem before_cut {ini : Fin sp.n → (goldilocksNode sp ro).State}
+    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr ini)
     (k : Nat) : ∀ q < k, tr.time q ≤ tr.time k := fun _ hq => hrun.time_mono hq.le
 
 /-- An AC call frame of a node honest at it lies in the blocks held while honest. -/
-private theorem frame_subset_at (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr)
+private theorem frame_subset_at {ini : Fin sp.n → (goldilocksNode sp ro).State}
+    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr ini)
     (hnc : Compose.NoCollRun dg tr) {y : Fin sp.n} {k : Nat} (hy : y ∈ H (tr.time k))
     {ℓ : ACLabel (goldilocksNode sp ro)} (hc : tr.projAC.CallAt y k ℓ) :
     ℓ.frame.tree ⊆ tr.HonestBlocksAt H := fun _ hX =>
@@ -91,37 +96,34 @@ theorem unanimous_head_held_at_call_at {cm : Time → Finset (Fin sp.n)} {βK : 
       e.msg.slot = u → e.msg.head = P.root)
     (hgu : SA.gbar g + 4 * sp.Δ ≤ sp.ts u) (hR : drainTime sp a ≤ sp.ts (u + 1 : Nat))
     {y : Fin sp.n} {j : Nat} (hy : y ∈ H (tr.time j)) {ell : ACLabel (goldilocksNode sp ro)}
-    (hcall : tr.projAC.CallAt y j ell) (ht : sp.ts u + sp.Δ < tr.time j)
+    (hcall : tr.projAC.CallAt y j ell) (ht : sp.ts u + 2 * sp.Δ ≤ tr.time j)
     (hjb : tr.time j ≤ b) (hFP : Anc (tr.HonestBlocksAt H) (tr.state y j).fg.F P) :
     P ∈ ell.frame.tree := by
   have hrun := hp.run
+  have hΔ := sp.toParams.hΔ
   have hU := Compose.Growing.honest_blocks_coherent hp.run hp.noColl
-  have hub : sp.ts u + sp.Δ ≤ b := ht.le.trans hjb
-  obtain ⟨q, e, ⟨ellv, hv⟩, hs, hq⟩ :=
-    honest_votes_in_slot_at hp hgu hR hub y (hrun.antitone ht.le hy)
-  have hyq : y ∈ H (tr.time q) := hrun.antitone hq (hrun.antitone ht.le hy)
-  have hqj : q ≤ j := by
-    by_contra hn
-    have := hrun.time_mono (show j ≤ q by omega)
-    linarith
+  have hub : sp.ts u + sp.Δ ≤ b := by linarith
+  -- an honest member of the slot-`u` committee votes for `P` by `t_u + Δ`
+  obtain ⟨w, hwK, hw⟩ := hp.committee_honest_nonempty_at (s := u) (by linarith)
+    (by linarith) (by linarith [SA.gbar_nonneg g]) hub
+  obtain ⟨q, e, ⟨ellv, hv⟩, hs, hq⟩ := honest_votes_in_slot_at hp hgu hR hub w hw hwK
+  have hwq : w ∈ H (tr.time q) := hrun.antitone hq hw
   have hd := hrun.time_nonneg q
-  have hr := (Compose.goldilocks_ac_projection sp ro dg (H (tr.time q)) (tr.upTo (tr.time q))
-    proposer (hrun.upTo hd) (hp.noColl.upTo _)).localRun
-  have hv' : SA.CastAt (tr.upTo (tr.time q)).projAC y q ellv e := by
+  have hr := (Compose.goldilocks_ac_projection_from (hrun.upTo hd) (hp.noColl.upTo _)).localRun
+  have hv' : SA.CastAt (tr.upTo (tr.time q)).projAC w q ellv e := by
     rw [RunTrace.upTo_projAC]
     exact ⟨(Trace.upTo_callAt_of_le _ le_rfl).mpr hv.1, hv.2⟩
-  obtain ⟨⟨Hd, hHd, he, _⟩, _⟩ := Compose.cast_head_fcRoot hr hyq hv'
-  obtain rfl : Hd = P := hU.1 (frame_subset_at hrun hp.noColl hyq hv.1 hHd) hP
-    (he.trans (hun y q e hyq ⟨ellv, hv⟩ (hq.trans hub) hs))
-  have hPq : Hd ∈ (tr.state y q).fg.tree := (frame_tree_subset_at hrun hp.noColl hyq hv.1).2 hHd
-  have hd' := hrun.time_nonneg j
-  have hPj : Hd ∈ (tr.state y j).fg.tree := by
-    have h := (Compose.fg_grows (hrun.upTo hd') hy hqj).1
-      (show Hd ∈ ((tr.upTo (tr.time j)).state y q).fg.tree by
-        rwa [RunTrace.upTo_state_of_le hrun.time_mono (hrun.time_mono hqj)])
-    rwa [RunTrace.upTo_state_of_le hrun.time_mono le_rfl] at h
-  rw [frame_eq_at hrun hy hcall]
-  exact ⟨hPj, store_anc_of_honest_anc_at hrun hp.noColl hd' (before_cut hrun j) hy hFP hPj⟩
+  obtain ⟨⟨Hd, hHd, he, _⟩, _⟩ :=
+    Compose.cast_head_fcRoot_from hr (hrun.upTo hd).vstart hwq hv'
+  obtain rfl : Hd = P := hU.1 (frame_subset_at hrun hp.noColl hwq hv.1 hHd) hP
+    (he.trans (hun w q e hwq ⟨ellv, hv⟩ (hq.trans hub) hs))
+  -- the voter's frame relays `P` to the caller
+  have hF : Anc (tr.HonestBlocksAt H) ell.frame.F Hd := by
+    rw [frame_eq_at hrun hy hcall]
+    exact hFP
+  exact frame_relay_before_at hrun hp.noColl hp.sync hp.catchUp hwq hy
+    (fun r hrj hrs => hp.noRestart y r (hrun.antitone (hrun.time_mono hrj) hy) hrs
+      ((hrun.time_mono hrj).trans hjb)) hv.1 hcall hHd (by linarith) (by linarith) hF
 
 /-- **A held target above a high seed is fully viable, or an earlier strictly higher report
 extends it**, at a call of a node honest at it and at `c_z` by the horizon, when the target is
@@ -276,7 +278,9 @@ theorem report_of_viable_unanimous_pool_at {cm : Time → Finset (Fin sp.n)} {β
     (hframe : ell'.frame = ell.frame) (htime : tr.time (j + 1) = tr.time j)
     (hjoin : SA.joined sp (tr.projAC.state y (j + 1)) (tr.time (j + 1)))
     (hPg : P.root ≠ sp.genesisRoot) (hPv : P ∈ ell.frame.viableTree ell.frame.tree)
-    (hpool : ∀ v, v ∈ H (tr.time j) → ∃ vote ∈ (tr.projAC.state y j).pool u,
+    (hgu : SA.gbar g ≤ sp.ts u)
+    (hpool : ∀ v, v ∈ H (tr.time j) → v ∈ (Generic.dictOfTime sp cm).committee u →
+      ∃ vote ∈ (tr.projAC.state y j).pool u,
       vote.val = v ∧ vote.head = P.root ∧
       SA.resolutionTime (tr.projAC.state y j) ell.frame vote < SA.ETime.of (sp.ts u + 2 * sp.Δ) ∧
       ∀ vote' ∈ (tr.projAC.state y j).pool u, vote'.val = v → vote' = vote)
@@ -288,7 +292,7 @@ theorem report_of_viable_unanimous_pool_at {cm : Time → Finset (Fin sp.n)} {β
     ∃ r e R, SA.ToFGAt tr.projAC y r e R ∧ tr.time r ≤ tr.time (j + 1) ∧
       Anc (tr.HonestBlocksAt H) P R := by
   obtain ⟨hconf, hnv, hfast, hpost, _⟩ :=
-    hp.ready_update_selection_of_pool_at hy hjb hu hPv.1 hPg hpool hlocks
+    hp.ready_update_selection_of_pool_at hy hjb hgu hu hPv.1 hPg hpool hlocks
   have hPc := Obligations.UpTo.candidate_at_adjacent_call hu.1
     (frame_tree_subset_at hp.run hp.noColl hy hu.1).1 hframe htime hPv hconf hnv hfast hpost
     hlive hage
@@ -373,11 +377,13 @@ theorem report_cover_of_unanimous_at {cm : Time → Finset (Fin sp.n)} {βK : �
     have := (SA.ts_le_iff sp).1 hR
     push_cast at this
     omega
-  have hyu : y ∈ H (sp.ts u + sp.Δ) := hrun.antitone (by linarith only [hd]) hy
-  obtain ⟨q, e, ⟨ellv, hv⟩, hs, hq⟩ := honest_votes_in_slot_at hp hgu hR hub y hyu
+  obtain ⟨w, hwK, hw⟩ := hp.committee_honest_nonempty_at (s := u)
+    (by linarith [sp.toParams.hΔ]) (by linarith [sp.toParams.hΔ])
+    (by linarith [SA.gbar_nonneg g, sp.toParams.hΔ]) hub
+  obtain ⟨q, e, ⟨ellv, hv⟩, hs, hq⟩ := honest_votes_in_slot_at hp hgu hR hub w hw hwK
   have hvote : ∃ z q ell e, z ∈ H (tr.time q) ∧ SA.CastAt tr.projAC z q ell e ∧
       tr.time q ≤ b ∧ e.msg.slot = u :=
-    ⟨y, q, ellv, e, hrun.antitone hq hyu, hv, hq.trans hub, hs⟩
+    ⟨w, q, ellv, e, hrun.antitone hq hw, hv, hq.trans hub, hs⟩
   have hlocks := hp.call_locks_compatible_of_unanimous_at hP hts hun hvote hyj hup.1 hjb
     (hjtime ▸ hRT) hjtime.le (fun r hr B CV ho =>
       unanimous_next_optimistic_compatible_at hp hP hslot hu hun hgu hR hub
@@ -392,7 +398,8 @@ theorem report_cover_of_unanimous_at {cm : Time → Finset (Fin sp.n)} {βK : �
     · simp only [SA.SAParams.ts]; push_cast; linarith only [hd]
     · simp only [SA.SAParams.ts]; push_cast; linarith only [hd]
   obtain ⟨r, e, R, hr, ht, hPR⟩ := report_of_viable_unanimous_pool_at hp hyj hjb hup hto htoeq
-    hframe (hnexttime.trans hjtime.symm) hjoined hPg hPv hpool hlocks
+    hframe (hnexttime.trans hjtime.symm) hjoined hPg hPv (by linarith [sp.toParams.hΔ]) hpool
+    hlocks
     (fun C hC => by
       obtain ⟨hCv, l, hl, he, _⟩ := hC
       exact hnextlocks C ⟨hCv.1, l, hl, he⟩)

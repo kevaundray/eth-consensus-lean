@@ -32,14 +32,13 @@ theorem clean_source_stored_lock_compatible_at
     Compatible (tr.HonestBlocksAt H) B C := by
   have hm := hp.run.time_mono
   have hU := Compose.Growing.honest_blocks_coherent hp.run hp.noColl
-  have hac := Compose.goldilocks_ac_projection sp ro dg (H t) (tr.upTo t) proposer
-    (hp.run.upTo ht) (hp.noColl.upTo t)
+  have hac := Compose.goldilocks_ac_projection_from (hp.run.upTo ht) (hp.noColl.upTo t)
   rw [RunTrace.upTo_projAC] at hac
   have sub := RunTrace.honestBlocks_upTo_subset hm (H := H) ht
   rw [← Trace.upTo_state tr.projAC y hle] at hl
   by_cases hsl : s ≤ l.slot
   · obtain ⟨L, hL, hLr, D, hLD, q, hqi, DV, hD⟩ :=
-      SA.lock_below_origin hac.localRun hy i l hl
+      SA.lock_below_origin_from hac.localRun hac.vstart hy i l hl
     obtain rfl : C = L := hU.1 hC (sub hL) (hCr.trans hLr.symm)
     have hD' := hD.imp (fun h => ((SA.upTo_resultAt hm).mp h).2)
       (fun h => ((SA.upTo_optimisticLockAt hm).mp h).2)
@@ -60,7 +59,7 @@ theorem clean_source_stored_lock_compatible_at
         · obtain ⟨z, hz, j, hjr, e, he, _, hes, hBH⟩ :=
             ProposalImpl.result_supporter_at hp hx hB .refl hrb hts
           exact ⟨z, j, hz, hjr.le, e, he, hes, hBH⟩
-        · exact (hp.optimistic_supporter_at hx hrb hB).2
+        · exact (hp.optimistic_supporter_at hx hrb (Healing.gbar_le_of_cutZ_le sp hts) hB).2
       obtain ⟨z, j, hz, hjr, e, ⟨ell, he⟩, hes, Hd, hHd, heHd, hBHd⟩ := supporter
       have hzj := hp.run.antitone (hm hjr) hz
       have hyq := hp.run.antitone (hle q hqi) hy
@@ -77,7 +76,7 @@ theorem clean_source_stored_lock_compatible_at
       exact SA.anc_total hU hBHd hDHd
     cases hf : l.fast
     · obtain ⟨q, hqi, D, hD, L, hL, hLr, hLD⟩ :=
-        SA.slow_lock_provenance hac.localRun hy i l hl hf
+        SA.slow_lock_provenance_from hac.localRun hac.vstart hy i l hl hf
       obtain rfl : C = L := hU.1 hC (sub hL) (hCr.trans hLr.symm)
       obtain ⟨ell, R, hu, hconf, hdeep⟩ := hD
       obtain ⟨hqt, hu⟩ := (SA.upTo_updateAt hm).mp hu
@@ -91,7 +90,7 @@ theorem clean_source_stored_lock_compatible_at
       · exact SA.anc_total hU h (hLD.mono sub)
       · exact Or.inr ((hLD.mono sub).trans h)
     · obtain ⟨q, hqi, D, DV, hD, L, hL, hLr, hLD⟩ :=
-        SA.fast_lock_provenance hac.localRun hy i l hl hf
+        SA.fast_lock_provenance_from hac.localRun hac.vstart hy i l hl hf
       obtain rfl : C = L := hU.1 hC (sub hL) (hCr.trans hLr.symm)
       rcases compare hqi (Or.inl ⟨DV, ((SA.upTo_fastLockAt hm).mp hD).2⟩) with h | h
       · exact SA.anc_total hU h (hLD.mono sub)

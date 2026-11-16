@@ -62,7 +62,8 @@ theorem window_slots_of_honest_anchors_at {ι : Type*} {start : Nat} {off : ι �
 
 /-- **`ordered`**: proposal cuts of blocks of strictly increasing slots strictly increase. -/
 theorem strictMono_cut_of_proposesAt_at
-    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr)
+    {ini : Fin sp.n → (goldilocksNode sp ro).State}
+    (hrun : Consensus.Goldilocks.Growing.GoldilocksRun proposer dg H tr ini)
     {cut : Fin 4 → Nat} {P : Fin 4 → SA.Blk sp.n (List (FG.Att sp.n))}
     (hcut : ∀ i, tr.ProposesAt (P i).proposer (cut i) (P i))
     (hs : StrictMono fun i => (P i).slot) : StrictMono cut := by

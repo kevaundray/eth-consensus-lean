@@ -46,7 +46,7 @@ theorem clean_sources_compatible_at
       · obtain ⟨z, hz, j, hjq, e, hv, _, hes, hDH⟩ :=
           ProposalImpl.result_supporter_at hp hy hD .refl hqb hts
         exact ⟨z, j, hz, hjq.le, e, hv, hes, hDH⟩
-      · exact (hp.optimistic_supporter_at hy hqb hD).2
+      · exact (hp.optimistic_supporter_at hy hqb (Healing.gbar_le_of_cutZ_le sp hts) hD).2
     obtain ⟨z, j, hz, hjq, e, ⟨ell, hcast⟩, hes, Hd, hHd, he, hDH⟩ := supporter
     have hzj := hp.run.antitone (hp.run.time_mono hjq) hz
     have hjb := (hp.run.time_mono hjq).trans hqb

@@ -55,8 +55,7 @@ theorem finalized_below_unanimous_at_update_at
   have hBf : B ∈ ell.frame.tree := by
     rw [Outcome.frame_of_call hp.run hy hup.1]
     exact ⟨hBt, hFB⟩
-  have hr := (Compose.Growing.goldilocks_ac_projection sp ro dg H tr proposer
-    hp.run hp.noColl).upTo hd
+  have hr := (Compose.Growing.goldilocks_ac_projection_from hp.run hp.noColl).upTo hd
   have hc' : (tr.projAC.upTo (tr.time j)).CallAt y j ell :=
     (Trace.upTo_callAt _).mpr ⟨le_rfl, hup.1⟩
   have hsl : sp.slot ((tr.projAC.upTo (tr.time j)).time j) = u + 1 := by
