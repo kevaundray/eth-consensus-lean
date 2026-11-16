@@ -258,8 +258,10 @@ Lemmas/Generic/HealingEdges.lean), so the obligation is only its supply.
 The first healthy-reduction consumer must supply this inequality; the old
 `Premises.timeoutDelay` and `Premises.slotLen` do not together imply it.
 The leaves also require `slotLen`; the assemblies obtain it from `Premises`.
-Goldilocks can supply the delay from its four-Δ grid and numerical timeout
-bound: on that grid, `spacing_grid_equation` (Lemmas/Generic/HealingEdges.lean)
+Goldilocks can supply the delay from its four-Δ grid and healthy contract fit:
+`timeout_bound_of_fgSlots` (Lemmas/Generic/HealingEdges.lean) gives the
+numerical timeout bound from an FG delay of `c ≥ 2` slots with `3c ≤ δt`
+(the `ContractAssumptions` fields), and on that grid `spacing_grid_equation`
 turns the bound into the delay, as the grid endpoint
 `exists_reset_of_drain_rounds_noRestartAfter_at_of` does. The generic instance
 obligation for an arbitrary schedule is not discharged here.

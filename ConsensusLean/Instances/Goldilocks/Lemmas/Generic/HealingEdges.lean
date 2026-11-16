@@ -46,7 +46,8 @@ leaf 1, or no advance; leaf 3 then gives a frame window of the rise length, the 
 (`exists_slot_align_of_grid`) a slot window inside it, `DrainOutputs` a warm proposal, leaf 8 its
 deficit and the rise the reset. The rise's slot length, spacing and timeout premises come from
 the numerical timeout bound on the grid (`slotLen_of_grid`, `spacing_grid_equation`,
-`timeout_grid_equation`).
+`timeout_grid_equation`), which an FG delay of `c ≥ 2` slots with `3c ≤ δt` supplies
+(`timeout_bound_of_fgSlots`).
 
 `exists_reset_of_drain_rounds_awake_at_of` proves the finite-horizon endpoint
 `exists_reset_of_drain_rounds_awake_at`, which bounds restarts only up to `b`: the whole-run
@@ -108,6 +109,23 @@ theorem spacing_grid_equation {P : Params} (ΔF : Time)
     have h1 := grid_span hgrid s 1
     push_cast at h1
     linarith [grid_span hgrid s P.δt]
+
+/-- The numerical timeout bound `6Δ + ΔF ≤ 4Δ · δt` from an FG delay of `c ≥ 2` slots,
+`ΔF ≤ (4c − 6)·Δ`, and a timeout of `3c ≤ δt` slots. These are the healthy contract's fit
+(`ContractAssumptions`: `c = fgSlots`, `two_le_fgSlots`, the FG delay bound `fgDelay` and
+`timeout`); on the four-delay grid `spacing_grid_equation` and `timeout_grid_equation` turn the
+bound into the report-delivery spacing and the timeout inequality at every slot. -/
+theorem timeout_bound_of_fgSlots {P : Params} {ΔF : Time} (c : Nat) (hc : 2 ≤ c)
+    (hΔF : ΔF ≤ ((4 * c - 6 : Nat) : Time) * P.Δ) (hδ : 3 * c ≤ P.δt) :
+    6 * P.Δ + ΔF ≤ 4 * P.Δ * (P.δt : Time) := by
+  have hΔ : (1 : Time) ≤ P.Δ := P.hΔ
+  have hsub : ((4 * c - 6 : Nat) : Time) = 4 * (c : Time) - 6 := by
+    rw [Nat.cast_sub (by omega)]
+    push_cast
+    ring
+  have hcδ : (c : Time) ≤ (P.δt : Time) := by exact_mod_cast (show c ≤ P.δt by omega)
+  rw [hsub] at hΔF
+  linarith [mul_le_mul_of_nonneg_left hcδ (by linarith : (0 : Time) ≤ 4 * P.Δ)]
 
 section Edges
 
