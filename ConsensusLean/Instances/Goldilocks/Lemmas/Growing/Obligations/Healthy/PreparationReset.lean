@@ -106,7 +106,8 @@ theorem healthy_preparation_reset_at (Q : HealthyPreparationQueryAt S A V)
     (G := (Q.index : Nat)) (Ld := healthyDrainLen S Q.index)
     (by rw [healthyDrainLen_val]; change 2 * S.k + (Q.index : Nat) ≤ 2 * S.k + (Q.index : Nat) + 1
         omega)
-  obtain ⟨a, ha, hab⟩ := Healing.Growing.exists_reset_of_drain_rounds_awake_at hrun hnc hf hs
+  obtain ⟨a, ha, hab⟩ := Healing.Growing.exists_reset_of_drain_rounds_awake_at
+    (by rw [SA.committeeStart_full]; exact hrun) hnc hf hs
     haw hcatch hnr hH (by rw [hδeq]; have := A.six_le_δt; omega)
     (protoFGDelay_timeout_of_fgDelay S A V Q.run Q.hn Q.healthy.2.2)
     hr0 hgr Q.index.pos hcz (hBh.trans hb) (fun s₀ N hs₀ hN => by
@@ -115,7 +116,8 @@ theorem healthy_preparation_reset_at (Q : HealthyPreparationQueryAt S A V)
       obtain ⟨x, hxl, hxr, k, P, hx, hP, _, hPs⟩ := healthy_preparation_gap_at S A V Q
         (hb.trans Q.bound_le) hp
         (by rw [max_eq_left hr0]; exact hs₀) (by linarith only [hN, hBh, hΔ]) c hc hcN
-      exact ⟨x, hxl, hxr, hx, k, P, hP, hPs⟩) hdrain rfl
+      exact ⟨x, hxl, hxr, hx, k, P, hP, hPs⟩) hdrain
+    (Healing.Growing.CommitteeHalfUpTo.of_full hrun hnc hf rfl)
   have haw' : ∀ y ∈ Q.keys Q.bound, ∀ t, SA.gbar Q.gst ≤ t →
       t ≤ Q.bound → (Q.trace.upTo Q.bound).awake y t := by
     intro y hy t ht htb
