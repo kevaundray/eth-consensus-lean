@@ -247,7 +247,8 @@ theorem healthy_confirmed_supply_at
       (K S A) Q'.cap Q'.index
       Q'.ready Q'.heal Q'.run :=
     (shapeProgress (goldilocks { S with vote := stock }) V).mono le_rfl hb hp
-  obtain ⟨W, ⟨Dprep⟩⟩ := healthy_preparation_initialize_at S A V Q' h0 hb hp'
+  obtain ⟨W, ⟨Dprep⟩⟩ := healthy_preparation_initialize_at
+    { S with vote := stock } ⟨A.fgSlots, A.two_le_fgSlots, A.timeout⟩ V Q' h0 hb hp'
   have hrh : Q'.ready ≤ Q'.heal := by
     linarith only [W.ready_le, W.records, hΔ]
   -- the selected proposal at the query's own readiness
@@ -321,7 +322,8 @@ theorem healthy_confirmed_supply_at
     rw [mem_honestKeysAt_iff { S with vote := stock } Q.run.2, min_eq_left hTb]
     exact hhonT
   have hfirst := hread y _ hyT hcT
-  have hanc := healthy_cut_tips_ancestor_at S A V Q' h0 hb hp'
+  have hanc := healthy_cut_tips_ancestor_at { S with vote := stock }
+    ⟨A.fgSlots, A.two_le_fgSlots, A.timeout⟩ V Q' h0 hb hp'
     (Q.run.2.key y) ((chainTrace Q.run.2).endCut (Q.params.ts Ws.slot + 6 * Q.params.Δ))
     ((chainTrace Q.run.2).endCut Q.deadline) ⟨hlT, by rw [htT]; exact hhT⟩
     (Nat.le_findGreatest hlT (by rw [htT]; exact hmargin))

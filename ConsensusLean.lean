@@ -583,12 +583,15 @@ public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Simulation.Endpo
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Simulation.EngineBinding
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Simulation.EngineSteps
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Simulation.Events
+public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Simulation.FinalReads
+public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Simulation.FinalWindowSupply
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Simulation.Forward.Accepted
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Simulation.Forward.AtAcceptance
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Simulation.Forward.Held
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Simulation.Forward.Receipt
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Simulation.Forward.Tick
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Simulation.Groups
+public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Simulation.HealedReadAncestry
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Simulation.HealingRows
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Simulation.Interface
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Simulation.LocalRows
@@ -606,6 +609,7 @@ public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Simulation.Queue
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Simulation.ReceiverService
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Simulation.RegimeTransport
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Simulation.Release
+public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Simulation.ResetHealBudget
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Simulation.Restart
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Simulation.Run
 public import ConsensusLean.Instances.Goldilocks.Lemmas.Growing.Simulation.RunCommittee

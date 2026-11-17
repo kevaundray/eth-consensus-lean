@@ -357,9 +357,9 @@ theorem local_data_cast {P : Params} {A : NodeAC P} {sg sg' : A.Msg → Fin P.n}
       (h ▸ C).run.Run = C.run.Run ∧ (h ▸ C).committeeLook = C.committeeLook ∧
       (h ▸ C).θ = C.θ ∧ (h ▸ C).recovery = C.recovery ∧
       (h ▸ C).outageEta = C.outageEta ∧ (h ▸ C).outageLag = C.outageLag ∧
-      (h ▸ C).outageBudget = C.outageBudget := by
+      (h ▸ C).outageBudget = C.outageBudget ∧ (h ▸ C).healing.drain = C.healing.drain := by
   subst h
-  exact ⟨rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩
+  exact ⟨rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl, rfl⟩
 
 /-- At the local data equations, the fixed local outage policy matches the endpoint contract:
 catch-up `18Δ + 1 ≤ 19Δ`, and equal recovery, threshold, look-aheads, look-back, arming lag and
@@ -373,7 +373,7 @@ theorem goldilocks_outageRecoveryBinding (S : Setup) (A : ContractAssumptions S)
     (hsg : (fun v => v.val) = M.signer) :
     OutageRecoveryBinding M (goldilocksContract A (contract_coefficients S A)) (hsg ▸ C) := by
   obtain ⟨-, hθ, hc, hl, hcl, -, -, -, hr, hη, hlag, hb, -, -⟩ := hC
-  obtain ⟨-, el, ec, -, -, -, -, ecl, eθ, er, eη, elag, eb⟩ := local_data_cast hsg C
+  obtain ⟨-, el, ec, -, -, -, -, ecl, eθ, er, eη, elag, eb, -⟩ := local_data_cast hsg C
   have hΔ : (S.params (pubOf E) hn).Δ = E.ΔAC := rfl
   have h1 : (1 : Time) ≤ E.ΔAC := E.ΔAC_pos
   refine ⟨?_, ?_, ?_, ?_, ?_, ?_, ?_, ?_⟩
