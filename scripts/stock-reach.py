@@ -35,17 +35,14 @@ Classification (source level, at --rev; comments removed first):
   stock / generic   stock: a stock marker, or the classified text names a stock declaration that is
                     not a `theorem`/`lemma` (a stock structure or definition; reported `via <name>`);
                     generic: not stock, and a Setup binder.
-  file-wide         the same with every `variable` binder of the file in scope, whatever its
-                    section: the dirs and twins checks and the stock diagnostic read binders so.
 
 Checks (each failure makes the exit status 1):
   list      the list is nonempty; every entry resolves to exactly one declaration of its name in
             its file, and that declaration is stock.
-  dirs      every stock declaration (file-wide) under a --generic-dir is on the list.
+  dirs      every stock declaration under a --generic-dir is on the list.
   deps      no generic declaration, and no unlisted declaration under a --generic-dir, names a
             listed declaration (static, namespace-aware name resolution of its whole text).
-  twins     no generic declaration (file-wide) outside an entry's file has the entry's
-            (last-component) name.
+  twins     no generic declaration outside an entry's file has the entry's (last-component) name.
   reach     no listed declaration is in either static closure of a root: `by-name` resolves
             names namespace-aware (innermost enclosing namespace, then the file's `open`s, then a
             qualified-suffix match) and ignores dot calls on terms (`h.foo`), an
@@ -53,8 +50,8 @@ Checks (each failure makes the exit status 1):
             declared `T`, an over-approximation (two types sharing a method name), so a name
             collision fails closed.
 
-Diagnostics (never change the exit status): the stock declarations (file-wide) each closure
-reaches; with --query, membership and path of named declarations in both closures.
+Diagnostics (never change the exit status): the stock declarations each closure reaches; with
+--query, membership and path of named declarations in both closures.
 
 Read-only on the repository: sources come from `git show <rev>:<path>`.
 
@@ -245,18 +242,6 @@ class Scopes:
         return v, set().union(*incs)
 
 
-def file_scope(text):
-    """Every `variable` binder and `include` of a comment-stripped file, whatever its scope."""
-    vars_, inc = {}, set()
-    for blk in re.findall(r"^(?:variable|include)\b[^\n]*(?:\n[ \t]+[^\n]*)*", text, re.M):
-        if blk.startswith("variable"):
-            for name, ty, src in binders(blk[len("variable"):]):
-                vars_[name] = (ty, src)
-        else:
-            inc.update(x for x in blk.split()[1:] if x != "in")
-    return vars_, inc
-
-
 def effective(kind, decl, scope):
     """The text a comment-stripped declaration is classified by: its header (its whole text unless
     it is a `theorem`/`lemma`) after the `variable` binders in `scope` it includes."""
@@ -309,13 +294,13 @@ COMMAND = re.compile(r"^(?:variable|include|omit|section|end|namespace|open|attr
 
 
 def index(src):
-    """Declarations (each up to the next declaration or column-0 command), their classified texts
-    (scoped and file-wide), full names, opens and per-line namespaces of every file."""
-    decls, fullname, opens, nsline, eff, eff_fw = {}, {}, defaultdict(set), {}, {}, {}
+    """Declarations (each up to the next declaration or column-0 command), their classified texts,
+    full names, opens and per-line namespaces of every file."""
+    decls, fullname, opens, nsline, eff = {}, {}, defaultdict(set), {}, {}
     for f, raw in src.items():
         t = strip_comments(raw)
         L = t.split("\n")
-        sc, fw = Scopes(t), file_scope(t)
+        sc = Scopes(t)
         idx = [(i, DECL.match(l)) for i, l in enumerate(L) if DECL.match(l)]
         for k, (i, m) in enumerate(idx):
             j = idx[k + 1][0] if k + 1 < len(idx) else len(L)
@@ -323,7 +308,6 @@ def index(src):
             body = "\n".join(L[i:j])
             decls[(f, i + 1)] = (m.group(2), body)
             eff[(f, i + 1)] = (m.group(1), effective(m.group(1), body, sc.at[i]))
-            eff_fw[(f, i + 1)] = (m.group(1), effective(m.group(1), body, fw))
         stack, arr = [], []
         for i, l in enumerate(L):
             m = re.match(r"^namespace\s+(\S+)", l)
@@ -354,7 +338,7 @@ def index(src):
     for k, fn in fullname.items():
         if fn.rsplit(".", 1)[0] in fns:
             dotlast[fn.split(".")[-1]].append(k)
-    return decls, fullname, opens, nsline, bylast, dotlast, eff, eff_fw
+    return decls, fullname, opens, nsline, bylast, dotlast, eff
 
 
 def make_resolver(fullname, opens, nsline, bylast):
@@ -457,10 +441,10 @@ def main():
     out = print
 
     src = load(a.repo, a.rev)
-    decls, fullname, opens, nsline, bylast, dotlast, eff, eff_fw = index(src)
+    decls, fullname, opens, nsline, bylast, dotlast, eff = index(src)
     resolve = make_resolver(fullname, opens, nsline, bylast)
     fwd = make_fwd(decls, resolve, dotlast)
-    info, info_fw = classify(eff, fullname, resolve), classify(eff_fw, fullname, resolve)
+    info = classify(eff, fullname, resolve)
     out(f"rev={git(a.repo, 'rev-parse', '--short', a.rev).strip()} files={len(src)} decls={len(decls)}")
     counts = defaultdict(int)
     for c, _ in info.values():
@@ -492,10 +476,10 @@ def main():
         return any(k[0].startswith(g) for g in a.generic_dir)
 
     # dirs
-    stray = sorted(k for k in decls if in_generic_dir(k) and info_fw[k][0] == "stock" and k not in sec)
+    stray = sorted(k for k in decls if in_generic_dir(k) and info[k][0] == "stock" and k not in sec)
     out(f"[dirs] unlisted stock declarations under the generic directories: {len(stray)}")
     for k in stray:
-        out(f"    {fullname[k]} @ {k[0]}:{k[1]} ({info_fw[k][1]})")
+        out(f"    {fullname[k]} @ {k[0]}:{k[1]} ({info[k][1]})")
     if stray:
         failed.append("dirs")
 
@@ -515,7 +499,7 @@ def main():
     lastname = defaultdict(set)
     for f, k in listed:
         lastname[fullname[k].split(".")[-1]].add(f)
-    twins = sorted(k for k in decls if info_fw[k][0] == "generic" and k not in sec
+    twins = sorted(k for k in decls if info[k][0] == "generic" and k not in sec
                    and k[0] not in lastname.get(fullname[k].split(".")[-1], {k[0]}))
     out(f"[twins] generic declarations named like a listed one: {len(twins)}")
     for k in twins:
@@ -536,14 +520,14 @@ def main():
         for k0 in starts:
             par = reach(fullname, fwd, [k0], dots)
             hit = sorted(k for k in sec if k in par)
-            stock = sorted(k for k in par if info_fw[k][0] == "stock")
+            stock = sorted(k for k in par if info[k][0] == "stock")
             out(f"[reach {mode}] {fullname[k0]}: reached={len(par)} listed={len(hit)} stock={len(stock)}")
             for k in hit:
                 out(f"    listed {fullname[k]} @ {k[0]}:{k[1]}")
                 for step in path(par, k, fullname):
                     out(f"        {step}")
             for k in stock:
-                out(f"    stock {fullname[k]} @ {k[0]}:{k[1]} ({info_fw[k][1]})")
+                out(f"    stock {fullname[k]} @ {k[0]}:{k[1]} ({info[k][1]})")
             for q in a.query:
                 for k in (k for k, fn in fullname.items() if fn == q or fn.endswith("." + q)):
                     out(f"    query {fullname[k]}: {'REACHED' if k in par else 'not reached'}")

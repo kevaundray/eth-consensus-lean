@@ -242,8 +242,7 @@ It exits 1 on any failure.
   `by-name` (an under-approximation: dot calls on terms are not followed) or `+dots` (an
   over-approximation: `h.foo` follows every `T.foo`, so two types sharing a method name collide and fail
   closed). Each closure also lists the stock declarations it reaches (a diagnostic).
-- **Limits:** everything is lexical (no elaboration). *dirs*, *twins* and the stock diagnostic read a file's
-  `variable` binders whatever their scope, so a binder of one section reaches declarations outside it.
+- **Limits:** everything is lexical (no elaboration).
 
 `scripts/test_stock_reach.py` (a self-test of `check.sh`) runs the fixtures of
 `scripts/fixtures/stock-reach/`: scoping (before, inside, after and nested sections, a multi-line

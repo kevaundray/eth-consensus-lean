@@ -57,8 +57,7 @@ def static(case, generic=False, **kw):
 
 
 class Scope(unittest.TestCase):
-    """deps classifies a declaration by its own binders and the `variable`s in scope it uses; dirs and
-    twins read the file's `variable`s whatever their scope."""
+    """Each declaration is classified by its own binders and the `variable`s in scope it uses."""
 
     def test_sections_generic_deps(self):
         rc, out = static("sections.lean")
@@ -68,9 +67,7 @@ class Scope(unittest.TestCase):
 
     def test_sections_stock_dirs(self):
         rc, out = static("sections.lean", generic=True)
-        # file-wide: the section's stock `hS` also reaches the declarations outside the section
-        self.assertEqual(section(out, "dirs"), (4, ["Fx.before_section", "Fx.inside_stock", "Fx.nested_stock",
-                                                    "Fx.after_section"]))
+        self.assertEqual(section(out, "dirs"), (2, ["Fx.inside_stock", "Fx.nested_stock"]))
         self.assertEqual(rc, 1)
 
     def test_multiline_variable(self):
@@ -95,8 +92,7 @@ class Scope(unittest.TestCase):
 
     def test_twins(self):
         rc, out = static("twins.lean")
-        # file-wide: the later stock `hS` hides the section-scoped twin
-        self.assertEqual(section(out, "twins"), (1, ["Fx.Other.stock_helper"]))
+        self.assertEqual(section(out, "twins"), (2, ["Fx.Other.stock_helper", "Fx.Scoped.stock_helper"]))
         self.assertEqual(rc, 1)
 
     def test_clean_passes(self):
