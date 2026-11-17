@@ -16,21 +16,20 @@ import ConsensusLean.Lemmas.Model.Constant
 
 public section
 
-/-! # Open network transport suppliers
+/-! # Network transport: deadlines, the attestation class and finite services
 
-These are goals for the concrete publisher/simulation adapter, not extra premises of
-`MeetsObligations`.
-The trace parameters remain independent here. `Setup.params` gives protocol delay Δp = Δe: the
-engine holds an object strictly before `a + Δe` (by `a + Δe − 1`), which is the node's strict
-deadline `a + Δp`. FG attestation service has its own delay `Δ_F`: the engine serves
+`Setup.params` gives protocol delay Δp = Δe: the engine holds an object strictly before `a + Δe`
+(by `a + Δe − 1`), which is the node's strict deadline `a + Δp`. FG attestation service has its
+own delay `Δ_F`: the engine serves
 standalone attestations (`isFGAtt`) strictly before its FG delay `ΔF` (the `fgAtts` clause of
 `PSync`), at the protocol FG delay `Δ_F,p = protoFGDelay (pubOf E) = ΔF`.
 Every other object (blocks, votes, forwarding and vote-forwarding wrappers) is served strictly
 before the bound `Δ`; no statement here claims a block before `ΔF`.
-All three suppliers include message, block, acceptance-relay and attestation service. Receipt
-alone proves none of the acceptance-relay fields. The finite services up to a synchronous horizon
-(`publication_held_syncUntil`, `acceptance_relay_syncUntil`) are proved here; full GST remains
-separate.
+The finite services up to a synchronous horizon (`publication_held_syncUntil`,
+`acceptance_relay_syncUntil`) are proved here. The whole-run transports from the network premises
+to the node premises (`PSync ⇒ GSTRun`, `SyncUntil ⇒ SyncBefore`, `PSync 0 ⇒ SyncRun`) were retired
+unproved: the direct committee-aware route, the per-service suppliers of
+`Lemmas/Growing/Obligations/Network` at every vote binding, covers what the obligations proof needs.
 -/
 
 namespace Consensus.Goldilocks.RunTrace
@@ -59,35 +58,6 @@ theorem protoFGDelay_eq (pub : Model.Public) : protoFGDelay pub = pub.ΔFG := by
 
 variable {V : Type} [Fintype V] [DecidableEq V] {E : Env V}
   (S : Setup) (rho : Model.Run (compiled (goldilocks { S with vote := stock })) E)
-  {sp : SA.SAParams} {ro : SA.ReplayOrder sp (List (FG.Att sp.n))}
-  (tr : GoldilocksTrace sp ro) (H : Set (Fin sp.n)) (ΔF : Time)
-
-/-- OPEN supplier: PSync supplies GST at the node level. Paper route: actual same-time
-publication gives network service by max(send, GST, latest wake)+Δe; authenticated provenance
-gives the lower bound, recursive processing gives a call, and the engine's strict deadline gives
-the node's strict endpoint.
-Acceptance relay additionally requires the parent-first induction, NoColl and chain-state
-agreement. Vote admissions need their own source/time provenance; attestations have no lower
-bound (`AttDeliveredBy`), so they need none. The adapter
-must identify H, node keys, flattened cuts, horizon and awake intervals with the engine run.
-It assumes `Δ ≤ Δ_F` (`SyncOn.delta_le`): an attestation admitted from a block leaves in the
-block's relay wrapper, which the network serves within `Δ`, not `Δ_F`. -/
-def PSyncTransport : Prop :=
-  sp.Δ ≤ ΔF → ∀ g, rho.log.PSync rho.point g → tr.GSTRun H ΔF g
-
-/-- OPEN supplier: SyncUntil supplies only recipient-deadline-cut SyncBefore, not SyncRun
-with a send-time cutoff. Paper route: a node deadline ≤ b puts its engine service endpoint
-strictly below b. Wakes are included in that deadline. All four service fields need
-the same publication/processing joins as PSyncTransport. No post-outage service is inferred.
-It assumes `Δ ≤ Δ_F` as `PSyncTransport` does, also for the cutoff `deadline … Δ_F ≤ b`. -/
-def SyncUntilTransport : Prop :=
-  sp.Δ ≤ ΔF → ∀ b, rho.log.SyncUntil rho.point b → tr.SyncBefore H ΔF b
-
-/-- OPEN supplier: global synchrony gives SyncRun on nonnegative send windows. In particular
-this does not derive a send-window SyncRun from SyncUntil: a late wake can put its deadline
-after the latter's cutoff. The concrete adapter must discharge the same four service leaves. -/
-def SyncRunTransport : Prop :=
-  sp.Δ ≤ ΔF → rho.log.PSync rho.point 0 → ∀ a b, 0 ≤ a → tr.SyncRun H ΔF a b
 
 /-- The engine log's message class is the Goldilocks attestation class (`isFGAtt`). -/
 theorem log_fgAtt_iff {V : Type} [Fintype V] [DecidableEq V] {E : Env V} (S : Setup)

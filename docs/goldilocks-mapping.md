@@ -716,11 +716,12 @@ Modelling choices:
   obligation 8's strict-vs-endpoint receipt is settled by the L0 text. The spec treats admission as an instantaneous send. The model's persistent-relay variants
   still break R.1 when relay waits for an awake tick or is one unit late, so buffering across sleep or adding
   relay slack is not the chosen repair. `SyncAC` stays unchanged, and `SyncOn` except for its attestation clause and `delta_le` (below). At `Δ_p = Δ_e` the engine
-  `PSync` supplies the node services the obligations proof uses (`message_service_psync_at`,
-  `block_service_psync_at`, `signed_row_service_psync_at`, `catchRun_of_psync_at`, `resetService_of_psync_at`); the full
-  transport stays open: `PSync ⇒ GSTRun` (`PSyncTransport`), `SyncUntil ⇒ SyncBefore`
-  (`SyncUntilTransport`) and `PSync 0 ⇒ SyncRun` (`SyncRunTransport`), in `Lemmas/Obligations/NetworkTransport`,
-  each under `Δ ≤ Δ_F`; they are goals for the concrete adapter, not premises of `MeetsObligations`.
+  `PSync` supplies the node services the obligations proof uses directly, at every vote binding
+  (`message_service_psync_at`, `block_service_psync_at`, `signed_row_service_psync_at`, `catchRun_of_psync_at`,
+  `resetService_of_psync_at`). This direct committee-aware route covers the need, so the whole-run transports of the
+  population-binding run, `PSyncTransport` (`PSync ⇒ GSTRun`), `SyncUntilTransport` (`SyncUntil ⇒ SyncBefore`) and
+  `SyncRunTransport` (`PSync 0 ⇒ SyncRun`), each under `Δ ≤ Δ_F`, were retired unproved; they were never premises
+  of `MeetsObligations`.
   **Attestations** (`docs/decisions.md` §"Network and delivery"): `SyncOn.attestation` and
   `SyncBefore.attestation` keep "signs or admits" and the deadline at `Δ_F`, but have no lower bound
   (`AttDeliveredBy`: a processing before the signing or admission counts), and both premises carry
@@ -810,9 +811,10 @@ Modelling choices (`docs/decisions.md` §"Goldilocks model choices", the entries
   spec's tick runs only awake (`tick_of_awake`), so it is the poll proposal step at the public times. The release
   of queued bodies is the shape's own, through poll steps; the two leading polls make a proposal carry only
   released objects (the spec has no release step).
-- **Stated, open: the network premises' transport.** The engine reads an admission as an instantaneous send
-  (`SendOrAdmitAt`); the deadlines, the services the obligations proof uses and the open transport suppliers (not
-  premises of `MeetsObligations`) are in the Regimes section's note "Network model vs the spec's premises".
+- **The network premises' transport.** The engine reads an admission as an instantaneous send
+  (`SendOrAdmitAt`); the deadlines and the services the obligations proof uses (the direct committee-aware route;
+  the whole-run transports were retired unproved) are in the Regimes section's note "Network model vs the spec's
+  premises".
 - **The proposer selection is the run's.** The generic skeleton's proposer selection is per slot
   (`proposerSel : Slot → SelSpec n`); the Goldilocks skeleton sets it to `.sized 1` at every
   slot (the runtime has no proposer schedule), so a valid run selects one proposer

@@ -111,9 +111,12 @@ detail in `TRUST.md`.
     `Δ`. So the node statements built on them (`SyncRun`, `GSTRun`, `SleepyRun`, `HealthyRun`, `HSShared`, the
     Persist, Run, Service and healing rows) cover only `Δ ≤ Δ_F`, the paper's range. No proof reads `delta_le`; the
     consumers of the clause read signings only.
-  - The generic L0 two-bound network stays unordered. The open transports (`PSyncTransport`, `SyncUntilTransport`,
-    `SyncRunTransport`) take `Δ ≤ Δ_F` as a hypothesis; with the lower bound gone they owe no signer provenance for
-    attestations.
+  - The generic L0 two-bound network stays unordered. The whole-run transports `PSyncTransport`,
+    `SyncUntilTransport` and `SyncRunTransport` (`PSync ⇒ GSTRun`, `SyncUntil ⇒ SyncBefore`, `PSync 0 ⇒ SyncRun`
+    on the population-binding engine run, each under `Δ ≤ Δ_F`) were never proved and are retired: the direct
+    committee-aware route, the per-service suppliers of `Lemmas/Growing/Obligations/Network` at every vote binding
+    (`message_service_psync_at`, `block_service_psync_at`, `signed_row_service_psync_at`, `catchRun_of_psync_at`,
+    `resetService_of_psync_at`), covers what the obligations proof needs.
   - `MeetsObligations` needs no `Δ ≤ Δ_F`: its closure mentions `SyncOn`/`SyncRun` only through the uninstantiated
     `SleepyWindow` disjunct of `vote_frame_of`'s service hypothesis (`Compose/Sleepy/FrameLabels`, discharged with
     the `SleepyServiceBefore` disjunct), and never constructs or reads them.
@@ -273,8 +276,9 @@ detail in `TRUST.md`.
   - heal `catchUp + M_f` (`contract_heal`), with `M_f = healMargin = 20 L_drain + 8k + 28δ_t + 28X + 56` and
     `L_drain = 2k + X` (expanded `48k + 28δ_t + 48X + 56`; heal `387` at `k = 2, X = 1, δ_t = 6`). It is the final
     route's heal bound on the key-dependent rise-round route at `λ = 2Δ` (`exists_reset_of_drain_rounds_awake_at`,
-    `resetBoundRounds`, `healBoundCoeffRounds_at_two`), which gives a lower heal than the earlier five-window frame
-    route; the untrusted reset coefficient `healthyResetCoeff = 20 L_drain + 24(δ_t + X) + 40` moves with it, and
+    `resetBoundRounds`; the test `Obligations.Test.Contract.heal_val` checks the coefficient identity),
+    which gives a lower heal than the earlier five-window frame route; the untrusted reset coefficient
+    `healthyResetCoeff = 20 L_drain + 24(δ_t + X) + 40` moves with it, and
     `M_f` also covers the nonfinal reset envelope for `δ_t ≥ 6` (`healMargin_ge_reset`, slack `4δ_t − 13`). A
     smaller heal makes `healthyLive` and `healedSafe` hold from earlier and shortens `healedSafe`'s progress window,
     so both get stronger; `Admissible` does not bound the heal, and the generic realizability witnesses give
