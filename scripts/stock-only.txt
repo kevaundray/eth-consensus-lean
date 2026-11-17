@@ -9,7 +9,6 @@
 ConsensusLean/Instances/Goldilocks/Lemmas/Simulation/Evidence.lean tick_block_releases
 ConsensusLean/Instances/Goldilocks/Lemmas/Simulation/Evidence.lean occurring_in_view
 ConsensusLean/Instances/Goldilocks/Lemmas/Simulation/Evidence.lean accepted_in_view
-ConsensusLean/Instances/Goldilocks/Lemmas/Simulation/Evidence.lean held_in_view
 ConsensusLean/Instances/Goldilocks/Lemmas/Simulation/Evidence.lean held_att_in_view
 ConsensusLean/Instances/Goldilocks/Lemmas/Simulation/Evidence.lean evidenceInView
 ConsensusLean/Instances/Goldilocks/Lemmas/Simulation/Core.lean pool_mono_through_same_time_send
@@ -19,59 +18,25 @@ ConsensusLean/Instances/Goldilocks/Lemmas/Simulation/Core.lean admission_voteFor
 ConsensusLean/Instances/Goldilocks/Lemmas/Simulation/Core.lean simTrace_vote_forwarded
 ConsensusLean/Instances/Goldilocks/Lemmas/Simulation/Core.lean simTrace_simulates
 ConsensusLean/Instances/Goldilocks/Lemmas/Simulation/Core.lean engineSimulatesNode
-ConsensusLean/Instances/Goldilocks/Lemmas/Simulation/Transport.lean engine_outputValid
-ConsensusLean/Instances/Goldilocks/Lemmas/Simulation/Transport.lean engine_nested
-ConsensusLean/Instances/Goldilocks/Lemmas/Simulation/Transport.lean engine_finalMonotone
 ConsensusLean/Instances/Goldilocks/Lemmas/Simulation/Transport.lean noCollRun_simTrace
 ConsensusLean/Instances/Goldilocks/Lemmas/Simulation/Transport.lean noCollTransport
 ConsensusLean/Instances/Goldilocks/Lemmas/Simulation/Transport.lean compatible_reads
 ConsensusLean/Instances/Goldilocks/Lemmas/Simulation/Transport.lean final_accountable_of_noColl
 ConsensusLean/Instances/Goldilocks/Lemmas/Simulation/Transport.lean finalizedAccountable
-ConsensusLean/Instances/Goldilocks/Lemmas/Simulation/Transport.lean shape_outputValid
-ConsensusLean/Instances/Goldilocks/Lemmas/Simulation/Transport.lean shape_nested
-ConsensusLean/Instances/Goldilocks/Lemmas/Simulation/Transport.lean shape_finalMonotone
-ConsensusLean/Instances/Goldilocks/Lemmas/Simulation/Transport.lean shape_finalAccountable
 ConsensusLean/Instances/Goldilocks/Lemmas/Simulation/Run.lean simTrace_goldilocksRun
 ConsensusLean/Instances/Goldilocks/Lemmas/Simulation/StatementsBundle.lean simulation_statements
-
-# Growing/Simulation/Endpoint/
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Simulation/Endpoint/Accountable.lean held_tree_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Simulation/Endpoint/Accountable.lean compatible_reads_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Simulation/Endpoint/Accountable.lean final_accountable_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Simulation/Endpoint/Accountable.lean engine_finalAccountable_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Simulation/Endpoint/Outputs.lean prefix_reader_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Simulation/Endpoint/Outputs.lean held_in_view_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Simulation/Endpoint/Outputs.lean held_att_in_view_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Simulation/Endpoint/Outputs.lean engine_outputValid_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Simulation/Endpoint/Outputs.lean engine_nested_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Simulation/Endpoint/Outputs.lean engine_finalMonotone_at
 
 # Growing/Simulation/Forward/
 ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Simulation/Forward/Accepted.lean received_forward_accepted_before_at
 
 # Growing/Obligations/Network/
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Obligations/Network/Transport.lean signed_att_wellFormed_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Obligations/Network/Transport.lean held_att_processed_before_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Obligations/Network/Transport.lean signed_row_service_psync_at
 ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Obligations/Network/Forwarding.lean decoded_held_scheduled_proposal_at
 ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Obligations/Network/Forwarding.lean decoded_held_tick_at
 ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Obligations/Network/Forwarding.lean stateAt_decoded_held_at
 ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Obligations/Network/Forwarding.lean tick_proposal_acceptance_decoded_publication_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Obligations/Network/PSync.lean held_forward_blockCall_before_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Obligations/Network/PSync.lean publication_blockDeliveredBy_psync_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Obligations/Network/PSync.lean ownBlockAt_accept_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Obligations/Network/PSync.lean block_service_psync_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Obligations/Network/PSync.lean resetService_of_psync_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Obligations/Network/PSync.lean catchRun_of_psync_at
 
 # Obligations/
 ConsensusLean/Instances/Goldilocks/Lemmas/Obligations/ForwardingDecodeBase.lean accepted_child_decodes
-ConsensusLean/Instances/Goldilocks/Lemmas/Obligations/DrainWarm.lean Obligations.drainOutputs_of_service
-ConsensusLean/Instances/Goldilocks/Lemmas/Obligations/OutageArmingSteps.lean Compose.cover_gate_veto_above
-ConsensusLean/Instances/Goldilocks/Lemmas/Obligations/OutageArmingSteps.lean Compose.armed_lock_cover
-ConsensusLean/Instances/Goldilocks/Lemmas/Obligations/ResetOfDrainRounds.lean Obligations.rounds_le_warm_proposal
-ConsensusLean/Instances/Goldilocks/Lemmas/Obligations/ResetOfDrainRounds.lean Obligations.exists_reset_of_drain_rounds
-ConsensusLean/Instances/Goldilocks/Lemmas/Obligations/ResetOfDrainRounds.lean Obligations.exists_reset_of_drain_rounds_awake
 
 # ConsensusLean/Instances/Goldilocks/Milestones/Statements/AC/
 ConsensusLean/Instances/Goldilocks/Milestones/Statements/AC/Steps.lean SA.SourceCompatible
@@ -82,7 +47,6 @@ ConsensusLean/Instances/Goldilocks/Lemmas/AC/Steps/Compatible/Source.lean SA.sou
 
 # Growing/AC/
 ConsensusLean/Instances/Goldilocks/Lemmas/Growing/AC/Source.lean SA.Growing.source_compatible_stored
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/AC/WriterCompatible.lean SA.Growing.result_optimistic_compatible_window_before_at
 
 # Compose/Sleepy/
 ConsensusLean/Instances/Goldilocks/Lemmas/Compose/Sleepy/FrameLabels.lean Compose.vote_frame_upTo
@@ -120,117 +84,24 @@ ConsensusLean/Instances/Goldilocks/Lemmas/Compose/Sleepy/Transfer.lean Compose.v
 ConsensusLean/Instances/Goldilocks/Lemmas/Compose/Sleepy/Transfer.lean Compose.votes_below_succ_before
 ConsensusLean/Instances/Goldilocks/Lemmas/Compose/Sleepy/Transfer.lean Compose.votes_below_succ
 
-# Growing/Healing/Report/
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/OptimisticBaseVotes.lean Healing.Growing.KernelProof.optimistic_next_votes_of_early_witness_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/RegularTransfer.lean Healing.Growing.KernelProof.first_transfer_service_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/CurrentPassage.lean Healing.Growing.KernelProof.current_lock_passage_of_regular_base_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FollowCast.lean Healing.Growing.KernelProof.proposal_viable_at_cast_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FollowEndpoint.lean Healing.Growing.KernelProof.proposal_report_follow_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FollowHeads.lean Healing.Growing.FrameWindow.toFG_later_proposal_head_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FollowInduction.lean Healing.Growing.later_heads_of_early_witness_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FollowLaterBoundary.lean Healing.Growing.optimistic_later_heads_of_early_witness_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FollowLaterBoundary.lean Healing.Growing.optimistic_later_heads_of_witness_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FollowLocal.lean Healing.Growing.toFG_time_ge_of_ancestor_slot_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FollowLocal.lean Healing.Growing.stored_lock_lt_at_proposal_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FollowOptimisticBaseBoundary.lean Healing.Growing.optimistic_next_votes_of_early_witness_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FollowOptimisticBaseBoundary.lean Healing.Growing.optimistic_next_proposal_of_early_witness_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FollowOrigin.lean Healing.Growing.toFG_fast_origin_slot_bounds_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FollowRegularBoundary.lean Healing.Growing.FrameWindow.regular_later_heads_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FollowWitnessBoundary.lean Healing.Growing.unanimous_next_votes_of_witness_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FollowWitnessBoundary.lean Healing.Growing.unanimous_next_proposal_of_witness_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FollowWrite.lean Healing.Growing.FrameWindow.optimistic_write_later_proposal_head_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FreshEndpoint.lean Healing.Growing.KernelProof.fresh_fast_lock_update_toFG_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FreshLocks.lean Healing.Growing.FrameWindow.unanimous_update_no_veto_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FreshNext.lean Healing.Growing.FrameWindow.unanimous_next_votes_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FreshSupport.lean Healing.Growing.unanimous_next_cast_supporters_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FreshSupport.lean Healing.Growing.FrameWindow.older_locks_compatible_at_update_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FreshUnlock.lean Healing.Growing.older_locks_compatible_after_unlock_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FreshUpdate.lean Healing.Growing.honest_vote_early_pool_before_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FreshUpdate.lean Healing.Growing.unanimous_early_pool_of_blockStamp_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FreshUpdate.lean Healing.Growing.unanimous_early_pool_of_acceptance_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FreshViable.lean Healing.Growing.FrameWindow.proposal_viable_after_votes_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FreshViable.lean Healing.Growing.FrameWindow.unanimous_update_selection_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FreshVotes.lean Healing.Growing.KernelProof.honest_vote_heads_eq_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FreshVotesAnchor.lean Healing.Growing.FrameWindow.read_locks_below_of_earlier_heads_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FreshVotesAnchor.lean Healing.Growing.FrameWindow.vote_anchor_below_of_earlier_heads_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FreshVotesPath.lean Healing.Growing.FrameWindow.proposal_suffix_before_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FreshVotesPath.lean Healing.Growing.FrameWindow.proposal_stop_before_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FreshVotesPath.lean Healing.Growing.FrameWindow.vote_head_eq_of_path_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FreshVotesPath.lean Healing.Growing.FrameWindow.vote_head_eq_of_start_prefix_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FreshVotesPrefix.lean Healing.Growing.actual_proposal_start_live_origin_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FreshVotesPrefix.lean Healing.Growing.honest_prefix_of_finality_before_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FreshVotesPrefix.lean Healing.Growing.FrameWindow.proposal_start_prefix_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/FreshVotesViews.lean Healing.Growing.proposal_views_agree_before_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/OptimisticBaseProposal.lean Healing.Growing.KernelProof.optimisticLock_pair_compatible_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/OptimisticBaseProposal.lean Healing.Growing.KernelProof.optimistic_next_proposal_of_early_witness_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/OptimisticFirstProposal.lean SA.Growing.optimistic_first_proposal_stored_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/OptimisticPrefix.lean SA.Growing.optimistic_isBest_of_carry_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/OptimisticPrefix.lean SA.Growing.optimistic_prefix_of_carry_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/OptimisticService.lean Healing.Growing.KernelProof.optimistic_prefix_before_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/ProposalLocks.lean Healing.Growing.KernelProof.proposal_lock_prefix_cases_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/RegularClassification.lean Healing.Growing.KernelProof.vote_head_classification_of_service_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/RegularCommonBoundary.lean Healing.Growing.FrameWindow.next_votes_of_supporter_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/RegularCommonBoundary.lean Healing.Growing.FrameWindow.optimistic_supporter_later_heads_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/RegularFast.lean Healing.Growing.KernelProof.regular_fast_next_votes_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/RegularFastWitness.lean Healing.Growing.KernelProof.regular_fast_next_votes_of_early_witness_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/RegularLater.lean Healing.Growing.KernelProof.regular_later_heads_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/RegularSlow.lean Healing.Growing.KernelProof.regular_slow_next_votes_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/RegularSlowBoundary.lean Healing.Growing.FrameWindow.regular_slow_next_votes_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/RegularSlowWitness.lean Healing.Growing.KernelProof.regular_slow_next_votes_of_early_witness_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/RegularSupport.lean Healing.Growing.KernelProof.result_honest_supporter_before_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/RegularSupporter.lean Healing.Growing.KernelProof.FrameWindow.next_votes_of_supporter_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/SlowComparison.lean Healing.Growing.KernelProof.optimistic_side
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/SlowComparison.lean Healing.Growing.KernelProof.result_optimistic_compatible_service_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/SlowReadLocks.lean Healing.Growing.KernelProof.slow_live_locks_service_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/SlowStored.lean Healing.Growing.KernelProof.slow_stored_locks_service_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Report/SupporterLater.lean Healing.Growing.KernelProof.optimistic_supporter_later_heads_at
-
-# Growing/Obligations/Healthy/
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Obligations/Healthy/UnanimousNextCore.lean Healing.Growing.unanimous_next_votes_extend_core_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Obligations/Healthy/UnanimousNextCore.lean Healing.Growing.unanimous_next_optimistic_compatible_core_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Obligations/Healthy/PrefixBase.lean Healing.Growing.healthy_base_of_service_catch_before_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Obligations/Healthy/UnanimousNextCore.lean Healing.Growing.optimistic_supporter_at
-
-# Growing/Healing/Kernel/
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Kernel/ResetSource.lean Healing.Growing.cutZ_lt_reset_of_fault_bound_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Kernel/Boundaries.lean Healing.Growing.exists_reset_of_drain_rounds_awake_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Kernel/Boundaries.lean Healing.Growing.resetPremisesUpTo_of_reset_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Kernel/ProposalSources.lean SA.Growing.optimistic_first_proposal_anc_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Kernel/ResetRounds.lean Healing.Growing.KernelProof.round_of_warm_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Kernel/ResetRounds.lean Healing.Growing.KernelProof.reset_of_high_proposal_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Kernel/ResetRounds.lean Healing.Growing.KernelProof.rise_reset_rounds_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Kernel/ResetRounds.lean Healing.Growing.KernelProof.exists_reset_of_drain_rounds_noRestartAfter_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Kernel/ResetRounds.lean Healing.Growing.KernelProof.exists_reset_of_drain_rounds_awake_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Kernel/RowStart.lean Healing.Growing.KernelProof.slot_start_optimistic
-
 # Healing/AC/
 ConsensusLean/Instances/Goldilocks/Lemmas/Healing/AC/H2Transfer.lean SA.next_vote_extends_before
 ConsensusLean/Instances/Goldilocks/Lemmas/Healing/AC/Compat.lean SA.result_optimistic_compatible_window_before
 ConsensusLean/Instances/Goldilocks/Lemmas/Healing/AC/H2Transfer.lean SA.result_prefix_vote_extends_of_stored
 ConsensusLean/Instances/Goldilocks/Lemmas/Healing/AC/Inclusion.lean SA.ac_inclusion
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/AC/ProposalCore.lean SA.optimisticLock_compatibleU
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/AC/ProposalCore.lean SA.optimisticLock_compatible
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/AC/ProposalCore.lean SA.batch_proposalU
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/AC/ProposalCore.lean SA.batch_proposal
 ConsensusLean/Instances/Goldilocks/Lemmas/Healing/AC/ProposalCore.lean SA.optimistic_first_proposal_storedU
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/AC/ProposalCore.lean SA.optimistic_first_proposal_stored
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/AC/ProposalCore.lean SA.optimisticLock_pair_compatible
 ConsensusLean/Instances/Goldilocks/Lemmas/Healing/AC/ProposalCore.lean SA.optimistic_first_proposalU
 ConsensusLean/Instances/Goldilocks/Lemmas/Healing/AC/ProposalCore.lean SA.optimistic_first_proposal
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/AC/SlowLocks.lean SA.live_locks_of_stored_before
 ConsensusLean/Instances/Goldilocks/Lemmas/Healing/AC/Standalone.lean SA.ac_healing_standalone_tight
 ConsensusLean/Instances/Goldilocks/Lemmas/Healing/AC/Standalone.lean SA.ac_healing_standalone
 ConsensusLean/Instances/Goldilocks/Lemmas/Healing/AC/Standalone.lean SA.corollary_of_standalone
 ConsensusLean/Instances/Goldilocks/Lemmas/Healing/AC/Standalone.lean SA.corollary_of_standalone_tight
 ConsensusLean/Instances/Goldilocks/Lemmas/Healing/AC/Standalone.lean SA.ac_healing_standalone_corollary
 ConsensusLean/Instances/Goldilocks/Lemmas/Healing/AC/Standalone.lean SA.ac_healing_standalone_tight_corollary
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/AC/Trivial.lean SA.fastLock_honest_voteU
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/AC/Trivial.lean SA.fastLock_honest_vote
 
 # Healing/Retention/
 ConsensusLean/Instances/Goldilocks/Lemmas/Healing/Retention/Induction.lean Healing.high_vote_extends_of_syncAC
 ConsensusLean/Instances/Goldilocks/Lemmas/Healing/Retention/Induction.lean Healing.high_vote_extends
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/Retention/PrefixSteps.lean Healing.slot_start_optimistic
 
 # AC/Family/
 ConsensusLean/Instances/Goldilocks/Lemmas/AC/Family/Packages.lean SA.goldilocksLockWrites
@@ -275,22 +146,6 @@ ConsensusLean/Instances/Goldilocks/Lemmas/Continuation/Rows.lean Compose.Growing
 ConsensusLean/Instances/Goldilocks/Lemmas/Continuation/Rows.lean Compose.Growing.seeded_vote_frame_of
 ConsensusLean/Instances/Goldilocks/Lemmas/Continuation/VoteFrame.lean Compose.Growing.seeded_vote_frame_at
 
-# Growing/AC/Healing/
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/AC/Healing/Proposal.lean SA.Growing.ProposalSources.optimistic_first_proposal_anc_at
-
-# Growing/Healing/Clean/
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Clean/ResetSuppliers.lean Healing.Growing.KernelProof.live_locks_of_stored_at
-
-# Growing/Healing/Outcome/
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Outcome/RowOrder.lean Healing.Growing.Outcome.row_origin_not_current_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Outcome/RowOrder.lean Healing.Growing.Outcome.row_origin_label_lt_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/Outcome/SlotStart.lean Healing.Growing.Outcome.slot_start_optimistic
-
-# Growing/Healing/
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/SelectionPool.lean Healing.Growing.ready_update_selection_of_pool_core_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/WitnessUnanimity.lean Healing.Growing.KernelProof.unanimous_next_votes_of_witness_at
-ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Healing/WitnessUnanimity.lean Healing.Growing.KernelProof.unanimous_next_proposal_of_witness_at
-
 # Growing/Statements/
 ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Statements/HealingAC.lean SA.acHealingStandalone_of_growing
 ConsensusLean/Instances/Goldilocks/Lemmas/Growing/Statements/HealingAC.lean SA.acHealingStandaloneCorollary_of_growing
@@ -309,60 +164,7 @@ ConsensusLean/Instances/Goldilocks/Lemmas/Healing/AC/Frontier/Transfer.lean SA.l
 ConsensusLean/Instances/Goldilocks/Lemmas/Healing/AC/Frontier/Transfer.lean SA.votes_below_succAC
 
 # Healing/
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/AnchorPrefix.lean Healing.stored_lock_lt_at_proposal
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/AnchorPrefix.lean Healing.actual_proposal_start_live_origin
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/AnchorPrefix.lean Healing.honest_prefix_of_finality_before
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/AnchorPrefix.lean Healing.FrameWindow.proposal_lock_prefix_cases
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/AnchorPrefix.lean Healing.FrameWindow.proposal_start_prefix
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/AnchorPrefix.lean Healing.FrameWindow.honest_vote_heads_eq
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/AnchorPrefix.lean Healing.fast_selection_slot_le
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/AnchorPrefix.lean Healing.FrameWindow.optimistic_write_later_proposal_head
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/AnchorPrefix.lean Healing.FrameWindow.toFG_later_proposal_head
 ConsensusLean/Instances/Goldilocks/Lemmas/Healing/DrainProposal.lean Healing.optimistic_first_proposal_anc
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/NextVotesCore.lean Healing.next_votes_of_early_witness
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/NextVotesCore.lean Healing.later_heads_of_early_witness
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/NextVotesCore.lean Healing.FrameWindow.next_votes_of_supporter
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/OptimisticBase.lean Healing.optimistic_next_votes_of_early_witness
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/OptimisticBase.lean Healing.optimistic_next_proposal_of_early_witness
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/OptimisticBase.lean Healing.optimistic_later_heads_of_early_witness
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/OptimisticBase.lean Healing.optimistic_later_heads_of_witness
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/OptimisticBase.lean Healing.FrameWindow.optimistic_supporter_later_heads
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/OptimisticBase.lean Healing.FrameWindow.proposal_viable_at_cast
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/OptimisticBase.lean Healing.regular_fast_next_votes_of_early_witness
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/OptimisticBase.lean Healing.result_honest_supporter_before
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/OptimisticBase.lean Healing.FrameWindow.regular_fast_next_votes
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/OptimisticBase.lean Healing.optimistic_prefix_before
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/PreAdvance.lean Healing.honest_votes_before_of_service
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/PreAdvance.lean Healing.honest_voters_half_of_service
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/PreAdvance.lean Healing.unanimous_next_votes_of_geometry
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/PreAdvance.lean Healing.unanimous_next_votes_of_witness
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/PreAdvance.lean Healing.unanimous_next_proposal_of_geometry
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/PreAdvance.lean Healing.unanimous_next_proposal_of_witness
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/RegularBase.lean Healing.regular_slow_next_votes_of_early_witness
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/RegularBase.lean Healing.FrameWindow.regular_slow_next_votes
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/RegularBase.lean Healing.FrameWindow.regular_later_heads
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/RegularBase.lean Healing.FrameWindow.current_lock_passage_of_regular_base
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/RegularBase.lean Healing.FrameWindow.read_locks_below_of_earlier_heads
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/RegularBase.lean Healing.FrameWindow.vote_anchor_below_of_earlier_heads
-
-# Healing/M1/
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/M1/Drain.lean Healing.FrameWindow.proposal_report_follow
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/M1/Drain.lean Healing.toFG_time_ge_of_ancestor_slot
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/M1/Drain.lean Healing.FrameWindow.reset_of_high_proposal
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/M1/Drain.lean Healing.FrameWindow.report_kind_of_warm
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/M1/FreshLock.lean Healing.FrameWindow.proposal_viable_after_votes
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/M1/FreshLock.lean Healing.FrameWindow.proposal_viable_at_update
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/M1/FreshLock.lean Healing.FrameWindow.unanimous_update_selection
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/M1/FreshLock.lean Healing.FrameWindow.unanimous_next_votes
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/M1/FreshLock.lean Healing.FrameWindow.older_locks_compatible_at_update
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/M1/FreshLock.lean Healing.FrameWindow.unanimous_update_no_veto
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/M1/FreshLock.lean Healing.fresh_fast_lock_at_update
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/M1/FreshLock.lean Healing.fresh_fast_lock_update_toFG
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/M1/Rise.lean Healing.FrameWindow.round_of_warm
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/M1/RiseRounds.lean Healing.FrameWindow.rise_reset_rounds
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/M1/Warm.lean Healing.FrameWindow.warm_proposal_height
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/M1/Warm.lean Healing.FrameWindow.exists_warm_proposal
-ConsensusLean/Instances/Goldilocks/Lemmas/Healing/M1/WarmFloor.lean Healing.FrameWindow.floor_le_warm_proposal
 
 # Healing/Outcome/
 ConsensusLean/Instances/Goldilocks/Lemmas/Healing/Outcome/Foundation.lean Healing.healthy_base_of_service_catch_before
