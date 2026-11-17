@@ -1041,7 +1041,6 @@ public import ConsensusLean.Instances.Goldilocks.Milestones.Statements.NodeEngin
 public import ConsensusLean.Instances.Goldilocks.Milestones.Statements.NodeEngine.Representation
 public import ConsensusLean.Instances.Goldilocks.Milestones.Statements.NodeEngine.Simulation
 public import ConsensusLean.Instances.Goldilocks.Milestones.Statements.NodeEngine.Wire
-public import ConsensusLean.Instances.Goldilocks.Milestones.Statements.Obligations.Constant
 public import ConsensusLean.Instances.Goldilocks.Milestones.Statements.Regimes.Always
 public import ConsensusLean.Instances.Goldilocks.Milestones.Statements.Regimes.BlockFinality
 public import ConsensusLean.Instances.Goldilocks.Milestones.Statements.Regimes.Growing
@@ -1062,7 +1061,6 @@ public import ConsensusLean.Instances.Goldilocks.Proofs.Growing.Continuation.Saf
 public import ConsensusLean.Instances.Goldilocks.Proofs.Growing.FGStore.Main
 public import ConsensusLean.Instances.Goldilocks.Proofs.Growing.Obligations.Main
 public import ConsensusLean.Instances.Goldilocks.Proofs.Healing.Main
-public import ConsensusLean.Instances.Goldilocks.Proofs.Obligations.Main
 public import ConsensusLean.Instances.Goldilocks.Proofs.Persist.Main
 public import ConsensusLean.Instances.Goldilocks.Proofs.Regimes.Main
 public import ConsensusLean.Instances.Goldilocks.Proofs.Service.Main
@@ -1127,7 +1125,6 @@ public import ConsensusLean.Lemmas.Problem.Facts.Network
 public import ConsensusLean.Lemmas.Problem.Facts.Properties
 public import ConsensusLean.Lemmas.Problem.Facts.Regimes
 public import ConsensusLean.Lemmas.Problem.Facts.Transfer
-public import ConsensusLean.Lemmas.Shape.OnRuns
 public import ConsensusLean.Lemmas.Shape.Payload
 public import ConsensusLean.Lemmas.Tactic.Linarith
 public import ConsensusLean.Main

@@ -80,7 +80,6 @@ public import ConsensusLeanTest.Goldilocks.NodeEngine
 public import ConsensusLeanTest.Goldilocks.NodeEngineTrace
 public import ConsensusLeanTest.Goldilocks.Persist.Premises
 public import ConsensusLeanTest.Goldilocks.Persist.RecentSource
-public import ConsensusLeanTest.Goldilocks.Refinement.Constant
 public import ConsensusLeanTest.Goldilocks.Refinement.Final
 public import ConsensusLeanTest.Goldilocks.Refinement.NonfinalQuery
 public import ConsensusLeanTest.Goldilocks.Refinement.Obligations
