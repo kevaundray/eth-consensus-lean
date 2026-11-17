@@ -213,6 +213,43 @@ is saved at the printed `check.*/sorry-inventory.json` path under the run direct
 valid or the proof is finished. Its regression fixtures are gates for the tool's behavior;
 inventory findings and runtime errors do not change existing check verdicts.
 
+## The stock-dependence check (run before landing; its fixtures are a self-test)
+
+`Setup.vote` is the vote binding of a Goldilocks setup. The binding-generic results (`outage_protected_at`,
+`meetsObligations_persists_growing`) and the generic directories `Lemmas/Simulation/` and
+`Lemmas/Growing/Simulation/` must not depend on a lemma stated only for the stock binding.
+`scripts/stock-only.txt` lists the stock lemmas allowed among generic code. Run:
+
+    python3 -I scripts/stock-reach.py --repo . --rev HEAD
+
+It exits 1 on any failure.
+
+- **Classification** (source level, comments removed). A declaration's *effective header* is its header (up
+  to the first `:=`, `where` or line-initial `|` outside brackets; a `: Prop` definition, and every
+  declaration other than a `theorem`/`lemma`, is read whole) together with the in-scope `variable` binders it
+  includes: those it names and does not bind itself, those `include`d, and transitively those their types
+  name. `section`/`namespace`/`mutual` open a scope and `end` drops its `variable`s; a later `variable`
+  shadows an earlier one; `variable … in` applies to the next declaration only. It is **stock** if the
+  effective header contains one of the markers `vote := stock`, `binding := stock`, `vote = stock`,
+  `hstock`, `committeeSize =` (`stock` possibly qualified), or names a stock definition (any kind but
+  `theorem`/`lemma`); otherwise **generic** if it has a binder of type `Setup`. A proof that uses
+  `{ S with vote := stock }` leaves a theorem generic: only its statement counts.
+- **Checks.** *list*: the list is nonempty and every entry (`<file> <name>`) resolves to exactly one
+  declaration of that name in that file, which is stock; *dirs*: every stock declaration of the generic
+  directories is listed; *deps*: no generic declaration, and no unlisted one of the generic directories,
+  names a listed one (namespace-aware name resolution); *twins*: no generic declaration outside an entry's
+  file has the entry's name; *reach*: no listed declaration is in either static closure of a root,
+  `by-name` (an under-approximation: dot calls on terms are not followed) or `+dots` (an
+  over-approximation: `h.foo` follows every `T.foo`, so two types sharing a method name collide and fail
+  closed). Each closure also lists the stock declarations it reaches (a diagnostic).
+- **Limits:** everything is lexical (no elaboration). *dirs*, *twins* and the stock diagnostic read a file's
+  `variable` binders whatever their scope, so a binder of one section reaches declarations outside it.
+
+`scripts/test_stock_reach.py` (a self-test of `check.sh`) runs the fixtures of
+`scripts/fixtures/stock-reach/`: scoping (before, inside, after and nested sections, a multi-line
+`variable`, local shadowing), the marker cases, twins, the fail-closed list, and two types sharing a
+method name.
+
 ## The check tools and the vendored copies
 
 EthLib check-decls is CC0-1.0 and SHA-256-pinned by `scripts/vendor.sha256`. Every vendored file is

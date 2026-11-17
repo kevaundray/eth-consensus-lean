@@ -1,0 +1,2 @@
+# The stock-only list of the fixtures.
+ConsensusLean/Fixture/Stock.lean stock_helper
