@@ -218,11 +218,12 @@ inventory findings and runtime errors do not change existing check verdicts.
 `Setup.vote` is the vote binding of a Goldilocks setup. The binding-generic results (`outage_protected_at`,
 `meetsObligations_persists_growing`) and the generic directories `Lemmas/Simulation/` and
 `Lemmas/Growing/Simulation/` must not depend on a lemma stated only for the stock binding.
-`scripts/stock-only.txt` lists the stock lemmas allowed among generic code. Run:
+`scripts/stock-only.txt` lists the stock lemmas allowed among generic code. Run, from a built checkout at a
+clean `HEAD`:
 
-    python3 -I scripts/stock-reach.py --repo . --rev HEAD
+    python3 -I scripts/stock-reach.py --repo . --rev HEAD --elab
 
-It exits 1 on any failure.
+It exits 1 on any failure; `--static-only` skips the elaborated step (the reach verdict is then uncertified).
 
 - **Classification** (source level, comments removed). A declaration's *effective header* is its header (up
   to the first `:=`, `where` or line-initial `|` outside brackets; a `: Prop` definition, and every
@@ -238,16 +239,23 @@ It exits 1 on any failure.
   declaration of that name in that file, which is stock; *dirs*: every stock declaration of the generic
   directories is listed; *deps*: no generic declaration, and no unlisted one of the generic directories,
   names a listed one (namespace-aware name resolution); *twins*: no generic declaration outside an entry's
-  file has the entry's name; *reach*: no listed declaration is in either static closure of a root,
-  `by-name` (an under-approximation: dot calls on terms are not followed) or `+dots` (an
-  over-approximation: `h.foo` follows every `T.foo`, so two types sharing a method name collide and fail
-  closed). Each closure also lists the stock declarations it reaches (a diagnostic).
-- **Limits:** everything is lexical (no elaboration).
+  file has the entry's name; *reach* (`--elab`, `scripts/StockReach.lean` on the built constants): the
+  elaborated closure of each root (types, values with proofs, constructors, recursor rules, primitive
+  projections) contains no listed declaration, and no reached constant with a `Setup` binder uses `stock`
+  or a listed declaration in its type, value or its own auxiliary constants. The controls
+  (`scripts/StockReachControls.lean`) must be flagged or not as expected.
+- **Diagnostics, not verdicts:** two static closures of each root, `by-name` (an under-approximation:
+  dot calls on terms are not followed) and `+dots` (an over-approximation: `h.foo` follows every `T.foo`,
+  so two types sharing a method name collide), with the listed and stock declarations they reach.
+- **Limits:** the classification and the *deps* and *twins* checks are lexical (no elaboration); a stock
+  dependence through a declaration without a `Setup` binder (for example a lemma over `SAParams` taking
+  `committeeSize = n`) is not flagged by *reach*.
 
 `scripts/test_stock_reach.py` (a self-test of `check.sh`) runs the fixtures of
 `scripts/fixtures/stock-reach/`: scoping (before, inside, after and nested sections, a multi-line
-`variable`, local shadowing), the marker cases, twins, the fail-closed list, and two types sharing a
-method name.
+`variable`, local shadowing), the marker cases, twins, the fail-closed list, and on the elaborated closure
+two types sharing a method name (only the called one is reached) with positive controls that reach a
+listed declaration, a stock lemma and a private stock helper.
 
 ## The check tools and the vendored copies
 

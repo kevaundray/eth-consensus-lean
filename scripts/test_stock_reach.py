@@ -2,8 +2,10 @@
 
 Static cases: each commits fixtures/stock-reach/Stock.lean (the setup, `stock` and the listed
 `stock_helper`) and one case file to a throwaway repository under ConsensusLean/Fixture/ (or, as a
-generic directory, ConsensusLean/Fixture/Generic/) and checks the verdicts of the list, dirs, deps,
-twins and reach checks.
+generic directory, ConsensusLean/Fixture/Generic/) and checks the verdicts of the list, dirs, deps and
+twins checks. Elaborated cases compose the same files into a driver with StockReach.lean and run
+it with `lake env lean` in this checkout (no project import, nothing built): the certifying reach
+verdict on two types sharing a method name, a listed declaration, a stock helper and the controls.
 """
 import os
 from pathlib import Path
@@ -53,7 +55,7 @@ def section(out, tag):
 
 
 def static(case, generic=False, **kw):
-    return scan(case, generic, **kw)
+    return scan(case, generic, extra=("--static-only",), **kw)
 
 
 class Scope(unittest.TestCase):
@@ -105,7 +107,7 @@ class StockList(unittest.TestCase):
     """The list fails closed: empty, unresolved, ambiguous and non-stock entries fail."""
 
     def check(self, text, case=None):
-        rc, out = scan(case, list_text=text)
+        rc, out = scan(case, list_text=text, extra=("--static-only",))
         return rc, out, section(out, "list")[1]
 
     def test_empty(self):
@@ -128,20 +130,61 @@ class StockList(unittest.TestCase):
         self.assertEqual(rc, 1, out)
         self.assertIn("stock_helper: 3 declarations", out)
 
+    def test_needs_elab_or_static_only(self):
+        rc, out = scan()
+        self.assertEqual(rc, 1, out)
+        self.assertIn("the reach verdict needs --elab", out)
+
 
 REACH_LIST = (FIX / "list.txt").read_text() + "ConsensusLean/Fixture/Reach.lean B.foo\n"
 
 
-class Reach(unittest.TestCase):
-    """The reach verdict is the union of the static closures, so a name collision fails closed."""
+def elab(roots, bad=False, controls=("Fx.ctrl_stock:+", "Fx.ctrl_generic:-")):
+    """The certifying run on Reach.lean (and, with `bad`, ReachBad.lean), from `roots`."""
+    more = ("Reach.lean",) + (("ReachBad.lean",) if bad else ())
+    extra = ["--elab", "--lake-dir", str(HERE.parent), "--setup-type", "Fx.Setup", "--stock-const", "Fx.stock"]
+    for m in ("Stock.lean",) + more:
+        extra += ["--elab-source", str(FIX / m)]
+    for c in controls:
+        extra += ["--control", c]
+    return scan(extra=extra, roots=roots, more=more, list_text=REACH_LIST)
 
-    def test_shared_method_name_fails_closed(self):
-        rc, out = scan(roots=["dots_root"], more=("Reach.lean",), list_text=REACH_LIST)
-        self.assertRegex(out, r"(?m)^\[reach by-name\] Fx\.dots_root: reached=\d+ listed=0 stock=0$")
-        # `a.foo` is followed to the listed `B.foo` too
-        self.assertRegex(out, r"(?m)^\[reach \+dots\] Fx\.dots_root: reached=\d+ listed=1 stock=1$")
+
+def root_line(out, root):
+    m = re.search(r"^\[reach\] root Fx\." + root + r": reached=\d+ listed=(\d+) flagged=(\d+) axioms=0$", out, re.M)
+    assert m, out
+    return int(m.group(1)), int(m.group(2))
+
+
+class Reach(unittest.TestCase):
+    """The certifying verdict follows the elaborated closure, not name collisions."""
+
+    def test_shared_method_name(self):
+        rc, out = elab(["dots_root"])
+        self.assertEqual(rc, 0, out)
+        self.assertEqual(root_line(out, "dots_root"), (0, 0))
+        # the static +dots diagnostic follows `a.foo` to the listed `B.foo` too, without failing
+        self.assertRegex(out, r"(?m)^\[diagnostic static \+dots\] Fx\.dots_root: reached=\d+ listed=1 stock=1$")
         self.assertIn("    listed Fx.B.foo @", out)
+
+    def test_positive_controls(self):
+        rc, out = elab(["dots_root", "listed_root", "stock_root", "private_root"], bad=True)
         self.assertEqual(rc, 1, out)
+        # stock_helper is listed and flagged; listed_root, which uses it, is flagged too
+        self.assertEqual(root_line(out, "listed_root"), (1, 2))
+        self.assertIn("    LISTED Fx.stock_helper", out)
+        self.assertIn("    FLAG Fx.listed_root", out)
+        # each root states `B.foo`'s (or `hidden_stock`'s) stock type in its own `have`: flagged too
+        self.assertEqual(root_line(out, "stock_root"), (1, 2))       # B.foo is listed
+        self.assertIn("    FLAG Fx.B.foo", out)
+        self.assertEqual(root_line(out, "private_root"), (0, 2))
+        self.assertIn("    FLAG Fx.hidden_stock", out)
+        self.assertIn("[reach] verdict: FAIL", out)
+
+    def test_control_mismatch_fails(self):
+        rc, out = elab(["dots_root"], controls=("Fx.ctrl_stock:-", "Fx.ctrl_generic:-"))
+        self.assertEqual(rc, 1, out)
+        self.assertIn("(CONTROL FAILED)", out)
 
 
 if __name__ == "__main__":

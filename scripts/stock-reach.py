@@ -43,25 +43,39 @@ Checks (each failure makes the exit status 1):
   deps      no generic declaration, and no unlisted declaration under a --generic-dir, names a
             listed declaration (static, namespace-aware name resolution of its whole text).
   twins     no generic declaration outside an entry's file has the entry's (last-component) name.
-  reach     no listed declaration is in either static closure of a root: `by-name` resolves
-            names namespace-aware (innermost enclosing namespace, then the file's `open`s, then a
-            qualified-suffix match) and ignores dot calls on terms (`h.foo`), an
-            under-approximation; `+dots` also follows `h.foo` to every declaration `T.foo` of a
-            declared `T`, an over-approximation (two types sharing a method name), so a name
-            collision fails closed.
+  reach     (certifying; needs --elab) on the elaborated environment, the closure of each root
+            over the constants of its type, value, constructors, recursor rules and primitive
+            projections (StockReach.lean) contains no listed declaration, and no reached constant
+            whose type binds a `Setup` uses `stock` or a listed declaration (in its type, value,
+            constructors or its own auxiliary constants). The controls of
+            StockReachControls.lean must give their expected verdicts.
+Without --elab and without --static-only the run fails (nothing certifies the reach). With
+--static-only the reach check is not run and the exit status covers the static checks only.
 
-Diagnostics (never change the exit status): the stock declarations each closure reaches; with
---query, membership and path of named declarations in both closures.
+Diagnostics (never change the exit status):
+  static reach   two source-level closures of each root: `by-name` resolves names namespace-aware
+                 (innermost enclosing namespace, then the file's `open`s, then a qualified-suffix
+                 match) and ignores dot calls on terms (`h.foo`), an under-approximation;
+                 `+dots` also follows `h.foo` to every declaration `T.foo` of a declared `T`, an
+                 over-approximation (two types sharing a method name). Each lists the listed and
+                 the stock declarations it reaches. Not a verdict: the reach verdict is --elab's.
+  --query        membership and path of named declarations in the static closures (and, with
+                 --elab, in the elaborated ones).
 
-Read-only on the repository: sources come from `git show <rev>:<path>`.
+Read-only on the repository: sources come from `git show <rev>:<path>`. --elab runs
+`lake env lean` in --lake-dir (default --repo) on a driver composed of StockReachControls.lean
+(or --elab-source files) and StockReach.lean; when those import anything it requires --lake-dir
+to be clean at --rev, since the constants come from its build. Run it under your own lock when
+other builds share the directory.
 
-  python3 -I scripts/stock-reach.py --repo . --rev HEAD
+  python3 -I scripts/stock-reach.py --repo . --rev HEAD --elab
 """
 import argparse
 import os
 import re
 import subprocess
 import sys
+import tempfile
 from collections import defaultdict, deque
 
 sys.dont_write_bytecode = True
@@ -426,6 +440,52 @@ def resolve_entry(fullname, f, name):
     return [k for k, fn in fullname.items() if k[0] == f and (fn == name or fn.endswith("." + name))]
 
 
+def compose(parts, core):
+    """A Lean driver: the imports of every part first, then their bodies, then the core."""
+    imports, bodies = [], []
+    for p in parts + [core]:
+        body = []
+        for line in open(p):
+            if re.match(r"^import\s", line):
+                if line.strip() not in imports:
+                    imports.append(line.strip())
+            else:
+                body.append(line)
+        bodies.append("".join(body))
+    return "\n".join(imports) + "\n" + "\n".join(bodies)
+
+
+def run_elab(a, roots, listed, fullname, out):
+    """The certifying reach check. Returns True when it passed."""
+    lake_dir = os.path.abspath(a.lake_dir or a.repo)
+    sources = a.elab_source if a.elab_source is not None else [os.path.join(HERE, "StockReachControls.lean")]
+    imports = [l for p in sources for l in open(p) if re.match(r"^import\s", l)]
+    if imports:
+        head = git(lake_dir, "rev-parse", "HEAD").strip()
+        want = git(a.repo, "rev-parse", a.rev).strip()
+        dirty = git(lake_dir, "status", "--porcelain", "--untracked-files=no", "--", "ConsensusLean", "Solution.lean")
+        if head != want or dirty:
+            out(f"[reach] FAIL: the build in {lake_dir} is not --rev {want[:12]} "
+                f"(HEAD {head[:12]}{', modified files' if dirty else ''}); the constants come from that build")
+            return False
+    with tempfile.TemporaryDirectory(prefix="stock-reach-") as tmp:
+        drv = os.path.join(tmp, "StockReachDriver.lean")
+        with open(drv, "w") as fh:
+            fh.write(compose(sources, os.path.join(HERE, "StockReach.lean")))
+        lst = os.path.join(tmp, "list.txt")
+        with open(lst, "w") as fh:
+            for f, k in listed:
+                fh.write(f"{fullname[k]}\t{f[:-len('.lean')].replace('/', '.')}\n")
+        env = dict(os.environ, SR_ROOTS=",".join(roots), SR_LIST=lst, SR_SETUP=a.setup_type,
+                   SR_STOCK=",".join(a.stock_const), SR_PROJECT=",".join(a.project_prefix),
+                   SR_CONTROLS=",".join(a.control), SR_QUERY=",".join(a.query))
+        r = subprocess.run(["lake", "env", "lean", drv], cwd=lake_dir, env=env, capture_output=True, text=True)
+    text = r.stdout + r.stderr
+    for line in text.rstrip("\n").split("\n"):
+        out(line)
+    return r.returncode == 0 and re.search(r"^\[reach\] verdict: PASS$", text, re.M) is not None
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--repo", required=True, help="git repository to read the sources from")
@@ -434,9 +494,24 @@ def main():
     ap.add_argument("--root", action="append", help="root declaration, full name or `.`-suffix (repeatable)")
     ap.add_argument("--generic-dir", action="append", help="path prefix of a generic directory (repeatable)")
     ap.add_argument("--query", action="append", default=[], help="report membership of this declaration")
+    ap.add_argument("--static-only", action="store_true", help="skip the certifying reach check")
+    ap.add_argument("--elab", action="store_true", help="run the certifying reach check (StockReach.lean)")
+    ap.add_argument("--lake-dir", help="where to run `lake env lean` (default --repo)")
+    ap.add_argument("--elab-source", action="append",
+                    help="Lean file to prepend to the driver (default StockReachControls.lean; repeatable)")
+    ap.add_argument("--setup-type", default="Consensus.Goldilocks.AsChainShape.Setup")
+    ap.add_argument("--stock-const", action="append")
+    ap.add_argument("--project-prefix", action="append", help="module prefix of the project (repeatable)")
+    ap.add_argument("--control", action="append",
+                    help="`name:+` (must be flagged) or `name:-` (must not); default the controls of "
+                         "StockReachControls.lean")
     a = ap.parse_args()
     a.root = a.root or DEFAULT_ROOTS
     a.generic_dir = GENERIC_DIRS if a.generic_dir is None else a.generic_dir
+    a.stock_const = a.stock_const or ["Consensus.Goldilocks.AsChainShape.stock"]
+    a.project_prefix = a.project_prefix or ["ConsensusLean", "Solution"]
+    a.control = a.control or ["StockReachCtrl.stock_use:+", "StockReachCtrl.generic_use:-",
+                              "StockReachCtrl.setup_field:-"]
     failed = []
     out = print
 
@@ -507,21 +582,21 @@ def main():
     if twins:
         failed.append("twins")
 
-    # reach
-    starts = []
+    # static reach (diagnostic)
+    starts, roots = [], []
     for r in a.root:
         ks = [k for k, fn in fullname.items() if fn == r or fn.endswith("." + r)]
         if len(ks) != 1:
             out(f"[root] {r}: {len(ks)} declarations")
             failed.append("root")
             continue
-        starts.append(ks[0])
+        starts.append(ks[0]); roots.append(fullname[ks[0]])
     for mode, dots in (("by-name", False), ("+dots", True)):
         for k0 in starts:
             par = reach(fullname, fwd, [k0], dots)
             hit = sorted(k for k in sec if k in par)
             stock = sorted(k for k in par if info[k][0] == "stock")
-            out(f"[reach {mode}] {fullname[k0]}: reached={len(par)} listed={len(hit)} stock={len(stock)}")
+            out(f"[diagnostic static {mode}] {fullname[k0]}: reached={len(par)} listed={len(hit)} stock={len(stock)}")
             for k in hit:
                 out(f"    listed {fullname[k]} @ {k[0]}:{k[1]}")
                 for step in path(par, k, fullname):
@@ -534,8 +609,16 @@ def main():
                     if k in par:
                         for step in path(par, k, fullname):
                             out(f"        {step}")
-            if hit:
-                failed.append("reach")
+
+    # reach (certifying)
+    if a.elab:
+        if not run_elab(a, roots, listed, fullname, out):
+            failed.append("reach")
+    elif a.static_only:
+        out("[reach] not run (--static-only): the reach verdict is uncertified")
+    else:
+        out("[reach] FAIL: the reach verdict needs --elab (or --static-only for the static checks alone)")
+        failed.append("reach")
 
     out(f"verdict: {'FAIL (' + ', '.join(dict.fromkeys(failed)) + ')' if failed else 'PASS'}")
     return 1 if failed else 0
